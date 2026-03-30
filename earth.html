@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE.MAN.DO.EARTH — Places & Moments</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#090a0f; color:#f0ece0; font-family:'DM Sans',sans-serif; min-height:100vh; overflow-x:hidden; }
+
+  .bg-grad {
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background: radial-gradient(ellipse 60% 50% at 50% 110%, rgba(40,80,160,0.14) 0%, transparent 65%),
+                radial-gradient(ellipse 40% 30% at 10% 20%, rgba(60,120,200,0.07) 0%, transparent 60%);
+  }
+
+  .page { position:relative; z-index:1; max-width:680px; margin:0 auto; padding:2.5rem 1.5rem 5rem; }
+
+  nav { display:flex; justify-content:space-between; align-items:center; margin-bottom:3rem; }
+  .nav-back { font-family:'Space Mono',monospace; font-size:0.6rem; letter-spacing:0.3em; color:rgba(240,236,224,0.25); text-transform:uppercase; text-decoration:none; transition:color 0.2s; }
+  .nav-back:hover { color:rgba(240,236,224,0.6); }
+  .nav-brand { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; letter-spacing:0.2em; color:rgba(240,236,224,0.4); }
+
+  .header { margin-bottom:2.5rem; }
+  .header-tag { font-family:'Space Mono',monospace; font-size:0.55rem; letter-spacing:0.5em; color:rgba(60,140,255,0.45); text-transform:uppercase; margin-bottom:0.75rem; }
+  .header-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(2.8rem,10vw,5rem); letter-spacing:0.08em; line-height:0.92; }
+  .header-title span { color:rgba(60,140,255,0.4); }
+  .header-desc { font-size:0.78rem; color:rgba(240,236,224,0.32); line-height:1.9; margin-top:0.75rem; font-weight:300; max-width:400px; }
+
+  .coords-strip {
+    display:flex; gap:2rem; margin-bottom:2.5rem; padding:1rem 0;
+    border-top:0.5px solid rgba(240,236,224,0.06); border-bottom:0.5px solid rgba(240,236,224,0.06);
+  }
+  .coord-label { font-family:'Space Mono',monospace; font-size:0.5rem; letter-spacing:0.35em; color:rgba(240,236,224,0.18); text-transform:uppercase; margin-bottom:3px; }
+  .coord-val { font-family:'Space Mono',monospace; font-size:0.72rem; color:rgba(60,140,255,0.55); letter-spacing:0.05em; }
+
+  .section-label { font-family:'Space Mono',monospace; font-size:0.55rem; letter-spacing:0.45em; color:rgba(240,236,224,0.18); text-transform:uppercase; margin-bottom:1.25rem; }
+
+  /* PHOTO GRID */
+  .photo-grid { display:grid; grid-template-columns:2fr 1fr; grid-template-rows:134px 134px; gap:0.5rem; margin-bottom:2.5rem; }
+  .photo-cell { border-radius:2px; overflow:hidden; cursor:pointer; position:relative; transition:opacity 0.25s; }
+  .photo-cell:hover { opacity:0.82; }
+  .photo-cell:hover .pc-overlay { opacity:1; }
+  .photo-main { grid-row:1/3; }
+
+  .pc-img {
+    width:100%; height:100%;
+    background:linear-gradient(160deg,#0d1220 0%,#121a2a 100%);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Space Mono',monospace; font-size:0.58rem; letter-spacing:0.2em; color:rgba(240,236,224,0.06);
+  }
+  .pc-overlay {
+    position:absolute; inset:0; opacity:0; transition:opacity 0.25s;
+    background:rgba(0,0,0,0.5); display:flex; flex-direction:column;
+    justify-content:flex-end; padding:0.75rem;
+  }
+  .pc-place { font-family:'Bebas Neue',sans-serif; font-size:1rem; letter-spacing:0.1em; }
+  .pc-coords { font-family:'Space Mono',monospace; font-size:0.55rem; color:rgba(240,236,224,0.5); letter-spacing:0.05em; }
+
+  /* PLACES LIST */
+  .places-list { display:flex; flex-direction:column; margin-bottom:2.5rem; }
+  .place-row {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:0.85rem 0; border-bottom:0.5px solid rgba(240,236,224,0.05);
+    cursor:pointer; transition:all 0.2s;
+  }
+  .place-row:hover { padding-left:6px; }
+  .place-row:hover .pr-name { color:rgba(60,140,255,0.8); }
+  .pr-name { font-family:'Bebas Neue',sans-serif; font-size:1.05rem; letter-spacing:0.08em; margin-bottom:2px; transition:color 0.2s; }
+  .pr-meta { font-size:0.65rem; color:rgba(240,236,224,0.22); letter-spacing:0.04em; }
+  .pr-right { display:flex; align-items:center; gap:0.75rem; }
+  .pr-coords { font-family:'Space Mono',monospace; font-size:0.58rem; color:rgba(60,140,255,0.3); }
+  .pr-arrow { font-family:'Space Mono',monospace; font-size:0.65rem; color:rgba(240,236,224,0.18); }
+
+  .manifesto { padding:1.25rem 1.5rem; border:0.5px dashed rgba(60,140,255,0.1); border-radius:2px; margin-bottom:2rem; }
+  .manifesto p { font-size:0.78rem; color:rgba(240,236,224,0.32); line-height:2; font-weight:300; font-style:italic; }
+
+  .footer-mono { font-family:'Space Mono',monospace; font-size:0.5rem; letter-spacing:0.3em; color:rgba(240,236,224,0.1); text-align:center; text-transform:uppercase; margin-top:2rem; }
+</style>
+</head>
+<body>
+<div class="bg-grad"></div>
+<div class="page">
+
+  <nav>
+    <a href="index.html" class="nav-back">← the.man.do</a>
+    <span class="nav-brand">THE.MAN.DO.EARTH</span>
+  </nav>
+
+  <div class="header">
+    <div class="header-tag">Places & Moments</div>
+    <div class="header-title">THE<span>.</span>MAN<span>.</span><br>DO<span>.</span>EARTH</div>
+    <div class="header-desc">Every frame has coordinates. Every moment has a place. No geotag needed — you either felt it or you didn't.</div>
+  </div>
+
+  <div class="coords-strip">
+    <div><div class="coord-label">Last Location</div><div class="coord-val">25.2048° N</div></div>
+    <div><div class="coord-label">Longitude</div><div class="coord-val">55.2708° E</div></div>
+    <div><div class="coord-label">Places Logged</div><div class="coord-val">47</div></div>
+    <div><div class="coord-label">Countries</div><div class="coord-val">12</div></div>
+  </div>
+
+  <div class="section-label">Recent Frames</div>
+
+  <div class="photo-grid">
+    <div class="photo-cell photo-main">
+      <div class="pc-img">DESERT&nbsp;SUNRISE</div>
+      <div class="pc-overlay">
+        <div class="pc-place">EMPTY QUARTER</div>
+        <div class="pc-coords">22.4° N — 55.1° E</div>
+      </div>
+    </div>
+    <div class="photo-cell">
+      <div class="pc-img">CITY&nbsp;LIGHTS</div>
+      <div class="pc-overlay">
+        <div class="pc-place">DUBAI — 3AM</div>
+        <div class="pc-coords">25.2° N — 55.3° E</div>
+      </div>
+    </div>
+    <div class="photo-cell">
+      <div class="pc-img">COASTLINE</div>
+      <div class="pc-overlay">
+        <div class="pc-place">MUSANDAM</div>
+        <div class="pc-coords">26.2° N — 56.2° E</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">All Places</div>
+
+  <div class="places-list">
+    <div class="place-row">
+      <div>
+        <div class="pr-name">EMPTY QUARTER — DAWN</div>
+        <div class="pr-meta">Desert · 14 frames · 3 days ago</div>
+      </div>
+      <div class="pr-right"><span class="pr-coords">22.4°N 55.1°E</span><span class="pr-arrow">→</span></div>
+    </div>
+    <div class="place-row">
+      <div>
+        <div class="pr-name">DUBAI — 3AM SERIES</div>
+        <div class="pr-meta">City · 28 frames · 1 week ago</div>
+      </div>
+      <div class="pr-right"><span class="pr-coords">25.2°N 55.3°E</span><span class="pr-arrow">→</span></div>
+    </div>
+    <div class="place-row">
+      <div>
+        <div class="pr-name">MUSANDAM FJORDS</div>
+        <div class="pr-meta">Water · 19 frames · 2 weeks ago</div>
+      </div>
+      <div class="pr-right"><span class="pr-coords">26.2°N 56.2°E</span><span class="pr-arrow">→</span></div>
+    </div>
+    <div class="place-row">
+      <div>
+        <div class="pr-name">JEBEL JAIS — NIGHT DRIVE</div>
+        <div class="pr-meta">Mountain · 11 frames · 1 month ago</div>
+      </div>
+      <div class="pr-right"><span class="pr-coords">25.6°N 56.5°E</span><span class="pr-arrow">→</span></div>
+    </div>
+  </div>
+
+  <div class="manifesto">
+    <p>"We don't post locations for likes. We go to places because they matter. The coordinates are just proof we were there."</p>
+  </div>
+
+  <div class="footer-mono">the.man.do / earth — 47 places logged. no check-ins required.</div>
+</div>
+</body>
+</html>

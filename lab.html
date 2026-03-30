@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE.MAN.DO.LAB — Experiments</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0a0a08; color:#f0ece0; font-family:'DM Sans',sans-serif; min-height:100vh; overflow-x:hidden; }
+
+  .bg-grad {
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background: radial-gradient(ellipse 50% 40% at 100% 0%, rgba(240,160,20,0.07) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 30% at 0% 100%, rgba(200,80,20,0.06) 0%, transparent 60%);
+  }
+  .scanline {
+    position:fixed; inset:0; z-index:0; pointer-events:none; opacity:0.015;
+    background:repeating-linear-gradient(to bottom,transparent 0px,transparent 3px,rgba(240,236,224,1) 3px,rgba(240,236,224,1) 4px);
+  }
+
+  .page { position:relative; z-index:1; max-width:680px; margin:0 auto; padding:2.5rem 1.5rem 5rem; }
+
+  nav { display:flex; justify-content:space-between; align-items:center; margin-bottom:3rem; }
+  .nav-back { font-family:'Space Mono',monospace; font-size:0.6rem; letter-spacing:0.3em; color:rgba(240,236,224,0.25); text-transform:uppercase; text-decoration:none; transition:color 0.2s; }
+  .nav-back:hover { color:rgba(240,236,224,0.6); }
+  .nav-brand { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; letter-spacing:0.2em; color:rgba(240,236,224,0.4); }
+
+  .header { margin-bottom:2.5rem; }
+  .header-tag { font-family:'Space Mono',monospace; font-size:0.55rem; letter-spacing:0.5em; color:rgba(240,160,20,0.45); text-transform:uppercase; margin-bottom:0.75rem; }
+  .header-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(2.8rem,10vw,5rem); letter-spacing:0.08em; line-height:0.92; }
+  .header-title span { color:rgba(240,160,20,0.38); }
+  .header-desc { font-size:0.78rem; color:rgba(240,236,224,0.32); line-height:1.9; margin-top:0.75rem; font-weight:300; max-width:400px; }
+
+  .status-bar { display:grid; grid-template-columns:repeat(3,1fr); gap:0.5rem; margin-bottom:2.5rem; }
+  .stat-cell { border:0.5px solid rgba(240,236,224,0.07); border-radius:2px; padding:1rem; }
+  .stat-num { font-family:'Bebas Neue',sans-serif; font-size:2.2rem; letter-spacing:0.05em; line-height:1; margin-bottom:4px; }
+  .stat-label { font-family:'Space Mono',monospace; font-size:0.5rem; letter-spacing:0.3em; color:rgba(240,236,224,0.22); text-transform:uppercase; }
+
+  .section-label { font-family:'Space Mono',monospace; font-size:0.55rem; letter-spacing:0.45em; color:rgba(240,236,224,0.18); text-transform:uppercase; margin-bottom:1.25rem; }
+
+  .exp-list { display:flex; flex-direction:column; gap:0.6rem; margin-bottom:2.5rem; }
+  .exp-card {
+    border:0.5px solid rgba(240,236,224,0.07); border-radius:2px; padding:1.1rem 1.25rem;
+    cursor:pointer; transition:all 0.25s;
+    display:grid; grid-template-columns:1fr auto; align-items:start; gap:1rem;
+    position:relative; overflow:hidden;
+  }
+  .exp-card::before {
+    content:''; position:absolute; left:0; top:0; bottom:0; width:2px;
+    background:transparent; transition:background 0.25s;
+  }
+  .exp-card:hover { border-color:rgba(240,236,224,0.14); background:rgba(240,236,224,0.02); }
+  .exp-card:hover::before { background:rgba(240,160,20,0.55); }
+  .exp-card:hover .exp-title { color:rgba(240,160,20,0.85); }
+
+  .exp-id { font-family:'Space Mono',monospace; font-size:0.5rem; letter-spacing:0.3em; color:rgba(240,236,224,0.18); margin-bottom:5px; }
+  .exp-title { font-family:'Bebas Neue',sans-serif; font-size:1.2rem; letter-spacing:0.07em; margin-bottom:5px; transition:color 0.25s; }
+  .exp-desc { font-size:0.7rem; color:rgba(240,236,224,0.28); line-height:1.75; }
+
+  .exp-badge { font-family:'Space Mono',monospace; font-size:0.5rem; letter-spacing:0.2em; text-transform:uppercase; padding:4px 8px; border-radius:1px; white-space:nowrap; }
+  .badge-live  { background:rgba(80,200,100,0.1); color:rgba(80,200,100,0.7); border:0.5px solid rgba(80,200,100,0.2); }
+  .badge-wip   { background:rgba(240,160,20,0.08); color:rgba(240,160,20,0.6); border:0.5px solid rgba(240,160,20,0.15); }
+  .badge-idea  { background:rgba(240,236,224,0.04); color:rgba(240,236,224,0.22); border:0.5px solid rgba(240,236,224,0.08); }
+  .badge-dead  { background:rgba(200,60,40,0.08); color:rgba(200,60,40,0.5); border:0.5px solid rgba(200,60,40,0.12); }
+
+  .log-block { font-family:'Space Mono',monospace; font-size:0.65rem; line-height:2.1; padding:1.25rem; border:0.5px solid rgba(240,236,224,0.06); border-radius:2px; margin-bottom:2rem; }
+  .log-line { display:flex; gap:1.25rem; }
+  .log-date { color:rgba(240,160,20,0.32); min-width:80px; }
+  .log-msg { color:rgba(240,236,224,0.28); }
+
+  .footer-mono { font-family:'Space Mono',monospace; font-size:0.5rem; letter-spacing:0.3em; color:rgba(240,236,224,0.1); text-align:center; text-transform:uppercase; margin-top:2rem; }
+</style>
+</head>
+<body>
+<div class="bg-grad"></div>
+<div class="scanline"></div>
+<div class="page">
+
+  <nav>
+    <a href="index.html" class="nav-back">← the.man.do</a>
+    <span class="nav-brand">THE.MAN.DO.LAB</span>
+  </nav>
+
+  <div class="header">
+    <div class="header-tag">Experiments & Concepts</div>
+    <div class="header-title">THE<span>.</span>MAN<span>.</span><br>DO<span>.</span>LAB</div>
+    <div class="header-desc">Ideas that might become something. Things we're breaking, building, questioning. Some will die here. Others will become portals.</div>
+  </div>
+
+  <div class="status-bar">
+    <div class="stat-cell"><div class="stat-num">3</div><div class="stat-label">Live Now</div></div>
+    <div class="stat-cell"><div class="stat-num">7</div><div class="stat-label">In Progress</div></div>
+    <div class="stat-cell"><div class="stat-num">14</div><div class="stat-label">Killed Ideas</div></div>
+  </div>
+
+  <div class="section-label">Active Experiments</div>
+
+  <div class="exp-list">
+    <div class="exp-card">
+      <div>
+        <div class="exp-id">EXP — 024</div>
+        <div class="exp-title">NO-ALGORITHM MUSIC DISCOVERY</div>
+        <div class="exp-desc">Can people find music they love without a recommendation engine? Testing with 40 listeners.</div>
+      </div>
+      <div class="exp-badge badge-live">Live</div>
+    </div>
+    <div class="exp-card">
+      <div>
+        <div class="exp-id">EXP — 021</div>
+        <div class="exp-title">THE.MAN.DO.PRINT</div>
+        <div class="exp-desc">A physical zine. No website version. No PDF. Pick it up or don't see it.</div>
+      </div>
+      <div class="exp-badge badge-wip">Building</div>
+    </div>
+    <div class="exp-card">
+      <div>
+        <div class="exp-id">EXP — 019</div>
+        <div class="exp-title">WORD OF MOUTH ONLY DROPS</div>
+        <div class="exp-desc">Release a set with zero announcement. See how far it travels on its own.</div>
+      </div>
+      <div class="exp-badge badge-live">Live</div>
+    </div>
+    <div class="exp-card">
+      <div>
+        <div class="exp-id">EXP — 017</div>
+        <div class="exp-title">THE.MAN.DO.RADIO</div>
+        <div class="exp-desc">24/7 live stream. No tracklist. No DJ names. Just the sound.</div>
+      </div>
+      <div class="exp-badge badge-wip">Building</div>
+    </div>
+    <div class="exp-card">
+      <div>
+        <div class="exp-id">EXP — 011</div>
+        <div class="exp-title">INVITE-ONLY ACCESS PAGE</div>
+        <div class="exp-desc">A page that only loads if someone sends you a personal link. No public entry.</div>
+      </div>
+      <div class="exp-badge badge-idea">Concept</div>
+    </div>
+    <div class="exp-card">
+      <div>
+        <div class="exp-id">EXP — 008</div>
+        <div class="exp-title">THE.MAN.DO ON PHYSICAL MERCH ONLY</div>
+        <div class="exp-desc">No online shop. Only way to get merch is at live events. Killed — scaling was impossible.</div>
+      </div>
+      <div class="exp-badge badge-dead">Killed</div>
+    </div>
+  </div>
+
+  <div class="section-label">Lab Log</div>
+  <div class="log-block">
+    <div class="log-line"><span class="log-date">2024.03.28</span><span class="log-msg">EXP-024 launched. 12 listeners signed up day one.</span></div>
+    <div class="log-line"><span class="log-date">2024.03.20</span><span class="log-msg">EXP-021 first print run — 50 copies. Testing format.</span></div>
+    <div class="log-line"><span class="log-date">2024.03.14</span><span class="log-msg">EXP-019 set released. No announcement made.</span></div>
+    <div class="log-line"><span class="log-date">2024.03.01</span><span class="log-msg">EXP-008 officially killed. Logged and archived.</span></div>
+  </div>
+
+  <div class="footer-mono">the.man.do / lab — not everything works. everything teaches.</div>
+</div>
+</body>
+</html>
