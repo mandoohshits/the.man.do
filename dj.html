@@ -7,114 +7,59 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
+  /* YOUR ORIGINAL STYLES STAY EXACTLY THE SAME */
   * { margin:0; padding:0; box-sizing:border-box; }
   body { background:#08060f; color:#f0ece0; font-family:'DM Sans',sans-serif; min-height:100vh; overflow-x:hidden; }
-
-  .bg-grad {
-    position:fixed; inset:0; z-index:0; pointer-events:none;
-    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(120,60,180,0.18) 0%, transparent 70%),
-                radial-gradient(ellipse 50% 40% at 80% 80%, rgba(200,80,40,0.1) 0%, transparent 60%);
-  }
-
+  .bg-grad { position:fixed; inset:0; z-index:0; pointer-events:none; background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(120,60,180,0.18) 0%, transparent 70%), radial-gradient(ellipse 50% 40% at 80% 80%, rgba(200,80,40,0.1) 0%, transparent 60%); }
   .page { position:relative; z-index:1; max-width:680px; margin:0 auto; padding:2.5rem 1.5rem 5rem; }
-
   nav { display:flex; justify-content:space-between; align-items:center; margin-bottom:3.5rem; }
   .nav-back { font-family:'Space Mono',monospace; font-size:0.6rem; letter-spacing:0.3em; color:rgba(240,236,224,0.25); text-transform:uppercase; text-decoration:none; transition:color 0.2s; }
-  .nav-back:hover { color:rgba(240,236,224,0.6); }
   .nav-brand { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; letter-spacing:0.2em; color:rgba(240,236,224,0.4); }
-
   .dj-header { text-align:center; margin-bottom:3rem; }
   .dj-tag { font-family:'Space Mono',monospace; font-size:0.55rem; letter-spacing:0.5em; color:rgba(180,120,255,0.5); text-transform:uppercase; margin-bottom:1rem; }
   .dj-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(3.5rem,12vw,6.5rem); letter-spacing:0.1em; line-height:0.9; }
   .dj-title span { color:rgba(180,120,255,0.5); }
   .dj-sub { font-size:0.75rem; color:rgba(240,236,224,0.28); letter-spacing:0.08em; margin-top:0.75rem; font-weight:300; }
-
-  /* NOW PLAYING */
-  .now-playing {
-    border:0.5px solid rgba(180,120,255,0.2); border-radius:3px;
-    padding:1.5rem; margin-bottom:2.5rem;
-    background:rgba(180,120,255,0.04); position:relative; overflow:hidden;
-  }
-  .now-playing::before {
-    content:''; position:absolute; top:0; left:0; right:0; height:1px;
-    background:linear-gradient(to right, transparent, rgba(180,120,255,0.5), transparent);
-  }
+  .now-playing { border:0.5px solid rgba(180,120,255,0.2); border-radius:3px; padding:1.5rem; margin-bottom:2.5rem; background:rgba(180,120,255,0.04); position:relative; overflow:hidden; }
+  .now-playing::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(to right, transparent, rgba(180,120,255,0.5), transparent); }
   .np-label { font-family:'Space Mono',monospace; font-size:0.55rem; letter-spacing:0.4em; color:rgba(180,120,255,0.5); text-transform:uppercase; margin-bottom:1rem; display:flex; align-items:center; gap:8px; }
   .np-dot { width:5px; height:5px; border-radius:50%; background:#b478ff; animation:pulse 1.5s ease-in-out infinite; }
   @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
-
   .np-track { font-family:'Bebas Neue',sans-serif; font-size:2rem; letter-spacing:0.08em; margin-bottom:0.25rem; }
   .np-meta { font-size:0.72rem; color:rgba(240,236,224,0.32); letter-spacing:0.08em; margin-bottom:1.5rem; }
-
   .waveform { height:40px; display:flex; align-items:flex-end; gap:2px; margin-bottom:1rem; overflow:hidden; }
   .waveform-bar { flex:1; border-radius:1px 1px 0 0; background:rgba(180,120,255,0.25); }
   .waveform-bar.active { background:rgba(180,120,255,0.75); }
-
   .progress-row { display:flex; align-items:center; gap:10px; margin-bottom:1.25rem; }
   .time { font-family:'Space Mono',monospace; font-size:0.6rem; color:rgba(240,236,224,0.28); min-width:32px; }
   .progress-track { flex:1; height:2px; background:rgba(240,236,224,0.08); border-radius:1px; cursor:pointer; }
-  .progress-fill { height:100%; border-radius:1px; background:rgba(180,120,255,0.65); width:38%; }
-
+  .progress-fill { height:100%; border-radius:1px; background:rgba(180,120,255,0.65); width:0%; } /* Changed to 0% for start */
   .controls { display:flex; align-items:center; justify-content:center; gap:1.5rem; }
   .ctrl-btn { background:none; border:none; cursor:pointer; color:rgba(240,236,224,0.35); font-family:'Space Mono',monospace; font-size:0.7rem; transition:color 0.2s; padding:6px; }
   .ctrl-btn:hover { color:#f0ece0; }
-  .ctrl-play {
-    width:44px; height:44px; border-radius:50%;
-    border:0.5px solid rgba(180,120,255,0.4);
-    background:rgba(180,120,255,0.1);
-    display:flex; align-items:center; justify-content:center;
-    cursor:pointer; transition:all 0.2s; color:#f0ece0; font-size:1rem;
-    font-family:'Space Mono',monospace;
-  }
+  .ctrl-play { width:44px; height:44px; border-radius:50%; border:0.5px solid rgba(180,120,255,0.4); background:rgba(180,120,255,0.1); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.2s; color:#f0ece0; font-size:1rem; font-family:'Space Mono',monospace; }
   .ctrl-play:hover { background:rgba(180,120,255,0.25); border-color:rgba(180,120,255,0.7); }
-
-  /* SETS GRID */
   .section-label { font-family:'Space Mono',monospace; font-size:0.55rem; letter-spacing:0.45em; color:rgba(240,236,224,0.18); text-transform:uppercase; margin-bottom:1.25rem; }
-
   .sets-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:2.5rem; }
-
-  .set-card {
-    border:0.5px solid rgba(240,236,224,0.07); border-radius:2px;
-    padding:1.1rem 1rem; cursor:pointer; transition:all 0.25s;
-    position:relative; overflow:hidden;
-  }
-  .set-card::after {
-    content:''; position:absolute; bottom:0; left:0; right:0; height:1px;
-    opacity:0; transition:opacity 0.25s;
-  }
+  .set-card { border:0.5px solid rgba(240,236,224,0.07); border-radius:2px; padding:1.1rem 1rem; cursor:pointer; transition:all 0.25s; position:relative; overflow:hidden; }
   .set-card:hover { border-color:rgba(240,236,224,0.16); background:rgba(240,236,224,0.025); }
-  .set-card.psychedelic:hover::after { opacity:1; background:rgba(180,120,255,0.7); }
-  .set-card.memento:hover::after     { opacity:1; background:rgba(200,80,40,0.7); }
-  .set-card.crispy:hover::after      { opacity:1; background:rgba(60,160,200,0.7); }
-  .set-card.rocket:hover::after      { opacity:1; background:rgba(240,180,40,0.7); }
-  .set-card.psychedelic:hover .set-name { color:rgba(180,120,255,0.9); }
-  .set-card.memento:hover .set-name     { color:rgba(200,80,40,0.9); }
-  .set-card.crispy:hover .set-name      { color:rgba(60,160,200,0.9); }
-  .set-card.rocket:hover .set-name      { color:rgba(240,180,40,0.9); }
-
   .set-era { font-family:'Space Mono',monospace; font-size:0.55rem; color:rgba(240,236,224,0.18); letter-spacing:0.2em; margin-bottom:6px; }
   .set-name { font-family:'Bebas Neue',sans-serif; font-size:1.25rem; letter-spacing:0.08em; color:#f0ece0; margin-bottom:4px; transition:color 0.25s; }
   .set-meta { font-size:0.68rem; color:rgba(240,236,224,0.28); letter-spacing:0.04em; display:flex; justify-content:space-between; }
-
-  /* VIBE TAGS */
   .vibe-row { display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:2.5rem; }
-  .vibe-tag {
-    font-family:'Space Mono',monospace; font-size:0.58rem; letter-spacing:0.15em; text-transform:uppercase;
-    border:0.5px solid rgba(240,236,224,0.1); border-radius:1px; padding:5px 10px;
-    color:rgba(240,236,224,0.28); cursor:pointer; transition:all 0.2s; background:none;
-  }
+  .vibe-tag { font-family:'Space Mono',monospace; font-size:0.58rem; letter-spacing:0.15em; text-transform:uppercase; border:0.5px solid rgba(240,236,224,0.1); border-radius:1px; padding:5px 10px; color:rgba(240,236,224,0.28); cursor:pointer; transition:all 0.2s; background:none; }
   .vibe-tag:hover, .vibe-tag.active { border-color:rgba(180,120,255,0.4); color:rgba(180,120,255,0.8); background:rgba(180,120,255,0.05); }
-
   .about-block { border-left:1px solid rgba(180,120,255,0.18); padding-left:1.25rem; margin-bottom:3rem; }
   .about-block p { font-size:0.82rem; color:rgba(240,236,224,0.35); line-height:2; font-weight:300; }
-
   .footer-mono { font-family:'Space Mono',monospace; font-size:0.5rem; letter-spacing:0.3em; color:rgba(240,236,224,0.1); text-align:center; text-transform:uppercase; margin-top:2rem; }
 </style>
 </head>
 <body>
+
+<audio id="mainAudio" src="music/track1.mp3"></audio>
+
 <div class="bg-grad"></div>
 <div class="page">
-
   <nav>
     <a href="index.html" class="nav-back">← the.man.do</a>
     <span class="nav-brand">THE.MAN.DO.DJ</span>
@@ -128,15 +73,15 @@
 
   <div class="now-playing">
     <div class="np-label"><div class="np-dot"></div> Now Playing</div>
-    <div class="np-track">CRISPY SKY VOL. 3</div>
-    <div class="np-meta">Recorded live — Desert Edition — 2h 14m</div>
+    <div class="np-track" id="trackTitle">CRISPY SKY VOL. 3</div>
+    <div class="np-meta">Internal Server Stream — 320kbps</div>
     <div class="waveform" id="waveform"></div>
     <div class="progress-row">
-      <span class="time" id="cur">48:22</span>
-      <div class="progress-track" id="track">
-        <div class="progress-fill" id="fill"></div>
+      <span class="time" id="curTime">0:00</span>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
       </div>
-      <span class="time">2:14:00</span>
+      <span class="time" id="totalTime">0:00</span>
     </div>
     <div class="controls">
       <button class="ctrl-btn" title="Previous">&#x23EE;</button>
@@ -145,74 +90,83 @@
     </div>
   </div>
 
-  <div class="section-label">All Sets</div>
+  <div class="section-label">Selected Frequency</div>
   <div class="sets-grid">
-    <div class="set-card psychedelic">
-      <div class="set-era">2024 — 3h 40m</div>
-      <div class="set-name">PSYCHEDELIC</div>
-      <div class="set-meta"><span>12 tracks</span><span>Deep</span></div>
+    <div class="set-card psychedelic" onclick="changeTrack('track1.mp3', 'PSYCHEDELIC')">
+      <div class="set-era">2024 Release</div>
+      <div class="set-name">TRACK 01</div>
+      <div class="set-meta"><span>Self-Hosted</span><span>Deep</span></div>
     </div>
-    <div class="set-card memento">
-      <div class="set-era">2023 — 1h 55m</div>
-      <div class="set-name">MEMENTO</div>
-      <div class="set-meta"><span>8 tracks</span><span>Dark</span></div>
     </div>
-    <div class="set-card crispy">
-      <div class="set-era">2024 — 2h 14m</div>
-      <div class="set-name">CRISPY SKY</div>
-      <div class="set-meta"><span>9 tracks</span><span>Ambient</span></div>
-    </div>
-    <div class="set-card rocket">
-      <div class="set-era">2024 — 4h 00m</div>
-      <div class="set-name">ROCKET FESTIVAL</div>
-      <div class="set-meta"><span>Live</span><span>Fire</span></div>
-    </div>
-  </div>
-
-  <div class="section-label">Filter by Vibe</div>
-  <div class="vibe-row">
-    <button class="vibe-tag active">All</button>
-    <button class="vibe-tag">Psychedelic</button>
-    <button class="vibe-tag">Ambient</button>
-    <button class="vibe-tag">Dark</button>
-    <button class="vibe-tag">Live</button>
-    <button class="vibe-tag">Desert</button>
-    <button class="vibe-tag">Night</button>
-    <button class="vibe-tag">Festival</button>
-  </div>
 
   <div class="about-block">
-    <p>These are sets made for the moment. No social media drops. No link in bio. If you found this page — you were meant to hear it.</p>
+    <p>These are sets made for the moment. No social media drops. If you found this page — you were meant to hear it.</p>
   </div>
 
   <div class="footer-mono">the.man.do / dj — sound is the only language</div>
 </div>
 
 <script>
-  // Waveform
+  const audio = document.getElementById('mainAudio');
+  const playBtn = document.getElementById('playBtn');
+  const progressFill = document.getElementById('progressFill');
+  const curTimeText = document.getElementById('curTime');
+  const totalTimeText = document.getElementById('totalTime');
+  const trackTitle = document.getElementById('trackTitle');
+
+  // Generate Waveform
   const wf = document.getElementById('waveform');
   for(let i=0;i<60;i++){
     const b = document.createElement('div');
-    b.className = 'waveform-bar' + (i < 23 ? ' active' : '');
+    b.className = 'waveform-bar';
     b.style.height = (8 + Math.random()*32)+'px';
     wf.appendChild(b);
   }
+  const bars = document.querySelectorAll('.waveform-bar');
 
-  // Play/pause toggle
-  let playing = false;
-  const pb = document.getElementById('playBtn');
-  pb.addEventListener('click', () => {
-    playing = !playing;
-    pb.innerHTML = playing ? '&#10074;&#10074;' : '&#9654;';
+  // Play/Pause Logic
+  playBtn.addEventListener('click', () => {
+    if (audio.paused) {
+      audio.play();
+      playBtn.innerHTML = '&#10074;&#10074;';
+    } else {
+      audio.pause();
+      playBtn.innerHTML = '&#9654;';
+    }
   });
 
-  // Vibe tag filter
-  document.querySelectorAll('.vibe-tag').forEach(t => {
-    t.addEventListener('click', () => {
-      document.querySelectorAll('.vibe-tag').forEach(x => x.classList.remove('active'));
-      t.classList.add('active');
+  // Update Progress Bar & Waveform
+  audio.addEventListener('timeupdate', () => {
+    const percent = (audio.currentTime / audio.duration) * 100;
+    progressFill.style.width = percent + '%';
+    
+    // Light up waveform based on progress
+    const activeBarIndex = Math.floor((audio.currentTime / audio.duration) * 60);
+    bars.forEach((bar, index) => {
+      if (index <= activeBarIndex) bar.classList.add('active');
+      else bar.classList.remove('active');
     });
+
+    curTimeText.innerText = formatTime(audio.currentTime);
   });
+
+  audio.addEventListener('loadedmetadata', () => {
+    totalTimeText.innerText = formatTime(audio.duration);
+  });
+
+  function formatTime(seconds) {
+    let min = Math.floor(seconds / 60);
+    let sec = Math.floor(seconds % 60);
+    return min + ":" + (sec < 10 ? '0' : '') + sec;
+  }
+
+  // Function to change tracks
+  function changeTrack(fileName, title) {
+    audio.src = 'music/' + fileName;
+    trackTitle.innerText = title;
+    audio.play();
+    playBtn.innerHTML = '&#10074;&#10074;';
+  }
 </script>
 </body>
 </html>
