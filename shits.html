@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SHITS // THE.MAN.DO</title>
+  <link rel="stylesheet" href="universe.css">
+</head>
+<body>
+
+  <nav class="universe-nav">
+    <a href="index.html">Index</a>
+    <a href="dj.html">DJ</a>
+    <a href="shits.html" class="active">Shits</a>
+    <a href="earth.html">Earth</a>
+    <a href="writings.html">Writings</a>
+    <a href="lab.html">Lab</a>
+  </nav>
+
+  <header class="page-header">
+    <img src="images/MD_LOGO.png" class="page-logo" alt="THE.MAN.DO">
+    <h1 class="page-title">The Shits</h1>
+    <p class="page-sub">What's left is the raw energy of the human spirit.</p>
+  </header>
+
+  <main class="shits-wrapper">
+
+    <div class="video-artifact-container" onclick="toggleVideoSize()">
+      <div class="video-loader" id="videoBuffer">LOADING_ASSET...</div>
+      <div class="video-title">INTO THE WILD</div>
+      <video
+        id="thingVideo"
+        preload="auto"
+        playsinline
+        loop
+        muted
+        autoplay
+        poster="images/videos/thumb/core_thumb.png">
+        <source src="https://www.dropbox.com/scl/fi/afi4v1faycrx1t4cgbk1b/thecore.MP4?rlkey=rwiv5t663bfjp5rvvue9qtzu5&st=0b3jdq7x&raw=1" type="video/mp4">
+      </video>
+    </div>
+
+    <p class="video-hint">TAP TO EXPAND &amp; UNMUTE</p>
+
+  </main>
+
+  <div class="chat-trigger" onclick="toggleChat()" id="chatBtn">MSG</div>
+
+  <div class="chat-dock" id="chatBox">
+    <div class="chat-header">
+      <span>COMM_LINK_V1</span>
+      <span class="chat-close" onclick="toggleChat()">[ CLOSE ]</span>
+    </div>
+    <iframe
+      src="https://www5.cbox.ws/box/?boxid=962257&boxtag=nzOFGW"
+      width="100%" height="400"
+      allowtransparency="yes" frameborder="0"
+      style="display:block;">
+    </iframe>
+  </div>
+
+  <script src="universe.js"></script>
+</body>
+</html>
