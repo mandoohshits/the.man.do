@@ -6,235 +6,51 @@
   <title>SHITS // THE.MAN.DO</title>
   <link rel="stylesheet" href="universe.css">
   <style>
-    /* ── VIDEO FEED ── */
-    .shits-feed {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 60px;
-      padding: 60px 5% 100px;
-    }
-
-    .video-post {
-      width: 100%;
-      max-width: 680px;
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-    }
-
-    /* The video container */
-    .video-wrap {
-      position: relative;
-      border-radius: 16px 16px 0 0;
-      overflow: hidden;
-      background: #000;
-      border: 1px solid rgba(255,255,255,0.07);
-      border-bottom: none;
-      cursor: pointer;
-    }
-
-    .video-wrap video {
-      width: 100%;
-      display: block;
-      opacity: 0.88;
-      transition: opacity 0.3s;
-    }
-
-    .video-wrap:hover video { opacity: 1; }
-
-    /* Centered title overlay */
-    .video-overlay-title {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-family: var(--font-mono);
-      font-size: 0.65rem;
-      letter-spacing: 6px;
-      color: var(--accent);
-      text-transform: uppercase;
-      pointer-events: none;
-      text-shadow: 0 0 30px rgba(0,0,0,1);
-      transition: opacity 0.3s;
-      white-space: nowrap;
-    }
-
-    .video-wrap:hover .video-overlay-title { opacity: 0; }
-
-    /* Tap hint */
-    .video-tap-hint {
-      position: absolute;
-      bottom: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-family: var(--font-mono);
-      font-size: 0.48rem;
-      letter-spacing: 3px;
-      color: rgba(255,255,255,0.3);
-      pointer-events: none;
-      text-transform: uppercase;
-    }
-
-    /* ── STATUS BAR (below video) ── */
-    .video-status-bar {
-      background: rgba(6,6,6,0.95);
-      border: 1px solid rgba(255,255,255,0.07);
-      border-top: 1px solid rgba(240,160,20,0.08);
-      border-radius: 0 0 16px 16px;
-      padding: 10px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      min-height: 40px;
-    }
-
-    .status-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex: 1;
-      overflow: hidden;
-    }
-
-    /* The buffering indicator */
-    .buf-indicator {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-shrink: 0;
-    }
-
-    .buf-dots {
-      display: flex;
-      gap: 3px;
-    }
-
-    .buf-dot {
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: var(--accent);
-      opacity: 0.2;
-    }
-
-    /* Buffering state — dots animate */
-    .status-bar-buffering .buf-dot:nth-child(1) { animation: dotPulse 1s ease-in-out infinite 0s;    }
-    .status-bar-buffering .buf-dot:nth-child(2) { animation: dotPulse 1s ease-in-out infinite 0.2s;  }
-    .status-bar-buffering .buf-dot:nth-child(3) { animation: dotPulse 1s ease-in-out infinite 0.4s;  }
-
-    @keyframes dotPulse {
-      0%,100% { opacity: 0.15; transform: scale(1);    }
-      50%      { opacity: 1;    transform: scale(1.4); }
-    }
-
-    .buf-label {
-      font-family: var(--font-mono);
-      font-size: 0.52rem;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--accent);
-      opacity: 0.5;
-      transition: opacity 0.3s;
-      white-space: nowrap;
-    }
-
-    /* Playing state — bar pulses softly */
-    .status-bar-playing .buf-label  { opacity: 0;    }
-    .status-bar-playing .buf-dot    { opacity: 0.12; animation: none !important; }
-    .status-bar-playing .play-label { opacity: 0.6;  }
-
-    /* Paused state */
-    .status-bar-paused .buf-label  { opacity: 0;   }
-    .status-bar-paused .play-label { opacity: 0.3; }
-    .status-bar-paused .buf-dot    { opacity: 0.08; animation: none !important; }
-
-    /* Idle / default */
-    .status-bar-idle .buf-label  { opacity: 0.2; }
-    .status-bar-idle .play-label { opacity: 0;   }
-
-    .play-label {
-      font-family: var(--font-mono);
-      font-size: 0.52rem;
-      letter-spacing: 2px;
-      color: rgba(80,200,100,0.8);
-      text-transform: uppercase;
-      opacity: 0;
-      transition: opacity 0.3s;
-      white-space: nowrap;
-    }
-
-    /* Waveform bar (playing animation) */
-    .waveform-mini {
-      display: flex;
-      align-items: flex-end;
-      gap: 2px;
-      height: 14px;
-      flex-shrink: 0;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-
-    .status-bar-playing .waveform-mini { opacity: 1; }
-
-    .waveform-mini span {
-      width: 2px;
-      border-radius: 1px;
-      background: var(--accent);
-      animation: waveBar 0.8s ease-in-out infinite alternate;
-    }
-
-    .waveform-mini span:nth-child(1){ height:4px;  animation-delay: 0s;    }
-    .waveform-mini span:nth-child(2){ height:10px; animation-delay: 0.1s;  }
-    .waveform-mini span:nth-child(3){ height:6px;  animation-delay: 0.2s;  }
-    .waveform-mini span:nth-child(4){ height:12px; animation-delay: 0.05s; }
-    .waveform-mini span:nth-child(5){ height:5px;  animation-delay: 0.15s; }
-
-    @keyframes waveBar {
-      from { transform: scaleY(0.3); opacity: 0.5; }
-      to   { transform: scaleY(1);   opacity: 1;   }
-    }
-
-    /* Video title & meta on right */
-    .status-right {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 2px;
-      flex-shrink: 0;
-    }
-
-    .video-post-title {
-      font-family: var(--font-mono);
-      font-size: 0.6rem;
-      letter-spacing: 2px;
-      color: var(--text);
-      text-transform: uppercase;
-    }
-
-    .video-post-meta {
-      font-family: var(--font-mono);
-      font-size: 0.48rem;
-      letter-spacing: 1px;
-      color: rgba(240,236,224,0.25);
-      text-transform: uppercase;
-    }
-
-    /* Expand button */
-    .expand-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-family: var(--font-mono);
-      font-size: 0.5rem;
-      letter-spacing: 1px;
-      color: rgba(240,160,20,0.4);
-      padding: 0;
-      transition: color 0.2s;
-      text-transform: uppercase;
-    }
-    .expand-btn:hover { color: var(--accent); }
+    .shits-feed{display:flex;flex-direction:column;align-items:center;gap:70px;padding:60px 5% 100px;}
+    .video-post{width:100%;max-width:720px;display:flex;flex-direction:column;}
+    .video-wrap{position:relative;border-radius:16px 16px 0 0;overflow:hidden;background:#000;border:1px solid rgba(255,255,255,0.07);border-bottom:none;aspect-ratio:16/9;}
+    .video-wrap iframe{width:100%;height:100%;display:block;border:none;}
+    .video-skeleton{position:absolute;inset:0;background:#080808;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:5;transition:opacity 0.5s;pointer-events:none;}
+    .video-skeleton.hidden{opacity:0;}
+    .skeleton-title{font-family:'Space Mono',monospace;font-size:0.65rem;letter-spacing:6px;color:#f0a014;text-transform:uppercase;opacity:0.5;}
+    .skeleton-dots{display:flex;gap:5px;}
+    .skeleton-dot{width:5px;height:5px;border-radius:50%;background:#f0a014;}
+    .skeleton-dot:nth-child(1){animation:dotPulse 1s ease-in-out infinite 0s;}
+    .skeleton-dot:nth-child(2){animation:dotPulse 1s ease-in-out infinite 0.2s;}
+    .skeleton-dot:nth-child(3){animation:dotPulse 1s ease-in-out infinite 0.4s;}
+    @keyframes dotPulse{0%,100%{opacity:0.15;transform:scale(1);}50%{opacity:1;transform:scale(1.5);}}
+    .video-status-bar{background:rgba(6,6,6,0.97);border:1px solid rgba(255,255,255,0.07);border-top:1px solid rgba(240,160,20,0.06);border-radius:0 0 16px 16px;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:42px;}
+    .status-left{display:flex;align-items:center;gap:10px;}
+    .buf-dots{display:flex;gap:3px;}
+    .buf-dot{width:4px;height:4px;border-radius:50%;background:#f0a014;opacity:0.15;transition:opacity 0.3s;}
+    .vsb-buffering .buf-dot:nth-child(1){animation:dotPulse 1s ease-in-out infinite 0s;opacity:1;}
+    .vsb-buffering .buf-dot:nth-child(2){animation:dotPulse 1s ease-in-out infinite 0.2s;opacity:1;}
+    .vsb-buffering .buf-dot:nth-child(3){animation:dotPulse 1s ease-in-out infinite 0.4s;opacity:1;}
+    .vsb-buffering .buf-text{opacity:1;}
+    .vsb-buffering .ready-text{opacity:0;}
+    .vsb-buffering .waveform-mini{opacity:0;}
+    .vsb-ready .buf-dot{opacity:0.1;animation:none!important;}
+    .vsb-ready .buf-text{opacity:0;}
+    .vsb-ready .ready-text{opacity:0.8;}
+    .vsb-ready .waveform-mini{opacity:1;}
+    .vsb-idle .buf-dot{opacity:0.1;animation:none!important;}
+    .vsb-idle .buf-text{opacity:0.2;}
+    .vsb-idle .ready-text{opacity:0;}
+    .vsb-idle .waveform-mini{opacity:0;}
+    .buf-text,.ready-text{font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:2px;text-transform:uppercase;transition:opacity 0.4s;white-space:nowrap;}
+    .buf-text{color:#f0a014;}
+    .ready-text{color:rgba(80,200,100,0.9);}
+    .waveform-mini{display:flex;align-items:flex-end;gap:2px;height:14px;opacity:0;transition:opacity 0.4s;}
+    .waveform-mini span{width:2px;border-radius:1px;background:#f0a014;animation:waveBar 0.9s ease-in-out infinite alternate;}
+    .waveform-mini span:nth-child(1){height:4px;animation-delay:0s;}
+    .waveform-mini span:nth-child(2){height:11px;animation-delay:0.12s;}
+    .waveform-mini span:nth-child(3){height:6px;animation-delay:0.24s;}
+    .waveform-mini span:nth-child(4){height:13px;animation-delay:0.06s;}
+    .waveform-mini span:nth-child(5){height:5px;animation-delay:0.18s;}
+    @keyframes waveBar{from{transform:scaleY(0.3);opacity:0.4;}to{transform:scaleY(1);opacity:1;}}
+    .status-right{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;}
+    .video-post-title{font-family:'Space Mono',monospace;font-size:0.6rem;letter-spacing:2px;color:#f0ece0;text-transform:uppercase;}
+    .video-post-meta{font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:1px;color:rgba(240,236,224,0.25);text-transform:uppercase;}
   </style>
 </head>
 <body>
@@ -256,26 +72,36 @@
 
   <main class="shits-feed">
 
-    <!-- VIDEO POST 1 -->
+    <!-- HOW TO ADD A VIDEO:
+         1. Go to your YouTube video
+         2. Click Share → Embed
+         3. Find the ID after ?v= in the URL
+            e.g. youtube.com/watch?v=dQw4w9WgXcQ → ID is dQw4w9WgXcQ
+         4. Replace YOUR_VIDEO_ID_1 below with that ID (in BOTH places in the src)
+         5. Change the title and meta text to match your video
+         6. Duplicate this whole video-post block to add more videos -->
+
     <div class="video-post">
-      <div class="video-wrap" onclick="expandVideo(this)">
-        <div class="video-overlay-title">INTO THE WILD</div>
-        <div class="video-tap-hint">tap to expand &amp; unmute</div>
-        <video preload="auto" playsinline loop muted autoplay poster="images/videos/thumb/core_thumb.png">
-          <source src="https://www.dropbox.com/scl/fi/afi4v1faycrx1t4cgbk1b/thecore.MP4?rlkey=rwiv5t663bfjp5rvvue9qtzu5&st=0b3jdq7x&raw=1" type="video/mp4">
-        </video>
-      </div>
-      <div class="video-status-bar status-bar-idle">
-        <div class="status-left">
-          <div class="buf-indicator">
-            <div class="buf-dots">
-              <div class="buf-dot"></div>
-              <div class="buf-dot"></div>
-              <div class="buf-dot"></div>
-            </div>
-            <span class="buf-label">BUFFERING</span>
-            <span class="play-label">PLAYING</span>
+      <div class="video-wrap">
+        <div class="video-skeleton" id="skel-1">
+          <span class="skeleton-title">INTO THE WILD</span>
+          <div class="skeleton-dots">
+            <div class="skeleton-dot"></div>
+            <div class="skeleton-dot"></div>
+            <div class="skeleton-dot"></div>
           </div>
+        </div>
+        <iframe width="560" height="315" src="https://youtu.be/ZmMQv3IzdAg?si=RBUuA4yxZEdUSoDN" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+      <div class="video-status-bar vsb-buffering" id="bar-1">
+        <div class="status-left">
+          <div class="buf-dots">
+            <div class="buf-dot"></div>
+            <div class="buf-dot"></div>
+            <div class="buf-dot"></div>
+          </div>
+          <span class="buf-text">BUFFERING</span>
+          <span class="ready-text">LOADED</span>
           <div class="waveform-mini">
             <span></span><span></span><span></span><span></span><span></span>
           </div>
@@ -287,26 +113,32 @@
       </div>
     </div>
 
-    <!-- VIDEO POST 2 -->
     <div class="video-post">
-      <div class="video-wrap" onclick="expandVideo(this)">
-        <div class="video-overlay-title">NOWHERE PARTICULAR</div>
-        <div class="video-tap-hint">tap to expand &amp; unmute</div>
-        <video preload="none" playsinline loop muted poster="">
-          <source src="YOUR_VIDEO_LINK_2.mp4" type="video/mp4">
-        </video>
-      </div>
-      <div class="video-status-bar status-bar-idle">
-        <div class="status-left">
-          <div class="buf-indicator">
-            <div class="buf-dots">
-              <div class="buf-dot"></div>
-              <div class="buf-dot"></div>
-              <div class="buf-dot"></div>
-            </div>
-            <span class="buf-label">BUFFERING</span>
-            <span class="play-label">PLAYING</span>
+      <div class="video-wrap">
+        <div class="video-skeleton" id="skel-2">
+          <span class="skeleton-title">NOWHERE PARTICULAR</span>
+          <div class="skeleton-dots">
+            <div class="skeleton-dot"></div>
+            <div class="skeleton-dot"></div>
+            <div class="skeleton-dot"></div>
           </div>
+        </div>
+        <iframe
+          src="https://www.youtube.com/embed/YOUR_VIDEO_ID_2?mute=1&controls=1&modestbranding=1&rel=0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+          onload="iframeLoaded('skel-2','bar-2')">
+        </iframe>
+      </div>
+      <div class="video-status-bar vsb-buffering" id="bar-2">
+        <div class="status-left">
+          <div class="buf-dots">
+            <div class="buf-dot"></div>
+            <div class="buf-dot"></div>
+            <div class="buf-dot"></div>
+          </div>
+          <span class="buf-text">BUFFERING</span>
+          <span class="ready-text">LOADED</span>
           <div class="waveform-mini">
             <span></span><span></span><span></span><span></span><span></span>
           </div>
@@ -318,26 +150,32 @@
       </div>
     </div>
 
-    <!-- VIDEO POST 3 -->
     <div class="video-post">
-      <div class="video-wrap" onclick="expandVideo(this)">
-        <div class="video-overlay-title">SALT FLATS</div>
-        <div class="video-tap-hint">tap to expand &amp; unmute</div>
-        <video preload="none" playsinline loop muted poster="">
-          <source src="YOUR_VIDEO_LINK_3.mp4" type="video/mp4">
-        </video>
-      </div>
-      <div class="video-status-bar status-bar-idle">
-        <div class="status-left">
-          <div class="buf-indicator">
-            <div class="buf-dots">
-              <div class="buf-dot"></div>
-              <div class="buf-dot"></div>
-              <div class="buf-dot"></div>
-            </div>
-            <span class="buf-label">BUFFERING</span>
-            <span class="play-label">PLAYING</span>
+      <div class="video-wrap">
+        <div class="video-skeleton" id="skel-3">
+          <span class="skeleton-title">SALT FLATS</span>
+          <div class="skeleton-dots">
+            <div class="skeleton-dot"></div>
+            <div class="skeleton-dot"></div>
+            <div class="skeleton-dot"></div>
           </div>
+        </div>
+        <iframe
+          src="https://www.youtube.com/embed/YOUR_VIDEO_ID_3?mute=1&controls=1&modestbranding=1&rel=0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+          onload="iframeLoaded('skel-3','bar-3')">
+        </iframe>
+      </div>
+      <div class="video-status-bar vsb-buffering" id="bar-3">
+        <div class="status-left">
+          <div class="buf-dots">
+            <div class="buf-dot"></div>
+            <div class="buf-dot"></div>
+            <div class="buf-dot"></div>
+          </div>
+          <span class="buf-text">BUFFERING</span>
+          <span class="ready-text">LOADED</span>
           <div class="waveform-mini">
             <span></span><span></span><span></span><span></span><span></span>
           </div>
@@ -367,86 +205,16 @@
   </div>
 
 <script>
-// ── STATUS BAR LOGIC ───────────────────────────────────
-function setStatus(bar, state) {
-  bar.className = 'video-status-bar status-bar-' + state;
-}
-
-document.querySelectorAll('.video-post').forEach(post => {
-  const video  = post.querySelector('video');
-  const bar    = post.querySelector('.video-status-bar');
-
-  if (!video || !bar) return;
-
-  // Initial state
-  setStatus(bar, 'idle');
-
-  video.addEventListener('waiting',  () => setStatus(bar, 'buffering'));
-  video.addEventListener('stalled',  () => setStatus(bar, 'buffering'));
-  video.addEventListener('seeking',  () => setStatus(bar, 'buffering'));
-  video.addEventListener('playing',  () => setStatus(bar, 'playing'));
-  video.addEventListener('play',     () => setStatus(bar, 'playing'));
-  video.addEventListener('pause',    () => setStatus(bar, 'paused'));
-  video.addEventListener('ended',    () => setStatus(bar, 'idle'));
-  video.addEventListener('canplay',  () => {
-    if (!video.paused) setStatus(bar, 'playing');
-  });
-  video.addEventListener('loadstart', () => setStatus(bar, 'buffering'));
-  video.addEventListener('loadeddata', () => {
-    if (!video.paused) setStatus(bar, 'playing');
-    else setStatus(bar, 'idle');
-  });
-});
-
-// Autoplay first video and mark buffering immediately
-const firstVideo = document.querySelector('.video-post video');
-const firstBar   = document.querySelector('.video-post .video-status-bar');
-if (firstVideo && firstBar) {
-  setStatus(firstBar, 'buffering');
-  firstVideo.play().catch(() => {});
-}
-
-// ── EXPAND / UNMUTE ON TAP ─────────────────────────────
-function expandVideo(wrap) {
-  const video    = wrap.querySelector('video');
-  const isExpand = !wrap.classList.contains('expanded');
-
-  // Collapse all others first
-  document.querySelectorAll('.video-wrap.expanded').forEach(w => {
-    w.classList.remove('expanded');
-    w.style.maxWidth = '';
-    const v = w.querySelector('video');
-    if (v) { v.muted = true; }
-  });
-
-  if (isExpand) {
-    wrap.classList.add('expanded');
-    wrap.style.maxWidth = 'min(860px, 96vw)';
-    if (video) {
-      video.muted = false;
-      video.play().catch(() => {});
-    }
+function iframeLoaded(skelId, barId) {
+  const skel = document.getElementById(skelId);
+  const bar  = document.getElementById(barId);
+  if (skel) skel.classList.add('hidden');
+  if (bar) {
+    bar.className = 'video-status-bar vsb-ready';
+    setTimeout(() => { bar.className = 'video-status-bar vsb-idle'; }, 3000);
   }
 }
 
-// ── INTERSECT: autoplay when in view, pause when not ──
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(entry => {
-    const video = entry.target.querySelector('video');
-    const bar   = entry.target.querySelector('.video-status-bar');
-    if (!video) return;
-    if (entry.isIntersecting) {
-      video.play().catch(() => {});
-    } else {
-      video.pause();
-      if (bar) setStatus(bar, 'idle');
-    }
-  });
-}, { threshold: 0.4 });
-
-document.querySelectorAll('.video-post').forEach(post => observer.observe(post));
-
-// ── CHAT ──────────────────────────────────────────────
 function toggleChat() {
   const chatBox = document.getElementById('chatBox');
   const chatBtn = document.getElementById('chatBtn');
@@ -456,6 +224,6 @@ function toggleChat() {
 }
 </script>
 
-<script src="universe.js"></script>
+  <script src="universe.js"></script>
 </body>
 </html>
