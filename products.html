@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PRODUCTS // THE.MAN.DO</title>
+  <link rel="stylesheet" href="universe.css">
+  <style>
+    .dept-tabs{display:flex;gap:0;padding:40px 8% 0;border-bottom:1px solid rgba(255,255,255,0.06);overflow-x:auto;scrollbar-width:none;}
+    .dept-tabs::-webkit-scrollbar{display:none;}
+    .dept-tab{font-family:var(--font-mono);font-size:0.58rem;letter-spacing:3px;text-transform:uppercase;padding:12px 22px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(240,236,224,0.3);cursor:pointer;transition:all 0.25s;white-space:nowrap;margin-bottom:-1px;}
+    .dept-tab:hover{color:rgba(240,160,20,0.6);}
+    .dept-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+    .dept-panel{display:none;padding:50px 8% 100px;}
+    .dept-panel.active{display:block;}
+    .item-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px;}
+    .item-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;overflow:hidden;transition:border-color 0.3s,transform 0.3s;display:flex;flex-direction:column;}
+    .item-card:hover{border-color:rgba(240,160,20,0.3);transform:translateY(-4px);}
+    .item-img{width:100%;aspect-ratio:1/1;background:rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
+    .item-img img{width:100%;height:100%;object-fit:cover;opacity:0.85;transition:opacity 0.4s,transform 0.5s;}
+    .item-card:hover .item-img img{opacity:1;transform:scale(1.04);}
+    .img-placeholder{font-family:var(--font-mono);font-size:0.5rem;letter-spacing:3px;color:rgba(240,160,20,0.2);text-transform:uppercase;text-align:center;padding:10px;line-height:2;}
+    .item-num{position:absolute;top:10px;left:10px;font-family:var(--font-mono);font-size:0.45rem;letter-spacing:2px;padding:3px 9px;background:rgba(6,6,6,0.85);border:1px solid rgba(240,160,20,0.2);border-radius:100px;color:var(--accent);}
+    .item-stock{position:absolute;top:10px;right:10px;font-family:var(--font-mono);font-size:0.42rem;letter-spacing:1px;padding:3px 8px;border-radius:100px;}
+    .s-in{background:rgba(80,200,100,0.12);color:rgba(80,200,100,0.85);border:1px solid rgba(80,200,100,0.2);}
+    .s-low{background:rgba(240,160,20,0.12);color:rgba(240,160,20,0.85);border:1px solid rgba(240,160,20,0.2);}
+    .s-out{background:rgba(220,80,60,0.1);color:rgba(220,80,60,0.65);border:1px solid rgba(220,80,60,0.15);}
+    .item-info{padding:14px 16px 16px;display:flex;flex-direction:column;gap:5px;flex:1;}
+    .item-name{font-family:var(--font-mono);font-size:0.72rem;letter-spacing:2px;color:var(--text);text-transform:uppercase;}
+    .item-desc{font-size:0.73rem;color:rgba(240,236,224,0.32);line-height:1.6;}
+    .size-row{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;}
+    .sz{font-family:var(--font-mono);font-size:0.48rem;letter-spacing:1px;padding:3px 7px;border:1px solid rgba(255,255,255,0.1);border-radius:3px;color:rgba(240,236,224,0.35);cursor:pointer;transition:all 0.2s;user-select:none;}
+    .sz:hover,.sz.on{border-color:var(--accent);color:var(--accent);background:rgba(240,160,20,0.07);}
+    .item-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.05);}
+    .item-price{font-family:var(--font-mono);font-size:0.95rem;color:var(--accent);letter-spacing:1px;}
+    .item-price sup{font-size:0.55rem;opacity:0.6;vertical-align:super;margin-right:1px;}
+    .add-btn{font-family:var(--font-mono);font-size:0.52rem;letter-spacing:2px;text-transform:uppercase;padding:7px 14px;background:none;border:1px solid rgba(240,160,20,0.3);border-radius:3px;color:var(--accent);cursor:pointer;transition:all 0.2s;}
+    .add-btn:hover{background:rgba(240,160,20,0.1);border-color:var(--accent);}
+    .add-btn.out{border-color:rgba(255,255,255,0.08);color:rgba(255,255,255,0.18);cursor:not-allowed;}
+    #shopToast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(16px);background:rgba(6,6,6,0.96);border:1px solid rgba(240,160,20,0.3);color:#f0a014;font-family:var(--font-mono);font-size:0.55rem;letter-spacing:2px;padding:10px 24px;border-radius:100px;opacity:0;transition:all 0.3s;z-index:99999;white-space:nowrap;text-transform:uppercase;pointer-events:none;}
+    #shopToast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+    @media(max-width:600px){.dept-tabs{padding:30px 4% 0;}.dept-tab{padding:10px 14px;font-size:0.52rem;}.dept-panel{padding:30px 4% 80px;}.item-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;}}
+  </style>
+</head>
+<body>
+
+  <nav class="universe-nav">
+    <a href="index.html">Index</a>
+    <a href="dj.html">DJ</a>
+    <a href="shits.html">Shits</a>
+    <a href="earth.html">Earth</a>
+    <a href="writings.html">Writings</a>
+    <a href="lab.html">Lab</a>
+    <a href="products.html" class="active">Products</a>
+  </nav>
+
+  <header class="page-header">
+    <img src="images/MD_LOGO.png" class="page-logo" alt="THE.MAN.DO">
+    <h1 class="page-title">THE.MAN.DO.PRODUCTS</h1>
+    <p class="page-sub">just own it</p>
+  </header>
+
+  <!-- TABS -->
+  <div class="dept-tabs">
+    <button class="dept-tab active" onclick="switchTab('tshirts',this)">T-Shirts</button>
+    <button class="dept-tab" onclick="switchTab('books',this)">Books</button>
+    <button class="dept-tab" onclick="switchTab('shoes',this)">Shoes</button>
+    <button class="dept-tab" onclick="switchTab('helmets',this)">Helmets</button>
+    <button class="dept-tab" onclick="switchTab('hoodies',this)">Hoodies</button>
+    <button class="dept-tab" onclick="switchTab('accessories',this)">Accessories</button>
+  </div>
+
+  <!-- T-SHIRTS -->
+  <div class="dept-panel active" id="panel-tshirts">
+    <div class="item-grid">
+      <div class="item-card">
+        <div class="item-img">
+          <span class="img-placeholder">ADD YOUR<br>PHOTO HERE</span>
+          <span class="item-num">T-SHIRT 01</span>
+          <span class="item-stock s-in">In Stock</span>
+        </div>
+        <div class="item-info">
+          <div class="item-name">RAW SESSION TEE</div>
+          <div class="item-desc">Heavyweight 100% cotton. Dropped shoulder. Washed black.</div>
+          <div class="size-row">
+            <span class="sz" onclick="pickSz(this)">XS</span>
+            <span class="sz" onclick="pickSz(this)">S</span>
+            <span class="sz on" onclick="pickSz(this)">M</span>
+            <span class="sz" onclick="pickSz(this)">L</span>
+            <span class="sz" onclick="pickSz(this)">XL</span>
+          </div>
+          <div class="item-footer">
+            <div class="item-price"><sup>AED</sup>120</div>
+            <button class="add-btn" onclick="addItem(this,'RAW SESSION TEE')">ADD →</button>
+          </div>
+        </div>
+      </div>
+      <div class="item-card">
+        <div class="item-img">
+          <span class="img-placeholder">ADD YOUR<br>PHOTO HERE</span>
+          <span class="item-num">T-SHIRT 02</span>
+          <span class="item-stock s-low">Low Stock</span>
+        </div>
+        <div class="item-info">
+          <div class="item-name">FREQUENCY TEE</div>
+          <div class="item-desc">Oversized fit. Sound wave graphic. Off-white on black.</div>
+          <div class="size-row">
+            <span class="sz" onclick="pickSz(this)">S</span>
+            <span class="sz on" onclick="pickSz(this)">M</span>
+            <span class="sz" onclick="pickSz(this)">L</span>
+          </div>
+          <div class="item-footer">
+            <div class="item-price"><sup>AED</sup>135</div>
+            <button class="add-btn" onclick="addItem(this,'FREQUENCY TEE')">ADD →</button>
+          </div>
+        </div>
+      </div>
+      <div class="item-card">
+        <div class="item-img">
+          <span class="img-placeholder">ADD YOUR<br>PHOTO HERE</span>
+          <span class="item-num">T-SHIRT 03</span>
+          <span class="item-stock s-out">Sold Out</span>
+        </div>
+        <div class="item-info">
+          <div class="item-name">NO_NOISE TEE</div>
+          <div class="item-desc">Limited run. THE.MAN.DO universe print. Vintage wash.</div>
+          <div class="size-row">
+            <span class="sz" onclick="pickSz(this)">M</span>
+            <span class="sz" onclick="pickSz(this)">L</span>
+            <span class="sz" onclick="pickSz(this)">XL</span>
+          </div>
+          <div class="item-footer">
+            <div class="item-price"><sup>AED</sup>150</div>
+            <button class="add-btn out" disabled>SOLD OUT</button>
+          </div>
+        </div>
+      </div>
+      <!-- PASTE MORE T-SHIRTS HERE -->
+    </div>
+  </div>
+
+  <!-- BOOKS -->
+  <div class="dept-panel" id="panel-books">
+    <div class="item-grid">
+      <div class="item-card">
+        <div class="item-img" style="aspect-ratio:3/4;">
+          <span class="img-placeholder">ADD YOUR<br>COVER HERE</span>
+          <span class="item-num">BOOK 01</span>
+          <span class="item-stock s-in">In Stock</span>
+        </div>
+        <div class="item-info">
+          <div class="item-name">THE CIRCUS</div>
+          <div class="item-desc">A raw exploration of independent ecosystems. First edition. 180 pages.</div>
+          <div class="item-footer">
+            <div class="item-price"><sup>AED</sup>85</div>
+            <button class="add-btn" onclick="addItem(this,'THE CIRCUS')">ADD →</button>
+          </div>
+        </div>
+      </div>
+      <div class="item-card">
+        <div class="item-img" style="aspect-ratio:3/4;">
+          <span class="img-placeholder">ADD YOUR<br>COVER HERE</span>
+          <span class="item-num">BOOK 02</span>
+          <span class="item-stock s-low">Low Stock</span>
+        </div>
+        <div class="item-info">
+          <div class="item-name">NO FEED</div>
+          <div class="item-desc">Thoughts on building outside the algorithm. Signed copies.</div>
+          <div class="item-footer">
+            <div class="item-price"><sup>AED</sup>110</div>
+            <button class="add-btn" onclick="addItem(this,'NO FEED')">ADD →</button>
+          </div>
+        </div>
+      </div>
+      <div class="item-card">
+        <div class="item-img" style="aspect-ratio:3/4;">
+          <span class="img-placeholder">ADD YOUR<br>COVER HERE</span>
+          <span class="item-num">BOOK 03</span>
+          <span class="item-stock s-in">In Stock</span>
+        </div>
+        <div class="item-info">
+          <div class="item-name">RAW LOG</div>
+          <div class="item-desc">A journal. Blank pages. THE.MAN.DO embossed cover. Black.</div>
+          <div class="item-footer">
+            <div class="item-price"><sup>AED</sup>65</div>
+            <button class="add-btn" onclick="addItem(this,'RAW LOG')">ADD →</button>
+          </div>
+        </div>
+      </div>
+      <!-- PASTE MORE BOOKS HERE -->
+    </div>
+  </div>
+
+  <!-- SHOES -->
+  <div class="dept-panel" id="panel-shoes">
+    <div class="item-grid">
+      <div class="item-card">
+        <div class="item-img">
+          <span class="img-placeholder">ADD YOUR<br>PHOTO HERE</span>
+          <span class="item-num">SHOE 01</span>
+          <span class="item-stock s-in">In Stock</span>
+        </div>
+        <div class="item-info">
+          <div class="item-name">CORE_001 RUNNER</div>
+          <div class="item-desc">Minimalist silhouette. All black. Gum sole. Hand finished.</div>
+          <div class="size-row">
+            <span class="sz" onclick="pickSz(this)">40</span>
+            <span class="sz" onclick="pickSz(this)">41</span>
+            <span class="sz on" onclick="pickSz(this)">42</span>
+            <span class="sz" onclick="pickSz(this)">43</span>
+            <span class="sz" onclick="pickSz(this)">44</span>
+            <span class="sz" onclick="pickSz(this)">45</span>
+          </div>
+          <div class="item-footer">
+            <div class="item-price"><sup>AED</sup>480</div>
+            <button class="add-btn" onclick="addItem(this,'CORE_001 RUNNER')">ADD →</button>
+          </div>
+        </div>
+      </div>
+      <div class="item-card">
+        <div class="item-img">
+          <span class="img-placeholder">ADD YOUR<br>PHOTO HERE</span>
+          <span class="item-num">SHOE 02</span>
+          <span class="item-stock s-low">Low Stock</span>
+        </div>
+        <div class="item-info">
+          <div class="item-name">VOID SLIP-ON</div>
+          <div class="item-desc">Canvas upper. Raw edge. No lace. Deep black only.</div>
+          <div class="size-row">
+            <span class="sz" onclick="pickSz(this)">41</span>
+            <span class="sz on" onclick="pickSz(this)">42</span>
+            <span class="sz" onclick="pickSz(this)">43</span>
+          </div>
+          <div class="item-footer">
+            <div class="item-price"><sup>AED</sup>320</div>
+            <button class="add-btn" onclick="addItem(this,'VOID SLIP-ON')">ADD →</button>
+          </div>
+        </div>
+      </div>
+      <div class="item-card">
+        <div class="item-img">
+          <span class="img-placeholder">ADD YOUR<br>PHOTO HERE</span>
+          <span class="item-num">SHOE 03</span>
+          <span class="item-stock s-in">In Stock</span>
+        </div>
+        <div class="item-info">
+          <div class="item-name">GROUND BOOT</div>
+          <div class="item-desc">Heavy leather. Lug sole. Contrast stitch. Aged black.</div>
+          <div class="size-row">
+            <span class="sz" onclick="pickSz(this)">40</span>
+            <span class="sz" onclick="pickSz(this)">41</span>
+            <span class="sz on" onclick="pickSz(this)">42</span>
+            <span class="sz" onclick="pickSz(this)">43</span>
+            <span class="sz" onclick="pickSz(this)">44</span>
+          </div>
+          <div class="item-footer">
+            <div class="item-price"><sup>AED</sup>560</div>
+            <button class="add-btn" onclick="addItem(this,'GROUND BOOT')">ADD →</button>
+          </div>
+        </div>
+      </div>
+      <!-- PASTE MORE SHOES HERE -->
+    </div>
+  </div>
+
+  <!-- HELMETS -->
+  <div class="dept-panel" id="panel-helmets">
+    <div class="item-grid">
+      <div class="item-card">
+        <div class="item-img">
+          <span class="img-placeholder">ADD YOUR<br>PHOTO HERE</span>
+          <span class="item-num">HELMET 01</span>
+          <span class="item-stock s-in">In Stock</span>
+        </div>
+        <div class="item-info">
+          <div class="item-name">SIGNAL LID</div>
+          <div class="item-desc">Full-face. Matte black. THE.MAN.DO visor decal. DOT certified.</div>
+          <div class="size-row">
+            <span class="sz" onclick="pickSz(this)">S</span>
+            <span class="sz on" onclick="pickSz(this)">M</span>
+            <span class="sz" onclick="pickSz(this)">L</span>
+            <span class="sz" onclick="pickSz(this)">XL</span>
+          </div>
+          <div class="item-footer">
+            <div class="item-price"><sup>AED</sup>890</div>
+            <button class="add-btn" onclick="addItem(this,'SIGNAL LID')">ADD →</button>
+          </div>
+        </div>
+      </div>
+      <div class="item-card">
+        <div class="item-img">
+          <span class="img-placeholder">ADD YOUR<br>PHOTO HERE</span>
+          <span class="item-num">HELMET 02</span>
+          <span class="item-stock s-low">Low Stock</span>
+        </div>
+        <div class="item-info">
+          <div class="item-name">RAW OPEN FACE</div>
+          <div class="item-desc">3/4 shell. Scrambler style. Flat black. Snap-on visor.</div>
+          <div class="size-row">
+            <span class="sz" onclick="pickSz(this)">S</span>
+            <span class="sz on" onclick="pickSz(this)">M</span>
+            <span class="sz" onclick="pickSz(this)">L</span>
+          </div>
+          <div class="item-footer">
+            <div class="item-price"><sup>AED</sup>650</div>
+            <button class="add-btn" onclick="addItem(this,'RAW OPEN FACE')">ADD →</button>
+          </div>
+        </div>
+      </div>
+      <!-- PASTE MORE HELMETS HERE -->
+    </div>
+  </div>
+
+  <!-- HOODIES -->
+  <div class="dept-panel" id="panel-hoodies">
+    <div class="item-grid">
+      <div class="item-card">
+        <div class="item-img">
+          <span class="img-placeholder">ADD YOUR<br>PHOTO HERE</span>
+          <span class="item-num">HOODIE 01</span>
+          <span class="item-stock s-in">In Stock</span>
+        </div>
+        <div class="item-info">
+          <div class="item-name">UNIVERSE HOODIE</div>
+          <div class="item-desc">400gsm fleece. Boxy fit. Embroidered logo. Washed black.</div>
+          <div class="size-row">
+            <span class="sz" onclick="pickSz(this)">S</span>
+            <span class="sz on" onclick="pickSz(this)">M</span>
+            <span class="sz" onclick="pickSz(this)">L</span>
+            <span class="sz" onclick="pickSz(this)">XL</span>
+          </div>
+          <div class="item-footer">
+            <div class="item-price"><sup>AED</sup>280</div>
+            <button class="add-btn" onclick="addItem(this,'UNIVERSE HOODIE')">ADD →</button>
+          </div>
+        </div>
+      </div>
+      <div class="item-card">
+        <div class="item-img">
+          <span class="img-placeholder">ADD YOUR<br>PHOTO HERE</span>
+          <span class="item-num">HOODIE 02</span>
+          <span class="item-stock s-in">In Stock</span>
+        </div>
+        <div class="item-info">
+          <div class="item-name">CORE ZIP</div>
+          <div class="item-desc">Full-zip. Heavy fleece. No logo — just the feel. Black.</div>
+          <div class="size-row">
+            <span class="sz" onclick="pickSz(this)">S</span>
+            <span class="sz on" onclick="pickSz(this)">M</span>
+            <span class="sz" onclick="pickSz(this)">L</span>
+            <span class="sz" onclick="pickSz(this)">XL</span>
+            <span class="sz" onclick="pickSz(this)">XXL</span>
+          </div>
+          <div class="item-footer">
+            <div class="item-price"><sup>AED</sup>310</div>
+            <button class="add-btn" onclick="addItem(this,'CORE ZIP')">ADD →</button>
+          </div>
+        </div>
+      </div>
+      <div class="item-card">
+        <div class="item-img">
+          <span class="img-placeholder">ADD YOUR<br>PHOTO HERE</span>
+          <span class="item-num">HOODIE 03</span>
+          <span class="item-stock s-out">Sold Out</span>
+        </div>
+        <div class="item-info">
+          <div class="item-name">VOID CREWNECK</div>
+          <div class="item-desc">Crewneck cut. Side split hem. Raw sleeve edge. One run only.</div>
+          <div class="size-row">
+            <span class="sz" onclick="pickSz(this)">M</span>
+            <span class="sz" onclick="pickSz(this)">L</span>
+          </div>
+          <div class="item-footer">
+            <div class="item-price"><sup>AED</sup>260</div>
+            <button class="add-btn out" disabled>SOLD OUT</button>
+          </div>
+        </div>
+      </div>
+      <!-- PASTE MORE HOODIES HERE -->
+    </div>
+  </div>
+
+  <!-- ACCESSORIES -->
+  <div class="dept-panel" id="panel-accessories">
+    <div class="item-grid">
+      <div class="item-card">
+        <div class="item-img">
+          <span class="img-placeholder">ADD YOUR<br>PHOTO HERE</span>
+          <span class="item-num">ACC 01</span>
+          <span class="item-stock s-in">In Stock</span>
+        </div>
+        <div class="item-info">
+          <div class="item-name">SIGNAL CAP</div>
+          <div class="item-desc">6-panel structured cap. Embroidered THE.MAN.DO. All black.</div>
+          <div class="size-row"><span class="sz on" onclick="pickSz(this)">ONE SIZE</span></div>
+          <div class="item-footer">
+            <div class="item-price"><sup>AED</sup>95</div>
+            <button class="add-btn" onclick="addItem(this,'SIGNAL CAP')">ADD →</button>
+          </div>
+        </div>
+      </div>
+      <div class="item-card">
+        <div class="item-img">
+          <span class="img-placeholder">ADD YOUR<br>PHOTO HERE</span>
+          <span class="item-num">ACC 02</span>
+          <span class="item-stock s-in">In Stock</span>
+        </div>
+        <div class="item-info">
+          <div class="item-name">CORE TOTE</div>
+          <div class="item-desc">Heavy canvas. Black on black print. Double stitched handles.</div>
+          <div class="size-row"><span class="sz on" onclick="pickSz(this)">ONE SIZE</span></div>
+          <div class="item-footer">
+            <div class="item-price"><sup>AED</sup>75</div>
+            <button class="add-btn" onclick="addItem(this,'CORE TOTE')">ADD →</button>
+          </div>
+        </div>
+      </div>
+      <div class="item-card">
+        <div class="item-img">
+          <span class="img-placeholder">ADD YOUR<br>PHOTO HERE</span>
+          <span class="item-num">ACC 03</span>
+          <span class="item-stock s-low">Low Stock</span>
+        </div>
+        <div class="item-info">
+          <div class="item-name">VOID WALLET</div>
+          <div class="item-desc">Slim bifold. Vegetable tanned leather. Gold foil stamp.</div>
+          <div class="size-row"><span class="sz on" onclick="pickSz(this)">ONE SIZE</span></div>
+          <div class="item-footer">
+            <div class="item-price"><sup>AED</sup>120</div>
+            <button class="add-btn" onclick="addItem(this,'VOID WALLET')">ADD →</button>
+          </div>
+        </div>
+      </div>
+      <!-- PASTE MORE ACCESSORIES HERE -->
+    </div>
+  </div>
+
+  <div id="shopToast"></div>
+
+  <div class="chat-trigger" onclick="toggleChat()" id="chatBtn">MSG</div>
+  <div class="chat-dock" id="chatBox">
+    <div class="chat-header">
+      <span>COMM_LINK_V1</span>
+      <span class="chat-close" onclick="toggleChat()">[ CLOSE ]</span>
+    </div>
+    <iframe src="https://www5.cbox.ws/box/?boxid=962257&boxtag=nzOFGW" width="100%" height="400" allowtransparency="yes" frameborder="0" style="display:block;"></iframe>
+  </div>
+
+<script>
+function switchTab(id,btn){
+  document.querySelectorAll('.dept-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.dept-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-'+id).classList.add('active');
+}
+function pickSz(chip){
+  chip.closest('.size-row').querySelectorAll('.sz').forEach(s=>s.classList.remove('on'));
+  chip.classList.add('on');
+}
+function addItem(btn,name){
+  const card=btn.closest('.item-card');
+  const sz=card.querySelector('.sz.on');
+  const size=sz?sz.textContent.trim():'';
+  const label=size&&size!=='ONE SIZE'?name+' / '+size:name;
+  const orig=btn.textContent;
+  btn.textContent='ADDED ✓';
+  btn.style.borderColor='rgba(80,200,100,0.6)';
+  btn.style.color='rgba(80,200,100,0.8)';
+  setTimeout(()=>{btn.textContent=orig;btn.style.borderColor='';btn.style.color='';},1800);
+  toast(label+' — added');
+}
+function toast(msg){
+  const t=document.getElementById('shopToast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2500);
+}
+function toggleChat(){
+  const box=document.getElementById('chatBox');
+  const btn=document.getElementById('chatBtn');
+  box.classList.toggle('active');
+  btn.textContent=box.classList.contains('active')?'CLOSE':'MSG';
+}
+</script>
+  <script src="universe.js"></script>
+</body>
+</html>
