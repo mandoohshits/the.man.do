@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DJ / THE.MAN.DO</title>
+  <link rel="stylesheet" href="universe.css">
+</head>
+<body>
+
+  <nav class="universe-nav">
+    <a href="products.html">products</a>
+    <a href="index.html">Index</a>
+    <a href="dj.html" class="active">DJ</a>
+    <a href="shits.html">Shits</a>
+    <a href="earth.html">Earth</a>
+    <a href="writings.html">Writings</a>
+    <a href="lab.html">Lab</a>
+  </nav>
+
+  <main class="dj-hero">
+
+    <div style="text-align:center;">
+      <img src="images/MD_LOGO.png" class="logo" alt="THE.MAN.DO" style="width:80px;opacity:0.7;margin-bottom:16px;">
+      <h1 style="font-family:var(--font-display);font-size:clamp(2.5rem,8vw,5rem);letter-spacing:6px;color:var(--text);margin-bottom:8px;"> The.man.do.dj</h1>
+      <p style="font-family:var(--font-mono);font-size:0.58rem;color:var(--accent);letter-spacing:5px;text-transform:uppercase;">
+        If you found this page — you were meant to hear it
+      </p>
+    </div>
+
+    <div class="dj-console">
+
+      <div class="mix-module">
+        <div class="mix-info">
+          <span class="mix-number">01</span>
+          <span class="mix-name">RAW_SESSIONS_001</span>
+        </div>
+        <div class="audio-player">
+          <audio controls>
+            <source src="YOUR_AUDIO_LINK_HERE.mp3" type="audio/mpeg">
+          </audio>
+        </div>
+      </div>
+
+      <div class="mix-module">
+        <div class="mix-info">
+          <span class="mix-number">02</span>
+          <span class="mix-name">MIDNIGHT_CORE</span>
+        </div>
+        <div class="audio-player">
+          <audio controls>
+            <source src="YOUR_AUDIO_LINK_HERE_2.mp3" type="audio/mpeg">
+          </audio>
+        </div>
+      </div>
+
+      <div class="mix-module">
+        <div class="mix-info">
+          <span class="mix-number">03</span>
+          <span class="mix-name">DESERT_FREQUENCY</span>
+        </div>
+        <div class="audio-player">
+          <audio controls>
+            <source src="YOUR_AUDIO_LINK_HERE_3.mp3" type="audio/mpeg">
+          </audio>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <div class="chat-trigger" onclick="toggleChat()" id="chatBtn">MSG</div>
+
+  <div class="chat-dock" id="chatBox">
+    <div class="chat-header">
+      <span>COMM_LINK_V1</span>
+      <span class="chat-close" onclick="toggleChat()">[ CLOSE ]</span>
+    </div>
+    <iframe
+      src="https://www5.cbox.ws/box/?boxid=962257&boxtag=nzOFGW"
+      width="100%" height="400"
+      allowtransparency="yes" frameborder="0"
+      style="display:block;">
+    </iframe>
+  </div>
+
+  <script src="universe.js"></script>
+</body>
+</html>
