@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   animateCursor();
 
-  document.querySelectorAll('a, button, .nav-module, .lab-card, .earth-card, .mix-module, .video-artifact-container, .chat-trigger').forEach(el => {
+  document.querySelectorAll('a, button, .nav-module, .lab-card, .earth-card, .mix-module, .chat-trigger, .video-wrap, .item-card, .dept-tab').forEach(el => {
     el.addEventListener('mouseenter', () => cursor.style.transform = 'translate(-50%,-50%) scale(3)');
     el.addEventListener('mouseleave', () => cursor.style.transform = 'translate(-50%,-50%) scale(1)');
   });
@@ -36,40 +36,23 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* ── STAGGER FADE IN ── */
-  document.querySelectorAll('.lab-card, .earth-card, .mix-module, .writing-entry, .book-featured').forEach((el, i) => {
+  document.querySelectorAll('.lab-card, .earth-card, .mix-module, .writing-entry, .book-featured, .item-card, .video-post').forEach((el, i) => {
     el.style.opacity = '0';
     el.style.transform = 'translateY(18px)';
-    el.style.transition = `opacity 0.6s ease ${i * 0.1}s, transform 0.6s ease ${i * 0.1}s`;
+    el.style.transition = `opacity 0.6s ease ${i * 0.08}s, transform 0.6s ease ${i * 0.08}s`;
     setTimeout(() => {
       el.style.opacity = '1';
       el.style.transform = 'translateY(0)';
-    }, 80 + i * 80);
+    }, 60 + i * 70);
   });
-
-  /* ── VIDEO LOADER STATE ── */
-  const video  = document.getElementById('thingVideo');
-  const loader = document.querySelector('.video-loader');
-  if (video && loader) {
-    video.addEventListener('waiting', () => loader.classList.add('active'));
-    video.addEventListener('playing', () => loader.classList.remove('active'));
-    video.addEventListener('canplay', () => loader.classList.remove('active'));
-  }
 
 });
 
-/* ── CHAT TOGGLE (global) ── */
+/* ── CHAT TOGGLE ── */
 function toggleChat() {
   const chatBox = document.getElementById('chatBox');
   const chatBtn = document.getElementById('chatBtn');
   if (!chatBox) return;
   chatBox.classList.toggle('active');
   chatBtn.textContent = chatBox.classList.contains('active') ? 'CLOSE' : 'MSG';
-}
-
-/* ── VIDEO TOGGLE (shits page) ── */
-function toggleVideoSize() {
-  const video = document.getElementById('thingVideo');
-  if (!video) return;
-  video.classList.toggle('expanded');
-  video.muted = !video.classList.contains('expanded');
 }
