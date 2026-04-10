@@ -6,7 +6,6 @@
   <title>SHITS // THE.MAN.DO</title>
   <link rel="stylesheet" href="universe.css">
   <style>
-
     .shits-feed {
       display: flex;
       flex-direction: column;
@@ -22,7 +21,7 @@
       flex-direction: column;
     }
 
-    /* ── VIDEO WRAP — two states ── */
+    /* SMALL by default, EXPANDED on click */
     .video-wrap {
       position: relative;
       border-radius: 16px 16px 0 0;
@@ -31,110 +30,98 @@
       border: 1px solid rgba(255,255,255,0.07);
       border-bottom: none;
       cursor: pointer;
-      /* SMALL state by default */
-      height: 120px;
+      height: 110px;
       transition: height 0.5s cubic-bezier(0.16,1,0.3,1), border-color 0.3s;
     }
 
-    /* EXPANDED state */
     .video-wrap.expanded {
-      height: calc(720px * 9/16); /* 16:9 of max-width */
+      height: calc(720px * 9 / 16);
       border-color: rgba(240,160,20,0.25);
     }
 
-    /* Fallback for narrower screens */
     @media (max-width: 760px) {
-      .video-wrap.expanded { height: calc(100vw * 0.9 * 9/16); }
+      .video-wrap.expanded { height: calc(90vw * 9 / 16); }
     }
 
-    .main-video {
+    /* YouTube iframe fills the wrap */
+    .yt-player {
+      position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
-      display: block;
-      object-fit: cover;
       opacity: 0;
       transition: opacity 0.4s;
+      pointer-events: none;
     }
 
-    .main-video.visible { opacity: 1; }
+    .video-wrap.expanded .yt-player {
+      pointer-events: all;
+      opacity: 1;
+    }
 
-    /* ── SKELETON / THUMBNAIL ── */
+    .yt-player iframe {
+      width: 100% !important;
+      height: 100% !important;
+      border: none;
+      display: block;
+    }
+
+    /* Skeleton overlay — shown before first play */
     .video-skeleton {
       position: absolute;
       inset: 0;
-      background: #080808;
+      background: #090909;
       display: flex;
       flex-direction: row;
       align-items: center;
-      justify-content: flex-start;
       gap: 16px;
       padding: 0 20px;
-      z-index: 5;
+      z-index: 10;
       transition: opacity 0.4s;
     }
 
-    /* When expanded, center everything */
     .video-wrap.expanded .video-skeleton {
       flex-direction: column;
       justify-content: center;
       padding: 0;
     }
 
-    .video-skeleton.hidden { opacity: 0; pointer-events: none; }
-
-    .thumb-img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0.4;
-      transition: opacity 0.3s;
+    .video-skeleton.hidden {
+      opacity: 0;
+      pointer-events: none;
     }
 
-    .video-wrap.expanded .thumb-img { opacity: 0.55; }
-    .video-wrap:hover .thumb-img    { opacity: 0.5; }
-
-    /* Play circle */
+    /* Play button in skeleton */
     .play-trigger {
       position: relative;
       z-index: 2;
-      width: 38px;
-      height: 38px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       border: 1px solid rgba(240,160,20,0.5);
-      background: rgba(6,6,6,0.8);
+      background: rgba(6,6,6,0.85);
       display: flex;
       align-items: center;
       justify-content: center;
       font-family: var(--font-mono);
-      font-size: 0.45rem;
-      letter-spacing: 2px;
+      font-size: 0.5rem;
       color: var(--accent);
       flex-shrink: 0;
       transition: transform 0.2s, background 0.2s;
     }
 
     .video-wrap.expanded .play-trigger {
-      width: 56px;
-      height: 56px;
-      font-size: 0.55rem;
-    }
-
-    .video-wrap:hover .play-trigger { transform: scale(1.1); background: rgba(240,160,20,0.15); }
-
-    .skeleton-title {
-      position: relative;
-      z-index: 2;
-      font-family: var(--font-mono);
+      width: 52px;
+      height: 52px;
       font-size: 0.6rem;
-      letter-spacing: 4px;
-      color: var(--accent);
-      text-transform: uppercase;
-      opacity: 0.7;
     }
 
-    /* Buffering dots — only show when loading */
+    .video-wrap:hover .play-trigger {
+      background: rgba(240,160,20,0.15);
+      transform: scale(1.1);
+    }
+
+    /* Buffering dots — shown while loading */
     .skeleton-dots {
       position: relative;
       z-index: 2;
@@ -156,53 +143,33 @@
     .video-skeleton.loading .skeleton-dot:nth-child(2) { animation: dotPulse 1s ease-in-out infinite 0.2s; }
     .video-skeleton.loading .skeleton-dot:nth-child(3) { animation: dotPulse 1s ease-in-out infinite 0.4s; }
 
-    /* Expand hint — small state only */
+    .skeleton-title {
+      position: relative;
+      z-index: 2;
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      letter-spacing: 4px;
+      color: var(--accent);
+      text-transform: uppercase;
+      opacity: 0.65;
+    }
+
+    /* "CLICK TO EXPAND" hint on right side */
     .expand-hint {
       position: absolute;
       right: 14px;
       top: 50%;
       transform: translateY(-50%);
-      z-index: 6;
+      z-index: 11;
       font-family: var(--font-mono);
-      font-size: 0.45rem;
+      font-size: 0.42rem;
       letter-spacing: 2px;
-      color: rgba(240,160,20,0.35);
+      color: rgba(240,160,20,0.3);
       text-transform: uppercase;
-      transition: opacity 0.3s;
       pointer-events: none;
     }
 
     .video-wrap.expanded .expand-hint { display: none; }
-
-    /* Pause overlay */
-    .pause-overlay {
-      position: absolute;
-      inset: 0;
-      z-index: 4;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transition: opacity 0.2s;
-      pointer-events: none;
-    }
-
-    .pause-overlay.visible { opacity: 1; }
-
-    .pause-icon {
-      width: 46px;
-      height: 46px;
-      border-radius: 50%;
-      border: 1px solid rgba(240,160,20,0.4);
-      background: rgba(6,6,6,0.75);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--font-mono);
-      font-size: 0.48rem;
-      letter-spacing: 1px;
-      color: var(--accent);
-    }
 
     /* ── STATUS BAR ── */
     .video-status-bar {
@@ -228,23 +195,37 @@
       border-radius: 50%;
       background: var(--accent);
       opacity: 0.12;
-      transition: opacity 0.3s;
     }
 
-    /* Bar states */
-    .vsb-buffering .buf-dot:nth-child(1) { animation: dotPulse 1s ease-in-out infinite 0s;   opacity:1; }
-    .vsb-buffering .buf-dot:nth-child(2) { animation: dotPulse 1s ease-in-out infinite 0.2s; opacity:1; }
-    .vsb-buffering .buf-dot:nth-child(3) { animation: dotPulse 1s ease-in-out infinite 0.4s; opacity:1; }
-    .vsb-buffering .buf-text  { opacity:1; } .vsb-buffering .play-text  { opacity:0; } .vsb-buffering .pause-text { opacity:0; } .vsb-buffering .waveform-mini { opacity:0; }
+    /* idle */
+    .vsb-idle .buf-dot   { opacity:0.1; animation:none!important; }
+    .vsb-idle .buf-text  { opacity:0.2; }
+    .vsb-idle .play-text { opacity:0; }
+    .vsb-idle .pause-text{ opacity:0; }
+    .vsb-idle .waveform-mini { opacity:0; }
 
-    .vsb-playing .buf-dot { opacity:0.08; animation:none!important; }
-    .vsb-playing .buf-text  { opacity:0; } .vsb-playing .play-text  { opacity:0.85; } .vsb-playing .pause-text { opacity:0; } .vsb-playing .waveform-mini { opacity:1; }
+    /* buffering */
+    .vsb-buffering .buf-dot:nth-child(1){ animation:dotPulse 1s ease-in-out infinite 0s;   opacity:1; }
+    .vsb-buffering .buf-dot:nth-child(2){ animation:dotPulse 1s ease-in-out infinite 0.2s; opacity:1; }
+    .vsb-buffering .buf-dot:nth-child(3){ animation:dotPulse 1s ease-in-out infinite 0.4s; opacity:1; }
+    .vsb-buffering .buf-text  { opacity:1; }
+    .vsb-buffering .play-text { opacity:0; }
+    .vsb-buffering .pause-text{ opacity:0; }
+    .vsb-buffering .waveform-mini { opacity:0; }
 
-    .vsb-paused .buf-dot { opacity:0.08; animation:none!important; }
-    .vsb-paused .buf-text  { opacity:0; } .vsb-paused .play-text  { opacity:0; } .vsb-paused .pause-text { opacity:0.5; } .vsb-paused .waveform-mini { opacity:0; }
+    /* playing */
+    .vsb-playing .buf-dot   { opacity:0.08; animation:none!important; }
+    .vsb-playing .buf-text  { opacity:0; }
+    .vsb-playing .play-text { opacity:0.85; }
+    .vsb-playing .pause-text{ opacity:0; }
+    .vsb-playing .waveform-mini { opacity:1; }
 
-    .vsb-idle .buf-dot { opacity:0.08; animation:none!important; }
-    .vsb-idle .buf-text  { opacity:0.2; } .vsb-idle .play-text  { opacity:0; } .vsb-idle .pause-text { opacity:0; } .vsb-idle .waveform-mini { opacity:0; }
+    /* paused */
+    .vsb-paused .buf-dot   { opacity:0.08; animation:none!important; }
+    .vsb-paused .buf-text  { opacity:0; }
+    .vsb-paused .play-text { opacity:0; }
+    .vsb-paused .pause-text{ opacity:0.5; }
+    .vsb-paused .waveform-mini { opacity:0; }
 
     .buf-text, .play-text, .pause-text {
       font-family: var(--font-mono);
@@ -285,29 +266,8 @@
     .video-post-title { font-family:var(--font-mono); font-size:0.6rem; letter-spacing:2px; color:var(--text); text-transform:uppercase; }
     .video-post-meta  { font-family:var(--font-mono); font-size:0.48rem; letter-spacing:1px; color:rgba(240,236,224,0.25); text-transform:uppercase; }
 
-    /* ── VOLUME TOGGLE (shows in status bar when playing) ── */
-    .vol-btn {
-      font-family: var(--font-mono);
-      font-size: 0.48rem;
-      letter-spacing: 1px;
-      color: rgba(240,160,20,0.4);
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 0;
-      transition: color 0.2s;
-      text-transform: uppercase;
-      display: none;
-    }
-
-    .vsb-playing .vol-btn,
-    .vsb-paused  .vol-btn { display: inline; }
-
-    .vol-btn:hover { color: var(--accent); }
-
     @keyframes dotPulse { 0%,100%{ opacity:0.15; transform:scale(1); } 50%{ opacity:1; transform:scale(1.5); } }
     @keyframes waveBar  { from{ transform:scaleY(0.3); opacity:0.4; } to{ transform:scaleY(1); opacity:1; } }
-
   </style>
 </head>
 <body>
@@ -331,23 +291,22 @@
   <main class="shits-feed">
 
     <!--
-    ════════════════════════════════════════
+    ════════════════════════════════════
     HOW TO ADD A VIDEO:
-    1. Put video in:  videos/yourfile.mp4
-    2. Put thumb in:  videos/thumb/yourthumb.png
-    3. Copy this whole video-post block
-    4. Change ALL IDs: vid-1→vid-2, wrap-1→wrap-2,
-       skel-1→skel-2, bar-1→bar-2, pause-1→pause-2
-    5. Update src, title, meta
-    ════════════════════════════════════════
+    1. Get your YouTube video ID
+       e.g. youtube.com/watch?v=ZmMQv3IzdAg
+       ID = ZmMQv3IzdAg
+    2. Add it to VIDEO_LIST in the script below
+    3. Copy this video-post block
+    4. Change the numbers: wrap-2, skel-2, bar-2, yt-2
+    5. Update title and meta text
+    ════════════════════════════════════
     -->
 
     <!-- VIDEO 1 -->
     <div class="video-post">
-      <div class="video-wrap" id="wrap-1" onclick="handleClick('vid-1','wrap-1','skel-1','bar-1','pause-1')">
-
+      <div class="video-wrap" id="wrap-1" onclick="handleClick('yt-1','wrap-1','skel-1','bar-1')">
         <div class="video-skeleton" id="skel-1">
-          <img src="videos/thumb/core thumb.png" class="thumb-img" alt="Into The Wild">
           <div class="skeleton-dots">
             <div class="skeleton-dot"></div>
             <div class="skeleton-dot"></div>
@@ -356,22 +315,8 @@
           <div class="play-trigger">▶</div>
           <span class="skeleton-title">INTO THE WILD</span>
         </div>
-
         <span class="expand-hint">CLICK TO EXPAND</span>
-
-        <div class="pause-overlay" id="pause-1">
-          <div class="pause-icon">II</div>
-        </div>
-
-        <video
-          id="vid-1"
-          class="main-video"
-          preload="auto"
-          playsinline
-          loop>
-          <source src="videos/thecore (1).mp4" type="video/mp4">
-        </video>
-
+        <div id="yt-1" class="yt-player"></div>
       </div>
       <div class="video-status-bar vsb-idle" id="bar-1">
         <div class="status-left">
@@ -386,7 +331,6 @@
           <div class="waveform-mini">
             <span></span><span></span><span></span><span></span><span></span>
           </div>
-          <button class="vol-btn" id="vol-1" onclick="toggleVol(event,'vid-1','vol-1')">VOL: ON</button>
         </div>
         <div class="status-right">
           <span class="video-post-title">INTO THE WILD</span>
@@ -395,7 +339,7 @@
       </div>
     </div>
 
-    <!-- PASTE MORE VIDEO POSTS HERE -->
+    <!-- PASTE MORE VIDEO POSTS HERE (copy block above, change numbers) -->
 
   </main>
 
@@ -415,107 +359,96 @@
   </div>
 
 <script>
-// Tracks which video has been played before (past first click)
-const played = {};
+// ══════════════════════════════════════════════
+// ADD YOUR YOUTUBE VIDEO IDs HERE
+// Just add a new line for each video
+// ══════════════════════════════════════════════
+const VIDEO_LIST = [
+  { playerId:'yt-1', videoId:'ZmMQv3IzdAg', wrapId:'wrap-1', skelId:'skel-1', barId:'bar-1' },
+  // { playerId:'yt-2', videoId:'YOUR_ID_HERE', wrapId:'wrap-2', skelId:'skel-2', barId:'bar-2' },
+  // { playerId:'yt-3', videoId:'YOUR_ID_HERE', wrapId:'wrap-3', skelId:'skel-3', barId:'bar-3' },
+];
 
-function handleClick(vidId, wrapId, skelId, barId, pauseId) {
-  const video   = document.getElementById(vidId);
-  const wrap    = document.getElementById(wrapId);
-  const skel    = document.getElementById(skelId);
-  const bar     = document.getElementById(barId);
-  const overlay = document.getElementById(pauseId);
+// ── INTERNALS ─────────────────────────────────
+const players = {};
+const YT_STATE = { UNSTARTED:-1, ENDED:0, PLAYING:1, PAUSED:2, BUFFERING:3, CUED:5 };
 
-  if (!video) return;
-
-  // ── FIRST CLICK: expand + play with sound ──────────
-  if (!played[vidId]) {
-    played[vidId] = true;
-
-    // Expand to full size
-    wrap.classList.add('expanded');
-
-    // Show buffering
-    skel.classList.add('loading');
-    setBar(bar, 'buffering');
-
-    // Play WITH sound
-    video.muted = false;
-    video.play().then(() => {
-      video.classList.add('visible');
-      skel.classList.add('hidden');
-      setBar(bar, 'playing');
-    }).catch(() => {
-      // Autoplay blocked — try muted then unmute
-      video.muted = true;
-      video.play().then(() => {
-        video.muted = false;
-        video.classList.add('visible');
-        skel.classList.add('hidden');
-        setBar(bar, 'playing');
-      });
-    });
-
-    return;
-  }
-
-  // ── SUBSEQUENT CLICKS: toggle pause/play ───────────
-  if (video.paused) {
-    video.play();
-    wrap.classList.add('expanded');
-    overlay.classList.remove('visible');
-    setBar(bar, 'playing');
-  } else {
-    video.pause();
-    wrap.classList.remove('expanded');
-    overlay.classList.add('visible');
-    setBar(bar, 'paused');
-  }
-}
-
-function setBar(bar, state) {
-  if (!bar) return;
-  bar.className = 'video-status-bar vsb-' + state;
-}
-
-// Volume toggle button in status bar
-function toggleVol(e, vidId, btnId) {
-  e.stopPropagation(); // don't trigger wrap click
-  const video = document.getElementById(vidId);
-  const btn   = document.getElementById(btnId);
-  if (!video || !btn) return;
-  video.muted = !video.muted;
-  btn.textContent = video.muted ? 'VOL: OFF' : 'VOL: ON';
-}
-
-// Wire up video events
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.video-post').forEach(post => {
-    const video   = post.querySelector('.main-video');
-    const barEl   = post.querySelector('.video-status-bar');
-    const pauseEl = post.querySelector('.pause-overlay');
-
-    if (!video || !barEl) return;
-
-    video.addEventListener('waiting', () => { if (played[video.id]) setBar(barEl, 'buffering'); });
-    video.addEventListener('stalled', () => { if (played[video.id]) setBar(barEl, 'buffering'); });
-    video.addEventListener('playing', () => {
-      setBar(barEl, 'playing');
-      video.classList.add('visible');
-      const skel = post.querySelector('.video-skeleton');
-      if (skel) skel.classList.add('hidden');
-      if (pauseEl) pauseEl.classList.remove('visible');
-    });
-    video.addEventListener('pause', () => {
-      if (video.currentTime > 0) {
-        const wrap = post.querySelector('.video-wrap');
-        if (wrap) wrap.classList.remove('expanded');
-        if (pauseEl) pauseEl.classList.add('visible');
-        setBar(barEl, 'paused');
+// YouTube calls this automatically when API is ready
+function onYouTubeIframeAPIReady() {
+  VIDEO_LIST.forEach(v => {
+    players[v.playerId] = new YT.Player(v.playerId, {
+      videoId: v.videoId,
+      playerVars: {
+        autoplay:       0,
+        controls:       1,
+        modestbranding: 1,
+        rel:            0,
+        playsinline:    1,
+        fs:             1,
+      },
+      events: {
+        onReady:       () => setBar(v.barId, 'idle'),
+        onStateChange: (e) => onStateChange(e, v),
       }
     });
-    video.addEventListener('ended', () => setBar(barEl, 'idle'));
   });
-});
+}
+
+function onStateChange(e, v) {
+  const wrap = document.getElementById(v.wrapId);
+  const skel = document.getElementById(v.skelId);
+  const ytEl = document.getElementById(v.playerId);
+
+  if (e.data === YT_STATE.BUFFERING) {
+    setBar(v.barId, 'buffering');
+  }
+
+  if (e.data === YT_STATE.PLAYING) {
+    // Show player, hide skeleton, expand
+    if (ytEl) ytEl.style.opacity = '1';
+    if (skel) skel.classList.add('hidden');
+    if (wrap) wrap.classList.add('expanded');
+    setBar(v.barId, 'playing');
+  }
+
+  if (e.data === YT_STATE.PAUSED) {
+    // Collapse back to small
+    if (wrap) wrap.classList.remove('expanded');
+    setBar(v.barId, 'paused');
+  }
+
+  if (e.data === YT_STATE.ENDED) {
+    if (wrap) wrap.classList.remove('expanded');
+    setBar(v.barId, 'idle');
+  }
+}
+
+function handleClick(playerId, wrapId, skelId, barId) {
+  const player = players[playerId];
+  const skel   = document.getElementById(skelId);
+
+  // Player not ready yet — ignore click
+  if (!player || typeof player.getPlayerState !== 'function') return;
+
+  const state = player.getPlayerState();
+
+  if (state === YT_STATE.PLAYING) {
+    player.pauseVideo();
+  } else {
+    // Show buffering dots while YouTube loads
+    if (skel) skel.classList.add('loading');
+    setBar(barId, 'buffering');
+    // Unmute and play
+    player.unMute();
+    player.setVolume(100);
+    player.playVideo();
+  }
+}
+
+function setBar(barId, state) {
+  const bar = document.getElementById(barId);
+  if (bar) bar.className = 'video-status-bar vsb-' + state;
+}
 
 function toggleChat() {
   const box = document.getElementById('chatBox');
@@ -526,6 +459,8 @@ function toggleChat() {
 }
 </script>
 
-  <script src="universe.js"></script>
+<!-- YouTube API — loads last -->
+<script src="https://www.youtube.com/iframe_api"></script>
+<script src="universe.js"></script>
 </body>
 </html>
