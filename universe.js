@@ -1,5 +1,4 @@
 /* universe.js — THE.MAN.DO Interactive Layer */
-
 document.addEventListener('DOMContentLoaded', () => {
 
   /* ── CUSTOM CURSOR ── */
