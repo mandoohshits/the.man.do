@@ -6,63 +6,320 @@
   <title>SHITS // THE.MAN.DO</title>
   <link rel="stylesheet" href="universe.css">
   <style>
-    .shits-feed{display:flex;flex-direction:column;align-items:center;gap:70px;padding:60px 5% 100px;}
-    .video-post{width:100%;max-width:720px;display:flex;flex-direction:column;}
-    .video-wrap{position:relative;border-radius:16px 16px 0 0;overflow:hidden;background:#000;border:1px solid rgba(255,255,255,0.07);border-bottom:none;aspect-ratio:16/9;}
-    .video-wrap iframe{width:100%;height:100%;display:block;border:none;}
-    .video-skeleton{position:absolute;inset:0;background:#080808;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:5;transition:opacity 0.5s;pointer-events:none;}
-    .video-skeleton.hidden{opacity:0;}
-    .skeleton-title{font-family:'Space Mono',monospace;font-size:0.65rem;letter-spacing:6px;color:#f0a014;text-transform:uppercase;opacity:0.5;}
-    .skeleton-dots{display:flex;gap:5px;}
-    .skeleton-dot{width:5px;height:5px;border-radius:50%;background:#f0a014;}
-    .skeleton-dot:nth-child(1){animation:dotPulse 1s ease-in-out infinite 0s;}
-    .skeleton-dot:nth-child(2){animation:dotPulse 1s ease-in-out infinite 0.2s;}
-    .skeleton-dot:nth-child(3){animation:dotPulse 1s ease-in-out infinite 0.4s;}
-    @keyframes dotPulse{0%,100%{opacity:0.15;transform:scale(1);}50%{opacity:1;transform:scale(1.5);}}
-    .video-status-bar{background:rgba(6,6,6,0.97);border:1px solid rgba(255,255,255,0.07);border-top:1px solid rgba(240,160,20,0.06);border-radius:0 0 16px 16px;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:42px;}
-    .status-left{display:flex;align-items:center;gap:10px;}
-    .buf-dots{display:flex;gap:3px;}
-    .buf-dot{width:4px;height:4px;border-radius:50%;background:#f0a014;opacity:0.15;transition:opacity 0.3s;}
-    .vsb-buffering .buf-dot:nth-child(1){animation:dotPulse 1s ease-in-out infinite 0s;opacity:1;}
-    .vsb-buffering .buf-dot:nth-child(2){animation:dotPulse 1s ease-in-out infinite 0.2s;opacity:1;}
-    .vsb-buffering .buf-dot:nth-child(3){animation:dotPulse 1s ease-in-out infinite 0.4s;opacity:1;}
-    .vsb-buffering .buf-text{opacity:1;}
-    .vsb-buffering .ready-text{opacity:0;}
-    .vsb-buffering .waveform-mini{opacity:0;}
-    .vsb-ready .buf-dot{opacity:0.1;animation:none!important;}
-    .vsb-ready .buf-text{opacity:0;}
-    .vsb-ready .ready-text{opacity:0.8;}
-    .vsb-ready .waveform-mini{opacity:1;}
-    .vsb-idle .buf-dot{opacity:0.1;animation:none!important;}
-    .vsb-idle .buf-text{opacity:0.2;}
-    .vsb-idle .ready-text{opacity:0;}
-    .vsb-idle .waveform-mini{opacity:0;}
-    .buf-text,.ready-text{font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:2px;text-transform:uppercase;transition:opacity 0.4s;white-space:nowrap;}
-    .buf-text{color:#f0a014;}
-    .ready-text{color:rgba(80,200,100,0.9);}
-    .waveform-mini{display:flex;align-items:flex-end;gap:2px;height:14px;opacity:0;transition:opacity 0.4s;}
-    .waveform-mini span{width:2px;border-radius:1px;background:#f0a014;animation:waveBar 0.9s ease-in-out infinite alternate;}
-    .waveform-mini span:nth-child(1){height:4px;animation-delay:0s;}
-    .waveform-mini span:nth-child(2){height:11px;animation-delay:0.12s;}
-    .waveform-mini span:nth-child(3){height:6px;animation-delay:0.24s;}
-    .waveform-mini span:nth-child(4){height:13px;animation-delay:0.06s;}
-    .waveform-mini span:nth-child(5){height:5px;animation-delay:0.18s;}
-    @keyframes waveBar{from{transform:scaleY(0.3);opacity:0.4;}to{transform:scaleY(1);opacity:1;}}
-    .status-right{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;}
-    .video-post-title{font-family:'Space Mono',monospace;font-size:0.6rem;letter-spacing:2px;color:#f0ece0;text-transform:uppercase;}
-    .video-post-meta{font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:1px;color:rgba(240,236,224,0.25);text-transform:uppercase;}
+
+    .shits-feed {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+      padding: 60px 5% 100px;
+    }
+
+    .video-post {
+      width: 100%;
+      max-width: 720px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── VIDEO WRAP — two states ── */
+    .video-wrap {
+      position: relative;
+      border-radius: 16px 16px 0 0;
+      overflow: hidden;
+      background: #000;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-bottom: none;
+      cursor: pointer;
+      /* SMALL state by default */
+      height: 120px;
+      transition: height 0.5s cubic-bezier(0.16,1,0.3,1), border-color 0.3s;
+    }
+
+    /* EXPANDED state */
+    .video-wrap.expanded {
+      height: calc(720px * 9/16); /* 16:9 of max-width */
+      border-color: rgba(240,160,20,0.25);
+    }
+
+    /* Fallback for narrower screens */
+    @media (max-width: 760px) {
+      .video-wrap.expanded { height: calc(100vw * 0.9 * 9/16); }
+    }
+
+    .main-video {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .main-video.visible { opacity: 1; }
+
+    /* ── SKELETON / THUMBNAIL ── */
+    .video-skeleton {
+      position: absolute;
+      inset: 0;
+      background: #080808;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 16px;
+      padding: 0 20px;
+      z-index: 5;
+      transition: opacity 0.4s;
+    }
+
+    /* When expanded, center everything */
+    .video-wrap.expanded .video-skeleton {
+      flex-direction: column;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .video-skeleton.hidden { opacity: 0; pointer-events: none; }
+
+    .thumb-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.4;
+      transition: opacity 0.3s;
+    }
+
+    .video-wrap.expanded .thumb-img { opacity: 0.55; }
+    .video-wrap:hover .thumb-img    { opacity: 0.5; }
+
+    /* Play circle */
+    .play-trigger {
+      position: relative;
+      z-index: 2;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1px solid rgba(240,160,20,0.5);
+      background: rgba(6,6,6,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 0.45rem;
+      letter-spacing: 2px;
+      color: var(--accent);
+      flex-shrink: 0;
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .video-wrap.expanded .play-trigger {
+      width: 56px;
+      height: 56px;
+      font-size: 0.55rem;
+    }
+
+    .video-wrap:hover .play-trigger { transform: scale(1.1); background: rgba(240,160,20,0.15); }
+
+    .skeleton-title {
+      position: relative;
+      z-index: 2;
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 4px;
+      color: var(--accent);
+      text-transform: uppercase;
+      opacity: 0.7;
+    }
+
+    /* Buffering dots — only show when loading */
+    .skeleton-dots {
+      position: relative;
+      z-index: 2;
+      display: none;
+      gap: 4px;
+    }
+
+    .video-skeleton.loading .skeleton-dots { display: flex; }
+    .video-skeleton.loading .play-trigger  { display: none; }
+
+    .skeleton-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .video-skeleton.loading .skeleton-dot:nth-child(1) { animation: dotPulse 1s ease-in-out infinite 0s;   }
+    .video-skeleton.loading .skeleton-dot:nth-child(2) { animation: dotPulse 1s ease-in-out infinite 0.2s; }
+    .video-skeleton.loading .skeleton-dot:nth-child(3) { animation: dotPulse 1s ease-in-out infinite 0.4s; }
+
+    /* Expand hint — small state only */
+    .expand-hint {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 6;
+      font-family: var(--font-mono);
+      font-size: 0.45rem;
+      letter-spacing: 2px;
+      color: rgba(240,160,20,0.35);
+      text-transform: uppercase;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+
+    .video-wrap.expanded .expand-hint { display: none; }
+
+    /* Pause overlay */
+    .pause-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+    }
+
+    .pause-overlay.visible { opacity: 1; }
+
+    .pause-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: 1px solid rgba(240,160,20,0.4);
+      background: rgba(6,6,6,0.75);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 0.48rem;
+      letter-spacing: 1px;
+      color: var(--accent);
+    }
+
+    /* ── STATUS BAR ── */
+    .video-status-bar {
+      background: rgba(6,6,6,0.97);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-top: 1px solid rgba(240,160,20,0.06);
+      border-radius: 0 0 16px 16px;
+      padding: 9px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 38px;
+    }
+
+    .status-left { display: flex; align-items: center; gap: 8px; }
+
+    .buf-dots { display: flex; gap: 3px; }
+
+    .buf-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: 0.12;
+      transition: opacity 0.3s;
+    }
+
+    /* Bar states */
+    .vsb-buffering .buf-dot:nth-child(1) { animation: dotPulse 1s ease-in-out infinite 0s;   opacity:1; }
+    .vsb-buffering .buf-dot:nth-child(2) { animation: dotPulse 1s ease-in-out infinite 0.2s; opacity:1; }
+    .vsb-buffering .buf-dot:nth-child(3) { animation: dotPulse 1s ease-in-out infinite 0.4s; opacity:1; }
+    .vsb-buffering .buf-text  { opacity:1; } .vsb-buffering .play-text  { opacity:0; } .vsb-buffering .pause-text { opacity:0; } .vsb-buffering .waveform-mini { opacity:0; }
+
+    .vsb-playing .buf-dot { opacity:0.08; animation:none!important; }
+    .vsb-playing .buf-text  { opacity:0; } .vsb-playing .play-text  { opacity:0.85; } .vsb-playing .pause-text { opacity:0; } .vsb-playing .waveform-mini { opacity:1; }
+
+    .vsb-paused .buf-dot { opacity:0.08; animation:none!important; }
+    .vsb-paused .buf-text  { opacity:0; } .vsb-paused .play-text  { opacity:0; } .vsb-paused .pause-text { opacity:0.5; } .vsb-paused .waveform-mini { opacity:0; }
+
+    .vsb-idle .buf-dot { opacity:0.08; animation:none!important; }
+    .vsb-idle .buf-text  { opacity:0.2; } .vsb-idle .play-text  { opacity:0; } .vsb-idle .pause-text { opacity:0; } .vsb-idle .waveform-mini { opacity:0; }
+
+    .buf-text, .play-text, .pause-text {
+      font-family: var(--font-mono);
+      font-size: 0.5rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      transition: opacity 0.3s;
+      white-space: nowrap;
+    }
+
+    .buf-text   { color: var(--accent); }
+    .play-text  { color: rgba(80,200,100,0.9); }
+    .pause-text { color: rgba(240,236,224,0.35); }
+
+    .waveform-mini {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 13px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .waveform-mini span {
+      width: 2px;
+      border-radius: 1px;
+      background: var(--accent);
+      animation: waveBar 0.9s ease-in-out infinite alternate;
+    }
+
+    .waveform-mini span:nth-child(1){ height:4px;  animation-delay:0s;    }
+    .waveform-mini span:nth-child(2){ height:11px; animation-delay:0.12s; }
+    .waveform-mini span:nth-child(3){ height:6px;  animation-delay:0.24s; }
+    .waveform-mini span:nth-child(4){ height:12px; animation-delay:0.06s; }
+    .waveform-mini span:nth-child(5){ height:5px;  animation-delay:0.18s; }
+
+    .status-right { display:flex; flex-direction:column; align-items:flex-end; gap:2px; flex-shrink:0; }
+    .video-post-title { font-family:var(--font-mono); font-size:0.6rem; letter-spacing:2px; color:var(--text); text-transform:uppercase; }
+    .video-post-meta  { font-family:var(--font-mono); font-size:0.48rem; letter-spacing:1px; color:rgba(240,236,224,0.25); text-transform:uppercase; }
+
+    /* ── VOLUME TOGGLE (shows in status bar when playing) ── */
+    .vol-btn {
+      font-family: var(--font-mono);
+      font-size: 0.48rem;
+      letter-spacing: 1px;
+      color: rgba(240,160,20,0.4);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      transition: color 0.2s;
+      text-transform: uppercase;
+      display: none;
+    }
+
+    .vsb-playing .vol-btn,
+    .vsb-paused  .vol-btn { display: inline; }
+
+    .vol-btn:hover { color: var(--accent); }
+
+    @keyframes dotPulse { 0%,100%{ opacity:0.15; transform:scale(1); } 50%{ opacity:1; transform:scale(1.5); } }
+    @keyframes waveBar  { from{ transform:scaleY(0.3); opacity:0.4; } to{ transform:scaleY(1); opacity:1; } }
+
   </style>
 </head>
 <body>
 
   <nav class="universe-nav">
-    <a href="products.html">products</a>
     <a href="index.html">Index</a>
     <a href="dj.html">DJ</a>
     <a href="shits.html" class="active">Shits</a>
     <a href="earth.html">Earth</a>
     <a href="writings.html">Writings</a>
     <a href="lab.html">Lab</a>
+    <a href="products.html">Products</a>
   </nav>
 
   <header class="page-header">
@@ -73,57 +330,72 @@
 
   <main class="shits-feed">
 
-    <!-- HOW TO ADD A VIDEO:
-         1. Go to your YouTube video
-         2. Click Share → Embed
-         3. Find the ID after ?v= in the URL
-            e.g. youtube.com/watch?v=dQw4w9WgXcQ → ID is dQw4w9WgXcQ
-         4. Replace YOUR_VIDEO_ID_1 below with that ID (in BOTH places in the src)
-         5. Change the title and meta text to match your video
-         6. Duplicate this whole video-post block to add more videos -->
+    <!--
+    ════════════════════════════════════════
+    HOW TO ADD A VIDEO:
+    1. Put video in:  videos/yourfile.mp4
+    2. Put thumb in:  videos/thumb/yourthumb.png
+    3. Copy this whole video-post block
+    4. Change ALL IDs: vid-1→vid-2, wrap-1→wrap-2,
+       skel-1→skel-2, bar-1→bar-2, pause-1→pause-2
+    5. Update src, title, meta
+    ════════════════════════════════════════
+    -->
 
-    <div class="video-post" id="post-1">
-  <div class="video-wrap">
-    <div class="video-skeleton" id="skel-1">
-      <span class="skeleton-title">INTO THE WILD</span>
-      <div class="skeleton-dots">
-        <div class="skeleton-dot"></div>
-        <div class="skeleton-dot"></div>
-        <div class="skeleton-dot"></div>
+    <!-- VIDEO 1 -->
+    <div class="video-post">
+      <div class="video-wrap" id="wrap-1" onclick="handleClick('vid-1','wrap-1','skel-1','bar-1','pause-1')">
+
+        <div class="video-skeleton" id="skel-1">
+          <img src="videos/thumb/core thumb.png" class="thumb-img" alt="Into The Wild">
+          <div class="skeleton-dots">
+            <div class="skeleton-dot"></div>
+            <div class="skeleton-dot"></div>
+            <div class="skeleton-dot"></div>
+          </div>
+          <div class="play-trigger">▶</div>
+          <span class="skeleton-title">INTO THE WILD</span>
+        </div>
+
+        <span class="expand-hint">CLICK TO EXPAND</span>
+
+        <div class="pause-overlay" id="pause-1">
+          <div class="pause-icon">II</div>
+        </div>
+
+        <video
+          id="vid-1"
+          class="main-video"
+          preload="auto"
+          playsinline
+          loop>
+          <source src="videos/thecore (1).mp4" type="video/mp4">
+        </video>
+
+      </div>
+      <div class="video-status-bar vsb-idle" id="bar-1">
+        <div class="status-left">
+          <div class="buf-dots">
+            <div class="buf-dot"></div>
+            <div class="buf-dot"></div>
+            <div class="buf-dot"></div>
+          </div>
+          <span class="buf-text">BUFFERING</span>
+          <span class="play-text">PLAYING</span>
+          <span class="pause-text">PAUSED</span>
+          <div class="waveform-mini">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <button class="vol-btn" id="vol-1" onclick="toggleVol(event,'vid-1','vol-1')">VOL: ON</button>
+        </div>
+        <div class="status-right">
+          <span class="video-post-title">INTO THE WILD</span>
+          <span class="video-post-meta">RAW · 2024</span>
+        </div>
       </div>
     </div>
 
-    <video 
-      id="vid-1" 
-      class="main-video"
-      preload="auto" 
-      playsinline 
-      muted 
-      loop
-      onclick="this.paused ? this.play() : this.pause()"
-      onplaying="document.getElementById('skel-1').classList.add('hidden'); document.getElementById('bar-1').className='video-status-bar vsb-ready';"
-    >
-      <source src="YOUR_VIDEO_FILE_URL_HERE?raw=1" type="video/mp4">
-    </video>
-  </div>
-
-  <div class="video-status-bar vsb-buffering" id="bar-1">
-    <div class="status-left">
-      <div class="buf-dots">
-        <div class="buf-dot"></div><div class="buf-dot"></div><div class="buf-dot"></div>
-      </div>
-      <span class="buf-text">BUFFERING</span>
-      <span class="ready-text">LIVE</span>
-      <div class="waveform-mini">
-        <span></span><span></span><span></span><span></span><span></span>
-      </div>
-    </div>
-    <div class="status-right">
-      <span class="video-post-title">INTO THE WILD</span>
-      <span class="video-post-meta">RAW · 2024</span>
-    </div>
-  </div>
-</div>
+    <!-- PASTE MORE VIDEO POSTS HERE -->
 
   </main>
 
@@ -143,36 +415,115 @@
   </div>
 
 <script>
-function videoStarted(skelId, barId) {
-    const skel = document.getElementById(skelId);
-    const bar = document.getElementById(barId);
-    
-    if (skel) skel.classList.add('hidden');
-    if (bar) {
-        // Switch from "Buffering" to "Live"
-        bar.className = 'video-status-bar vsb-ready';
-    }
-}
+// Tracks which video has been played before (past first click)
+const played = {};
 
-function videoBuffering(barId) {
-    const bar = document.getElementById(barId);
-    if (bar) {
-        // Switch back to "Buffering" dots if the connection drops
-        bar.className = 'video-status-bar vsb-buffering';
-    }
-}
+function handleClick(vidId, wrapId, skelId, barId, pauseId) {
+  const video   = document.getElementById(vidId);
+  const wrap    = document.getElementById(wrapId);
+  const skel    = document.getElementById(skelId);
+  const bar     = document.getElementById(barId);
+  const overlay = document.getElementById(pauseId);
 
-// Click to Play/Pause logic
-document.querySelectorAll('.video-wrap').forEach(wrap => {
-    wrap.addEventListener('click', () => {
-        const v = wrap.querySelector('video');
-        if (v.paused) {
-            v.play();
-        } else {
-            v.pause();
-        }
+  if (!video) return;
+
+  // ── FIRST CLICK: expand + play with sound ──────────
+  if (!played[vidId]) {
+    played[vidId] = true;
+
+    // Expand to full size
+    wrap.classList.add('expanded');
+
+    // Show buffering
+    skel.classList.add('loading');
+    setBar(bar, 'buffering');
+
+    // Play WITH sound
+    video.muted = false;
+    video.play().then(() => {
+      video.classList.add('visible');
+      skel.classList.add('hidden');
+      setBar(bar, 'playing');
+    }).catch(() => {
+      // Autoplay blocked — try muted then unmute
+      video.muted = true;
+      video.play().then(() => {
+        video.muted = false;
+        video.classList.add('visible');
+        skel.classList.add('hidden');
+        setBar(bar, 'playing');
+      });
     });
+
+    return;
+  }
+
+  // ── SUBSEQUENT CLICKS: toggle pause/play ───────────
+  if (video.paused) {
+    video.play();
+    wrap.classList.add('expanded');
+    overlay.classList.remove('visible');
+    setBar(bar, 'playing');
+  } else {
+    video.pause();
+    wrap.classList.remove('expanded');
+    overlay.classList.add('visible');
+    setBar(bar, 'paused');
+  }
+}
+
+function setBar(bar, state) {
+  if (!bar) return;
+  bar.className = 'video-status-bar vsb-' + state;
+}
+
+// Volume toggle button in status bar
+function toggleVol(e, vidId, btnId) {
+  e.stopPropagation(); // don't trigger wrap click
+  const video = document.getElementById(vidId);
+  const btn   = document.getElementById(btnId);
+  if (!video || !btn) return;
+  video.muted = !video.muted;
+  btn.textContent = video.muted ? 'VOL: OFF' : 'VOL: ON';
+}
+
+// Wire up video events
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.video-post').forEach(post => {
+    const video   = post.querySelector('.main-video');
+    const barEl   = post.querySelector('.video-status-bar');
+    const pauseEl = post.querySelector('.pause-overlay');
+
+    if (!video || !barEl) return;
+
+    video.addEventListener('waiting', () => { if (played[video.id]) setBar(barEl, 'buffering'); });
+    video.addEventListener('stalled', () => { if (played[video.id]) setBar(barEl, 'buffering'); });
+    video.addEventListener('playing', () => {
+      setBar(barEl, 'playing');
+      video.classList.add('visible');
+      const skel = post.querySelector('.video-skeleton');
+      if (skel) skel.classList.add('hidden');
+      if (pauseEl) pauseEl.classList.remove('visible');
+    });
+    video.addEventListener('pause', () => {
+      if (video.currentTime > 0) {
+        const wrap = post.querySelector('.video-wrap');
+        if (wrap) wrap.classList.remove('expanded');
+        if (pauseEl) pauseEl.classList.add('visible');
+        setBar(barEl, 'paused');
+      }
+    });
+    video.addEventListener('ended', () => setBar(barEl, 'idle'));
+  });
 });
+
+function toggleChat() {
+  const box = document.getElementById('chatBox');
+  const btn = document.getElementById('chatBtn');
+  if (!box) return;
+  box.classList.toggle('active');
+  btn.textContent = box.classList.contains('active') ? 'CLOSE' : 'MSG';
+}
 </script>
 
   <script src="universe.js"></script>
