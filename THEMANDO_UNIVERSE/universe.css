@@ -674,3 +674,28 @@ a, a:visited, a:hover, a:active {
   .earth-grid   { padding: 40px 5%; }
   .lab-grid     { padding: 40px 5%; }
 }
+
+
+.video-skeleton {
+    /* ... your existing code (display:flex, etc) ... */
+    
+    background-size: cover;      /* Makes image fill the box */
+    background-position: center; /* Centers the image */
+    background-repeat: no-repeat;
+    position: relative;          /* Keeps dots/text on top */
+}
+
+/* Add a dark tint so the "INTO THE WILD" text is easy to read */
+.video-skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4); /* Darkens the thumbnail 40% */
+    z-index: 1;
+}
+
+/* Ensure your text and dots stay ABOVE the dark tint */
+.skeleton-title, .skeleton-dots, .play-trigger {
+    position: relative;
+    z-index: 2;
+}
