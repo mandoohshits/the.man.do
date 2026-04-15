@@ -303,7 +303,7 @@
     ════════════════════════════════════
     -->
 
-    <!-- VIDEO 1 -->
+    <!-- VIDEO 1  video-->
   <div class="video-post">
   <div class="video-wrap" id="wrap-1" onclick="handleClick('yt-1','wrap-1','skel-1','bar-1')">
     
@@ -346,7 +346,43 @@
     </div>
 
     <!-- PASTE MORE VIDEO POSTS HERE (copy block above, change numbers) -->
+ <!-- VIDEO 2 shorts -->
+  
+<div class="video-post vertical-post"> 
+  <div class="video-wrap" id="wrap-2" onclick="handleClick('yt-2','wrap-2','skel-2','bar-2')">
+    
+    <div class="video-skeleton" id="skel-2" style="background-image: url('videos/thumb/shorts-thumb.png'); background-size: cover; background-position: center;">
+      <div class="skeleton-dots">
+        <div class="skeleton-dot"></div><div class="skeleton-dot"></div><div class="skeleton-dot"></div>
+      </div>
+      <div class="play-trigger">▶</div>
+      <span class="skeleton-title">SHORT_EXPERIMENT_01</span>
+    </div>
 
+    <span class="expand-hint">CLICK TO EXPAND</span>
+    <div id="yt-2" class="yt-player"></div>
+  </div>
+
+  <div class="video-status-bar vsb-idle" id="bar-2">
+    <div class="status-left">
+      <div class="buf-dots">
+        <div class="buf-dot"></div><div class="buf-dot"></div><div class="buf-dot"></div>
+      </div>
+      <span class="buf-text">BUFFERING</span>
+      <span class="play-text">PLAYING</span>
+      <span class="pause-text">PAUSED</span>
+      <div class="waveform-mini">
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+    </div>
+    <div class="status-right">
+      <span class="video-post-title">MANDOCORE SHOT</span>
+      <span class="video-post-meta">RAW · 2024</span>
+    </div>
+  </div>
+</div>
+
+    
   </main>
 
   <div class="chat-trigger" onclick="toggleChat()" id="chatBtn">MSG</div>
@@ -371,22 +407,17 @@
 // ══════════════════════════════════════════════
 const VIDEO_LIST = [
   { playerId:'yt-1', videoId:'ZmMQv3IzdAg', wrapId:'wrap-1', skelId:'skel-1', barId:'bar-1' },
-  // { playerId:'yt-2', videoId:'YOUR_ID_HERE', wrapId:'wrap-2', skelId:'skel-2', barId:'bar-2' },
-  // { playerId:'yt-3', videoId:'YOUR_ID_HERE', wrapId:'wrap-3', skelId:'skel-3', barId:'bar-3' },
+
+  { playerId:'yt-2', videoId:'euh1LBCnRAw', wrapId:'wrap-2', skelId:'skel-2', barId:'bar-2' },
 ];
+  // { playerId:'yt-3', videoId:'YOUR_ID_HERE', wrapId:'wrap-3', skelId:'skel-3', barId:'bar-3' },
+
 
 // ── INTERNALS ─────────────────────────────────
 const players = {};
 const YT_STATE = { UNSTARTED:-1, ENDED:0, PLAYING:1, PAUSED:2, BUFFERING:3, CUED:5 };
 
-// YouTube calls this automatically when API is ready
-function onYouTubeIframeAPIReady() {
-  VIDEO_LIST.forEach(v => {
-    players[v.playerId] = new YT.Player(v.playerId, {
-      videoId: v.videoId,
-      playerVars: {
-        autoplay:       0,
-        controls:       1,
+
         modestbranding: 1,
         rel:            0,
         playsinline:    1,
@@ -438,7 +469,14 @@ function handleClick(playerId, wrapId, skelId, barId) {
 
   const state = player.getPlayerState();
 
-  if (state === YT_STATE.PLAYING) {
+  if (state === YT_STATE.PLAYING) {// YouTube calls this automatically when API is ready
+function onYouTubeIframeAPIReady() {
+  VIDEO_LIST.forEach(v => {
+    players[v.playerId] = new YT.Player(v.playerId, {
+      videoId: v.videoId,
+      playerVars: {
+        autoplay:       0,
+        controls:       1,
     player.pauseVideo();
   } else {
     // Show buffering dots while YouTube loads
