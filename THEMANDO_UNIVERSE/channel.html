@@ -261,13 +261,13 @@
       </div>
     </div>
 
-    <!-- VIDEO 2 — short -->
+    <!-- VIDEO 2 -->
     <div class="video-post">
-      <div class="video-wrap short" id="wrap-2" onclick="handleClick('yt-2','wrap-2','skel-2','bar-2')">
+      <div class="video-wrap" id="wrap-2" onclick="handleClick('yt-2','wrap-2','skel-2','bar-2')">
         <div class="video-skeleton" id="skel-2">
           <div class="skeleton-dots"><div class="skeleton-dot"></div><div class="skeleton-dot"></div><div class="skeleton-dot"></div></div>
           <div class="play-trigger">▶</div>
-          <span class="skeleton-title">RAW CUT</span>
+          <span class="skeleton-title">RAW SESSION</span>
         </div>
         <span class="expand-hint">CLICK TO EXPAND</span>
         <div id="yt-2" class="yt-player"></div>
@@ -281,8 +281,8 @@
           <div class="waveform-mini"><span></span><span></span><span></span><span></span><span></span></div>
         </div>
         <div class="status-right">
-          <span class="video-post-title">RAW CUT</span>
-          <span class="video-post-meta">SHORT · 2024</span>
+          <span class="video-post-title">RAW SESSION</span>
+          <span class="video-post-meta">RAW · 2024</span>
         </div>
       </div>
     </div>
@@ -302,25 +302,54 @@
 
 <script>
 const VIDEO_LIST = [
-  { playerId:'yt-1', videoId:'ZmMQv3IzdAg',  wrapId:'wrap-1', skelId:'skel-1', barId:'bar-1' },
-  { playerId:'yt-2', videoId:'euh1LBCnRAw',  wrapId:'wrap-2', skelId:'skel-2', barId:'bar-2', isShort:true },
+  { playerId:'yt-1', videoId:'ZmMQv3IzdAg', wrapId:'wrap-1', skelId:'skel-1', barId:'bar-1' },
+  { playerId:'yt-2', videoId:'-hoRj5SZyBM', wrapId:'wrap-2', skelId:'skel-2', barId:'bar-2',
+    embedUrl:'https://www.youtube.com/embed/-hoRj5SZyBM?enablejsapi=1&controls=1&rel=0&playsinline=1' },
   // ADD MORE HERE ↓
   // { playerId:'yt-3', videoId:'YOUR_ID', wrapId:'wrap-3', skelId:'skel-3', barId:'bar-3' },
 ];
 
-const players = {};
+const players  = {};
+const iframes  = {}; // for direct-embed fallback videos
 const YT_STATE = { UNSTARTED:-1, ENDED:0, PLAYING:1, PAUSED:2, BUFFERING:3, CUED:5 };
 
 function onYouTubeIframeAPIReady() {
   VIDEO_LIST.forEach(v => {
-    players[v.playerId] = new YT.Player(v.playerId, {
-      videoId: v.videoId,
-      playerVars: { autoplay:0, controls:1, modestbranding:1, rel:0, playsinline:1, fs:1 },
-      events: {
-        onReady:       () => setBar(v.barId, 'idle'),
-        onStateChange: (e) => onStateChange(e, v),
+    const container = document.getElementById(v.playerId);
+    if (!container) return;
+
+    if (v.embedUrl) {
+      // ── DIRECT IFRAME fallback (dash-prefixed IDs) ──────
+      const iframe = document.createElement('iframe');
+      iframe.src         = v.embedUrl;
+      iframe.allow       = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      iframe.allowFullscreen = true;
+      iframe.style.cssText   = 'width:100%;height:100%;border:none;display:block;';
+      container.appendChild(iframe);
+      iframes[v.playerId] = iframe;
+
+      // Mark ready
+      setBar(v.barId, 'idle');
+
+      // Wire click to expand (we can't detect play state via API on fallback,
+      // so first click expands + shows iframe, second click collapses)
+      const wrap = document.getElementById(v.wrapId);
+      const skel = document.getElementById(v.skelId);
+      if (wrap) {
+        wrap._fallback = true;
+        wrap._open = false;
       }
-    });
+    } else {
+      // ── NORMAL YouTube IFrame API ────────────────────────
+      players[v.playerId] = new YT.Player(v.playerId, {
+        videoId: v.videoId,
+        playerVars: { autoplay:0, controls:1, modestbranding:1, rel:0, playsinline:1, fs:1 },
+        events: {
+          onReady:       () => setBar(v.barId, 'idle'),
+          onStateChange: (e) => onStateChange(e, v),
+        }
+      });
+    }
   });
 }
 
@@ -350,8 +379,30 @@ function onStateChange(e, v) {
 }
 
 function handleClick(playerId, wrapId, skelId, barId) {
+  const wrap = document.getElementById(wrapId);
+  const skel = document.getElementById(skelId);
+
+  // ── FALLBACK (direct iframe) toggle ─────────────────
+  if (wrap && wrap._fallback) {
+    if (!wrap._open) {
+      // First click — expand and show iframe
+      wrap._open = true;
+      wrap.classList.add('expanded');
+      const ytEl = document.getElementById(playerId);
+      if (ytEl) ytEl.style.opacity = '1';
+      if (skel) skel.classList.add('hidden');
+      setBar(barId, 'playing');
+    } else {
+      // Second click — collapse
+      wrap._open = false;
+      wrap.classList.remove('expanded');
+      setBar(barId, 'paused');
+    }
+    return;
+  }
+
+  // ── NORMAL API toggle ────────────────────────────────
   const player = players[playerId];
-  const skel   = document.getElementById(skelId);
   if (!player || typeof player.getPlayerState !== 'function') return;
   if (player.getPlayerState() === YT_STATE.PLAYING) {
     player.pauseVideo();
