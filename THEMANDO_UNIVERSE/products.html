@@ -314,11 +314,11 @@
   </div>
 
 <script>
-function switchTab(id,btn){
-  document.querySelectorAll('.dept-tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.dept-panel').forEach(p=>p.classList.remove('active'));
+function switchTab(id, btn) {
+  document.querySelectorAll('.dept-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.dept-panel').forEach(p => p.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('panel-'+id).classList.add('active');
+  document.getElementById('panel-' + id).classList.add('active');
 }
 function pickSz(chip){
   chip.closest('.size-row').querySelectorAll('.sz').forEach(s=>s.classList.remove('on'));
