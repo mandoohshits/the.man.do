@@ -3,59 +3,418 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EARTH / THE.MAN.DO</title>
+  <title>SHITS // THE.MAN.DO</title>
   <link rel="stylesheet" href="universe.css">
+  <style>
+
+    /* ── INSTAGRAM-STYLE GRID ── */
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3px;
+      padding: 30px 0 100px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    /* Each cell is a square */
+    .photo-cell {
+      position: relative;
+      aspect-ratio: 1/1;
+      overflow: hidden;
+      background: #0a0a0a;
+      cursor: pointer;
+    }
+
+    /* Photo */
+    .photo-cell img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      opacity: 0.9;
+      transition: opacity 0.35s, transform 0.5s;
+    }
+
+    .photo-cell:hover img { opacity: 0.4; transform: scale(1.04); }
+
+    /* Placeholder when no image yet */
+    .photo-cell .no-photo {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono); font-size: 0.5rem;
+      letter-spacing: 3px; color: rgba(240,160,20,0.18);
+      text-transform: uppercase; background: #0a0a0a;
+    }
+
+    /* Hover overlay — shows on hover */
+    .photo-overlay {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.3s;
+    }
+
+    .photo-cell:hover .photo-overlay { opacity: 1; }
+
+    .overlay-hint {
+      font-family: var(--font-mono);
+      font-size: 0.55rem; letter-spacing: 3px;
+      color: var(--accent); text-transform: uppercase;
+      text-align: center;
+    }
+
+    /* ── LIGHTBOX (letter reveal) ── */
+    .lightbox {
+      position: fixed; inset: 0; z-index: 99998;
+      background: rgba(0,0,0,0.92);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.35s;
+    }
+
+    .lightbox.open { opacity: 1; pointer-events: all; }
+
+    .lightbox-inner {
+      display: flex;
+      gap: 0;
+      width: 100%;
+      max-width: 900px;
+      max-height: 90vh;
+      border-radius: 10px;
+      overflow: hidden;
+      transform: scale(0.94);
+      transition: transform 0.35s cubic-bezier(0.16,1,0.3,1);
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .lightbox.open .lightbox-inner { transform: scale(1); }
+
+    /* Left — the photo */
+    .lb-photo {
+      flex: 1;
+      min-width: 0;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      max-height: 90vh;
+    }
+
+    .lb-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .lb-photo .lb-placeholder {
+      font-family: var(--font-mono);
+      font-size: 0.55rem; letter-spacing: 3px;
+      color: rgba(240,160,20,0.2); text-transform: uppercase;
+      padding: 40px;
+    }
+
+    /* Right — the letter */
+    .lb-letter {
+      width: 340px;
+      flex-shrink: 0;
+      background: #0a0a09;
+      border-left: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      flex-direction: column;
+      padding: 32px 28px;
+      gap: 18px;
+      overflow-y: auto;
+    }
+
+    .lb-from {
+      font-family: var(--font-mono);
+      font-size: 0.5rem; letter-spacing: 3px;
+      color: var(--accent); opacity: 0.5;
+      text-transform: uppercase;
+      display: flex; justify-content: space-between;
+    }
+
+    .lb-divider {
+      width: 100%; height: 1px;
+      background: rgba(240,160,20,0.08);
+    }
+
+    .lb-title {
+      font-family: var(--font-display);
+      font-size: 1.6rem; letter-spacing: 2px;
+      color: var(--text); line-height: 1;
+    }
+
+    .lb-body {
+      font-family: var(--font-body);
+      font-size: 0.88rem; line-height: 1.9;
+      color: rgba(240,236,224,0.65);
+      font-weight: 300; font-style: italic;
+      flex: 1;
+    }
+
+    .lb-sign {
+      font-family: var(--font-mono);
+      font-size: 0.55rem; letter-spacing: 3px;
+      color: rgba(240,160,20,0.4); text-transform: uppercase;
+    }
+
+    .lb-close {
+      font-family: var(--font-mono);
+      font-size: 0.45rem; letter-spacing: 2px;
+      color: rgba(240,236,224,0.15); text-transform: uppercase;
+      cursor: pointer; transition: color 0.2s;
+      text-align: right; border: none; background: none;
+      padding: 0;
+    }
+
+    .lb-close:hover { color: var(--accent); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 700px) {
+      .photo-grid { grid-template-columns: repeat(3,1fr); gap: 2px; padding-bottom: 80px; }
+      .lightbox-inner { flex-direction: column; max-height: 95vh; }
+      .lb-photo { max-height: 50vh; }
+      .lb-letter { width: 100%; border-left: none; border-top: 1px solid rgba(255,255,255,0.06); padding: 20px; }
+    }
+
+    @media (max-width: 400px) {
+      .photo-grid { grid-template-columns: repeat(2,1fr); }
+    }
+
+  </style>
 </head>
 <body>
 
-  <nav class="universe-nav">
-     <a href="channel.html">Channel</a>
-    <a href="products.html">products</a>
+    <nav class="universe-nav">
     <a href="index.html">Index</a>
+    <a href="channel.html">Channel</a>
     <a href="dj.html">DJ</a>
-    <a href="shits.html">Shits</a>
-    <a href="earth.html" class="active">Earth</a>
+    <a href="shits.html" class="active">Shits</a>
+    <a href="earth.html">Earth</a>
     <a href="writings.html">Writings</a>
     <a href="lab.html">Lab</a>
+    <a href="products.html">Products</a>
+    <a href="gives.html">Gives</a>
   </nav>
 
   <header class="page-header">
     <img src="images/MD_LOGO.png" class="page-logo" alt="THE.MAN.DO">
-    <h1 class="page-title">the.man.do.earth</h1>
-    <p class="page-sub">Tracking memories &amp; landscapes</p>
+    <h1 class="page-title">the.man.do.shits</h1>
+    <p class="page-sub">Raw frames. Click to read.</p>
   </header>
 
-  <main class="earth-grid">
+  <!--
+  ══════════════════════════════════════════════
+  HOW TO ADD A PHOTO:
 
-    <div class="earth-card">
-      <div class="earth-img-container">
-        <img src="images/earth/festival.jpg" alt="Kannur Moment">
-      </div>
-      <div class="earth-data">
-        <span class="coord">25.2048° N, 55.2708° E</span>
-        <span class="location">Kannur</span>
-        <p class="earth-caption">Refining the raw horizon. A moment kept from the circle.</p>
+  1. Put your photo in: images/shits/photo4.jpg
+  2. Copy any photo-cell block below
+  3. Change onclick number: openPhoto(4)
+  4. Replace <div class="no-photo"> with:
+     <img src="images/shits/photo4.jpg" alt="">
+  5. Add the letter data in the PHOTOS array in
+     the script below — copy any existing entry,
+     change the id number, title, date, location,
+     and letter text
+  ══════════════════════════════════════════════
+  -->
+
+  <main class="photo-grid">
+
+    <!-- PHOTO 1 -->
+    <div class="photo-cell" onclick="openPhoto(1)">
+      <div class="no-photo">+ ADD PHOTO</div>
+      <!-- <img src="images/shits/photo1.jpg" alt=""> -->
+      <div class="photo-overlay">
+        <span class="overlay-hint">READ →</span>
       </div>
     </div>
 
-    <!-- Add more earth-cards here -->
+    <!-- PHOTO 2 -->
+    <div class="photo-cell" onclick="openPhoto(2)">
+      <div class="no-photo">+ ADD PHOTO</div>
+      <!-- <img src="images/shits/photo2.jpg" alt=""> -->
+      <div class="photo-overlay">
+        <span class="overlay-hint">READ →</span>
+      </div>
+    </div>
+
+    <!-- PHOTO 3 -->
+    <div class="photo-cell" onclick="openPhoto(3)">
+      <div class="no-photo">+ ADD PHOTO</div>
+      <!-- <img src="images/shits/photo3.jpg" alt=""> -->
+      <div class="photo-overlay">
+        <span class="overlay-hint">READ →</span>
+      </div>
+    </div>
+
+    <!-- PHOTO 4 -->
+    <div class="photo-cell" onclick="openPhoto(4)">
+      <div class="no-photo">+ ADD PHOTO</div>
+      <!-- <img src="images/shits/photo4.jpg" alt=""> -->
+      <div class="photo-overlay">
+        <span class="overlay-hint">READ →</span>
+      </div>
+    </div>
+
+    <!-- PHOTO 5 -->
+    <div class="photo-cell" onclick="openPhoto(5)">
+      <div class="no-photo">+ ADD PHOTO</div>
+      <!-- <img src="images/shits/photo5.jpg" alt=""> -->
+      <div class="photo-overlay">
+        <span class="overlay-hint">READ →</span>
+      </div>
+    </div>
+
+    <!-- PHOTO 6 -->
+    <div class="photo-cell" onclick="openPhoto(6)">
+      <div class="no-photo">+ ADD PHOTO</div>
+      <!-- <img src="images/shits/photo6.jpg" alt=""> -->
+      <div class="photo-overlay">
+        <span class="overlay-hint">READ →</span>
+      </div>
+    </div>
+
+    <!-- PASTE MORE PHOTO CELLS HERE — copy any block above -->
 
   </main>
 
-  <div class="chat-trigger" onclick="toggleChat()" id="chatBtn">MSG</div>
+  <!-- ── LIGHTBOX ── -->
+  <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+    <div class="lightbox-inner">
+      <div class="lb-photo" id="lbPhoto">
+        <div class="lb-placeholder">SELECT A PHOTO</div>
+      </div>
+      <div class="lb-letter">
+        <div class="lb-from">
+          <span id="lbFrom">FROM — THE.MAN.DO</span>
+          <span id="lbDate">2024</span>
+        </div>
+        <div class="lb-divider"></div>
+        <div class="lb-title" id="lbTitle">TITLE</div>
+        <p class="lb-body" id="lbBody">Letter text here.</p>
+        <div class="lb-sign" id="lbSign">— M</div>
+        <button class="lb-close" onclick="closeLightbox()">[ CLOSE ]</button>
+      </div>
+    </div>
+  </div>
 
+  <div class="chat-trigger" onclick="toggleChat()" id="chatBtn">MSG</div>
   <div class="chat-dock" id="chatBox">
     <div class="chat-header">
       <span>COMM_LINK_V1</span>
       <span class="chat-close" onclick="toggleChat()">[ CLOSE ]</span>
     </div>
-    <iframe
-      src="https://www5.cbox.ws/box/?boxid=962257&boxtag=nzOFGW"
-      width="100%" height="400"
-      allowtransparency="yes" frameborder="0"
-      style="display:block;">
-    </iframe>
+    <iframe src="https://www5.cbox.ws/box/?boxid=962257&boxtag=nzOFGW" width="100%" height="400" allowtransparency="yes" frameborder="0" style="display:block;"></iframe>
   </div>
+
+<script>
+// ══════════════════════════════════════════════
+// YOUR PHOTOS — edit these to match your content
+// id must match the openPhoto(number) in HTML
+// imgSrc: path to your photo file
+// title: big heading in the letter panel
+// date + location: shown at top of letter
+// letter: the text shown when clicked
+// sign: your signature at the bottom
+// ══════════════════════════════════════════════
+const PHOTOS = {
+  1: {
+    imgSrc:   'images/shits/photo1.jpg',
+    title:    'INTO THE WILD',
+    date:     '2024',
+    location: 'Dubai',
+    letter:   'Write your letter here. This is the message that lives behind the photo. Tell the story of where you were, what you felt, what this moment meant. No algorithm decides who reads this. They clicked. They earned it.',
+    sign:     '— M',
+  },
+  2: {
+    imgSrc:   'images/shits/photo2.jpg',
+    title:    'SALT FLATS',
+    date:     '2024',
+    location: 'Kannur',
+    letter:   'Second frame, second story. The salt flats don\'t care about your timeline. They just hold the light until someone is ready to look.',
+    sign:     '— M',
+  },
+  3: {
+    imgSrc:   'images/shits/photo3.jpg',
+    title:    'DESERT HOUR',
+    date:     '2024',
+    location: 'Empty Quarter',
+    letter:   'Three in the morning in the desert. Nothing but stars and the sound of your own breathing. That\'s the only place I feel completely real.',
+    sign:     '— M',
+  },
+  4: {
+    imgSrc:   'images/shits/photo4.jpg',
+    title:    'CITY SIGNAL',
+    date:     '2024',
+    location: 'Abu Dhabi',
+    letter:   'Write your fourth letter here.',
+    sign:     '— M',
+  },
+  5: {
+    imgSrc:   'images/shits/photo5.jpg',
+    title:    'MOUNTAIN RAW',
+    date:     '2024',
+    location: 'Jebel Jais',
+    letter:   'Write your fifth letter here.',
+    sign:     '— M',
+  },
+  6: {
+    imgSrc:   'images/shits/photo6.jpg',
+    title:    'WATER MEMORY',
+    date:     '2024',
+    location: 'Musandam',
+    letter:   'Write your sixth letter here.',
+    sign:     '— M',
+  },
+  // ADD MORE: copy any entry above, change the number
+};
+
+function openPhoto(id) {
+  const data = PHOTOS[id];
+  if (!data) return;
+
+  const lbPhoto = document.getElementById('lbPhoto');
+
+  // Set photo
+  lbPhoto.innerHTML = data.imgSrc
+    ? `<img src="${data.imgSrc}" alt="${data.title}">`
+    : `<div class="lb-placeholder">${data.title}</div>`;
+
+  // Set letter content
+  document.getElementById('lbFrom').textContent  = 'FROM — THE.MAN.DO';
+  document.getElementById('lbDate').textContent  = data.date + ' · ' + data.location;
+  document.getElementById('lbTitle').textContent = data.title;
+  document.getElementById('lbBody').textContent  = data.letter;
+  document.getElementById('lbSign').textContent  = data.sign;
+
+  // Open lightbox
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox(e) {
+  // Close only if clicking the dark backdrop or the button
+  if (e && e.target !== document.getElementById('lightbox') && !e.target.classList.contains('lb-close')) return;
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Close on ESC key
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { document.getElementById('lightbox').classList.remove('open'); document.body.style.overflow = ''; } });
+
+function toggleChat() {
+  const box = document.getElementById('chatBox');
+  const btn = document.getElementById('chatBtn');
+  if (!box) return;
+  box.classList.toggle('active');
+  btn.textContent = box.classList.contains('active') ? 'CLOSE' : 'MSG';
+}
+</script>
 
   <script src="universe.js"></script>
 </body>
