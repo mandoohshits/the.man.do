@@ -1,58 +1,69 @@
-/* universe.js — THE.MAN.DO Interactive Layer */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WRITINGS / THE.MAN.DO</title>
+  <link rel="stylesheet" href="universe.css">
+</head>
+<body>
 
-document.addEventListener('DOMContentLoaded', () => {
+    <nav class="universe-nav">
+    <a href="index.html">Index</a>
+    <a href="channel.html">Channel</a>
+    <a href="dj.html">DJ</a>
+    <a href="shits.html">Shits</a>
+    <a href="earth.html">Earth</a>
+    <a href="writings.html" class="active">Writings</a>
+    <a href="lab.html">Lab</a>
+    <a href="products.html">Products</a>
+    <a href="gives.html">Gives</a>
+  </nav>
 
-  /* ── CUSTOM CURSOR ── */
-  const cursor = document.createElement('div');
-  cursor.id = 'cursor';
-  document.body.appendChild(cursor);
+  <header class="page-header">
+    <img src="images/MD_LOGO.png" class="page-logo" alt="THE.MAN.DO">
+    <h1 class="page-title">the.man.do.writtings</h1>
+    <p class="page-sub">just my dumb thoughts &amp; writtings </p>
+  </header>
 
-  let mouseX = 0, mouseY = 0;
-  let curX = 0, curY = 0;
+  <main class="writing-container">
 
-  document.addEventListener('mousemove', e => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-  });
+    <div class="book-featured">
+      <img src="images/bg.png" class="book-cover" alt="The Circus">
+      <div class="book-info">
+        <span class="book-status">Just a thought</span>
+        <h2>The Circus</h2>
+        <p>A comprehensive exploration of independent ecosystems and what it means to build something real outside the noise.</p>
+        <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
+          <a href="images/writings/book1/circus_page-0001.pdf" class="link-item">READ_PDF</a>
+          <a href="#" class="link-item" style="opacity:0.3;pointer-events:none;">ORDER_PRINT</a>
+        </div>
+      </div>
+    </div>
 
-  function animateCursor() {
-    curX += (mouseX - curX) * 0.18;
-    curY += (mouseY - curY) * 0.18;
-    cursor.style.left = curX + 'px';
-    cursor.style.top  = curY + 'px';
-    requestAnimationFrame(animateCursor);
-  }
-  animateCursor();
+    <article class="writing-entry">
+      <span class="entry-date">2024.03.28</span>
+      <h2>On Ownership</h2>
+      <p>The internet told us to share everything. To post daily. To stay consistent for the algorithm. But what if consistency to a machine is the enemy of depth in yourself?</p>
+    </article>
 
-  document.querySelectorAll('a, button, .nav-module, .lab-card, .earth-card, .mix-module, .chat-trigger, .video-wrap, .item-card, .dept-tab').forEach(el => {
-    el.addEventListener('mouseenter', () => cursor.style.transform = 'translate(-50%,-50%) scale(3)');
-    el.addEventListener('mouseleave', () => cursor.style.transform = 'translate(-50%,-50%) scale(1)');
-  });
+  </main>
 
-  /* ── AUTO ACTIVE NAV ── */
-  const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-  document.querySelectorAll('.universe-nav a').forEach(link => {
-    if (link.getAttribute('href') === currentPage) link.classList.add('active');
-  });
+  <div class="chat-trigger" onclick="toggleChat()" id="chatBtn">MSG</div>
 
-  /* ── STAGGER FADE IN ── */
-  document.querySelectorAll('.lab-card, .earth-card, .mix-module, .writing-entry, .book-featured, .item-card, .video-post').forEach((el, i) => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(18px)';
-    el.style.transition = `opacity 0.6s ease ${i * 0.08}s, transform 0.6s ease ${i * 0.08}s`;
-    setTimeout(() => {
-      el.style.opacity = '1';
-      el.style.transform = 'translateY(0)';
-    }, 60 + i * 70);
-  });
+  <div class="chat-dock" id="chatBox">
+    <div class="chat-header">
+      <span>COMM_LINK_V1</span>
+      <span class="chat-close" onclick="toggleChat()">[ CLOSE ]</span>
+    </div>
+    <iframe
+      src="https://www5.cbox.ws/box/?boxid=962257&boxtag=nzOFGW"
+      width="100%" height="400"
+      allowtransparency="yes" frameborder="0"
+      style="display:block;">
+    </iframe>
+  </div>
 
-});
-
-/* ── CHAT TOGGLE ── */
-function toggleChat() {
-  const chatBox = document.getElementById('chatBox');
-  const chatBtn = document.getElementById('chatBtn');
-  if (!chatBox) return;
-  chatBox.classList.toggle('active');
-  chatBtn.textContent = chatBox.classList.contains('active') ? 'CLOSE' : 'MSG';
-}
+  <script src="universe.js"></script>
+</body>
+</html>
