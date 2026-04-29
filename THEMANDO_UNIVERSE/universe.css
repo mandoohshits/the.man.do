@@ -32,6 +32,11 @@ body {
   min-height: 100vh;
   cursor: none;
 }
+
+/* Fallback — if JS cursor fails, show default */
+body:not(:has(#cursor)) {
+  cursor: auto;
+}
 a, a:visited, a:hover, a:active { text-decoration: none; color: inherit; outline: none; }
 
 /* 3. CUSTOM CURSOR */
