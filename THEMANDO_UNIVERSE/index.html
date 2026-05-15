@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>THE.MAN.DO</title>
   <link rel="stylesheet" href="universe.css">
+  <script>
+  // If user hasn't seen the story yet, send them there first
+  if (!sessionStorage.getItem('story_seen')) {
+    sessionStorage.setItem('story_seen', '1');
+    window.location.href = 'story.html';
+  }
+</script>
 </head>
 <body>
 
