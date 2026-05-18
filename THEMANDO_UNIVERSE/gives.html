@@ -656,53 +656,145 @@
   </div>
 
 <script>
+// ══════════════════════════════════════════════
+// JSONBIN — cloud database so nothing disappears
+// ══════════════════════════════════════════════
+const JKEY   = '$2a$10$JRpAvbI7jgF3IofvCI49beHmYwpJ/PfaoX34h5BxhSXaSpDAyD4KW';
+const JURL   = 'https://api.jsonbin.io/v3/b';
+const BIN_LS = 'tmdo_gives_bin';
+
+let BIN_ID = localStorage.getItem(BIN_LS) || null;
+let DB     = { ideas: [], donations: [], skills: [] };
+
+// ── LOAD on page open ───────────────────────────
+async function dbLoad() {
+  try {
+    if (!BIN_ID) {
+      // First ever visit — create a new bin
+      const res  = await fetch(JURL, {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json', 'X-Master-Key':JKEY, 'X-Bin-Name':'tmdo-gives', 'X-Bin-Private':'false' },
+        body: JSON.stringify(DB)
+      });
+      const data = await res.json();
+      BIN_ID = data.metadata.id;
+      localStorage.setItem(BIN_LS, BIN_ID);
+    } else {
+      const res  = await fetch(`${JURL}/${BIN_ID}/latest`, { headers:{ 'X-Master-Key':JKEY } });
+      const data = await res.json();
+      DB = { ideas:[], donations:[], skills:[], ...data.record };
+    }
+    renderIdeas();
+    updateStats();
+  } catch(e) {
+    console.warn('Could not connect to cloud:', e);
+  }
+}
+
+// ── SAVE ────────────────────────────────────────
+async function dbSave() {
+  if (!BIN_ID) return;
+  try {
+    await fetch(`${JURL}/${BIN_ID}`, {
+      method: 'PUT',
+      headers: { 'Content-Type':'application/json', 'X-Master-Key':JKEY },
+      body: JSON.stringify(DB)
+    });
+  } catch(e) { console.warn('Save failed:', e); }
+}
+
+// ── RENDER IDEAS from DB ─────────────────────────
+function renderIdeas() {
+  const list = document.getElementById('ideasList');
+  // Keep the 3 seed ideas (first 3 children) and add DB ones before them
+  const seeds = Array.from(list.children);
+
+  // Remove any previously rendered DB ideas
+  list.querySelectorAll('.db-idea').forEach(el => el.remove());
+
+  // Add DB ideas at the top
+  [...DB.ideas].reverse().forEach(idea => {
+    const item = document.createElement('div');
+    item.className = 'idea-item db-idea';
+    item.innerHTML = `
+      <div class="idea-dot"></div>
+      <div class="idea-body">
+        <div class="idea-text">${escHtml(idea.text)}</div>
+        <div class="idea-meta">${escHtml(idea.category)} · ${escHtml(idea.name)} · ${idea.date}</div>
+      </div>
+      <button class="idea-vote" onclick="voteIdea(this,'${idea.id}')">↑ ${idea.votes||0}</button>
+    `;
+    list.insertBefore(item, list.firstChild);
+  });
+}
+
+// ── UPDATE STATS ────────────────────────────────
+function updateStats() {
+  document.getElementById('statIdeas').textContent = DB.ideas.length;
+}
+
 // ── IDEA SUBMIT ─────────────────────────────────
-function submitIdea() {
+async function submitIdea() {
   const text     = document.getElementById('ideaText').value.trim();
   const category = document.getElementById('ideaCategory').value;
   const name     = document.getElementById('ideaName').value.trim() || 'Anonymous';
 
-  if (!text) { toast('Write your idea first'); return; }
+  if (!text)     { toast('Write your idea first'); return; }
   if (!category) { toast('Pick a category'); return; }
 
-  const list = document.getElementById('ideasList');
   const catLabel = document.getElementById('ideaCategory').options[document.getElementById('ideaCategory').selectedIndex].text;
-  const time = new Date().toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'});
+  const date     = new Date().toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'});
 
-  const item = document.createElement('div');
-  item.className = 'idea-item';
-  item.innerHTML = `
-    <div class="idea-dot"></div>
-    <div class="idea-body">
-      <div class="idea-text">${escHtml(text)}</div>
-      <div class="idea-meta">${catLabel} · ${escHtml(name)} · ${time}</div>
-    </div>
-    <button class="idea-vote" onclick="voteIdea(this)">↑ 0</button>
-  `;
-  list.insertBefore(item, list.firstChild);
+  const idea = { id: Date.now().toString(), text, category: catLabel, name, date, votes: 0 };
+  DB.ideas.push(idea);
 
-  // Update stat
-  const statEl = document.getElementById('statIdeas');
-  statEl.textContent = parseInt(statEl.textContent || 0) + 1;
+  toast('Saving your idea...');
+  await dbSave();
 
-  // Clear form
+  renderIdeas();
+  updateStats();
+
   document.getElementById('ideaText').value = '';
   document.getElementById('ideaCategory').selectedIndex = 0;
   document.getElementById('ideaName').value = '';
 
-  toast('Idea submitted — thank you');
+  toast('Idea submitted — thank you ✓');
+}
+
+// ── VOTE ────────────────────────────────────────
+async function voteIdea(btn, id) {
+  const isVoted = btn.classList.contains('voted');
+  const current = parseInt(btn.textContent.replace('↑ ', '')) || 0;
+
+  if (isVoted) {
+    btn.classList.remove('voted');
+    btn.textContent = '↑ ' + Math.max(0, current - 1);
+    if (id) { const idea = DB.ideas.find(i => i.id === id); if (idea) idea.votes = Math.max(0, (idea.votes||0) - 1); }
+  } else {
+    btn.classList.add('voted');
+    btn.textContent = '↑ ' + (current + 1);
+    if (id) { const idea = DB.ideas.find(i => i.id === id); if (idea) idea.votes = (idea.votes||0) + 1; }
+  }
+
+  if (id) await dbSave();
 }
 
 // ── SKILL SUBMIT ────────────────────────────────
-function submitSkill() {
+async function submitSkill() {
   const desc    = document.getElementById('skillDesc').value.trim();
   const contact = document.getElementById('skillContact').value.trim();
+  const type    = document.getElementById('skillType').value;
   if (!desc)    { toast('Tell us what you can offer'); return; }
   if (!contact) { toast('Add a way to reach you'); return; }
+
+  DB.skills.push({ type, desc, contact, date: new Date().toISOString() });
+  toast('Saving...');
+  await dbSave();
+
   document.getElementById('skillDesc').value = '';
   document.getElementById('skillContact').value = '';
   document.getElementById('skillType').selectedIndex = 0;
-  toast('Thank you — we will reach out');
+  toast('Thank you — we will reach out ✓');
 }
 
 // ── DONATE ──────────────────────────────────────
@@ -712,31 +804,25 @@ function setAmount(amount, btn) {
   document.getElementById('donateAmount').value = amount;
 }
 
-function handleDonate() {
+async function handleDonate() {
   const amount = document.getElementById('donateAmount').value;
+  const name   = document.getElementById('donateName').value.trim() || 'Anonymous';
+  const msg    = document.getElementById('donateMsg').value.trim();
   if (!amount || amount <= 0) { toast('Enter an amount first'); return; }
-  // ── REPLACE THIS URL WITH YOUR ACTUAL PAYMENT LINK ──
-  // e.g. PayPal, bank transfer page, etc.
+
+  // Log the donation intent
+  DB.donations.push({ amount, name, msg, date: new Date().toISOString() });
+  await dbSave();
+
+  // ── REPLACE WITH YOUR ACTUAL PAYMENT LINK ──────
   const paymentUrl = 'https://paypal.me/YOURUSERNAME/' + amount;
   toast('Redirecting to payment...');
   setTimeout(() => { window.open(paymentUrl, '_blank'); }, 800);
 }
 
-// ── VOTE ────────────────────────────────────────
-function voteIdea(btn) {
-  const isVoted = btn.classList.contains('voted');
-  const current = parseInt(btn.textContent.replace('↑ ', '')) || 0;
-  if (isVoted) {
-    btn.classList.remove('voted');
-    btn.textContent = '↑ ' + Math.max(0, current - 1);
-  } else {
-    btn.classList.add('voted');
-    btn.textContent = '↑ ' + (current + 1);
-  }
-}
-
 // ── HELPERS ─────────────────────────────────────
 function escHtml(str) {
+  if (!str) return '';
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
@@ -752,6 +838,9 @@ function toggleChat() {
   box.classList.toggle('active');
   btn.textContent = box.classList.contains('active') ? 'CLOSE' : 'MSG';
 }
+
+// ── BOOT ────────────────────────────────────────
+window.addEventListener('load', dbLoad);
 </script>
 
   <script src="universe.js"></script>
