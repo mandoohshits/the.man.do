@@ -182,11 +182,26 @@ a, a:visited, a:hover, a:active { text-decoration: none; color: inherit; outline
   .book-featured       { flex-direction: column; }
 }
 @media (max-width: 600px) {
-  .universe-nav      { top: auto; bottom: 20px; width: 92%; gap: 14px; padding: 10px 16px; }
+  .universe-nav {
+    top: auto;
+    bottom: 20px;
+    width: 92%;
+    gap: 14px;
+    padding: 10px 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    justify-content: flex-start;
+  }
+  .universe-nav::-webkit-scrollbar { display: none; }
+  .universe-nav a { flex-shrink: 0; }
   .page-header       { padding: 80px 5% 30px; }
   .writing-container { padding: 40px 5%; }
   .earth-grid        { padding: 40px 5%; }
   .lab-grid          { padding: 40px 5%; }
+  /* Give space at bottom so nav doesn't cover content */
+  body { padding-bottom: 80px; }
+  /* Hero on index — give extra bottom space */
+  .hero-wrapper { padding-bottom: 100px; }
 }
 
 /* 15. PRODUCTS — DEPARTMENT TABS */
