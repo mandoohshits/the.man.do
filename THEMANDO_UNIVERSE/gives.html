@@ -813,7 +813,7 @@ async function handleDonate() {
   await dbSave();
 
   // ── REPLACE WITH YOUR ACTUAL PAYMENT LINK ──────
-  const paymentUrl = 'https://paypal.me/YOURUSERNAME/' + amount;
+const paymentUrl = 'https://wa.me/971501998511?text=I want to donate AED ' + amount + ' to THE.MAN.DO GIVES';
   toast('Redirecting to payment...');
   setTimeout(() => { window.open(paymentUrl, '_blank'); }, 800);
 }
