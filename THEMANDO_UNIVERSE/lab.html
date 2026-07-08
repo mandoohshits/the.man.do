@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LAB // THE.MAN.DO</title>
+  <title>MANDOLAB // THE.MAN.DO</title>
   <link rel="stylesheet" href="universe.css">
 </head>
 <body>
 
-    <nav class="universe-nav">
+  <nav class="universe-nav">
     <a href="index.html">Index</a>
     <a href="channel.html">Channel</a>
     <a href="shits.html">Shits</a>
@@ -20,39 +20,119 @@
 
   <header class="page-header">
     <img src="images/MD_LOGO.png" class="page-logo" alt="THE.MAN.DO">
-       <h1 class="page-title">MANDOLAB</h1>
+    <h1 class="page-title">MANDOLAB</h1>
     <p class="page-sub">ethical hacking · networking · ctf</p>
   </header>
 
   <main class="lab-grid">
 
+    <!-- Small cards -->
     <div class="lab-card active-project">
-  <div class="lab-status">STATUS: LIVE</div>
-  <h2 class="lab-title">IP_CONFLICT_CASE</h2>
-  <p class="lab-desc">A rogue device pretending to be our gateway router took down an entire office. Here's how I found it in under 5 minutes.</p>
-  <div class="lab-tags">#NETWORKING #ARP #REALCASE</div>
-</div>
+      <div class="lab-status">STATUS: LIVE</div>
+      <h2 class="lab-title">IP_CONFLICT_CASE</h2>
+      <p class="lab-desc">A rogue device pretending to be our gateway router took down an entire office. Here's how I found it in under 5 minutes.</p>
+      <div class="lab-tags">#NETWORKING #ARP #REALCASE</div>
+    </div>
 
-<div class="lab-card">
-  <div class="lab-status">STATUS: COMING</div>
-  <h2 class="lab-title">CTF_CHALLENGE_01</h2>
-  <p class="lab-desc">First capture the flag challenge walkthrough. Beginner friendly. Tools used: Kali Linux, Wireshark.</p>
-  <div class="lab-tags">#CTF #KALI #ETHICALHACKING</div>
-</div>
+    <div class="lab-card">
+      <div class="lab-status">STATUS: COMING</div>
+      <h2 class="lab-title">CTF_CHALLENGE_01</h2>
+      <p class="lab-desc">First capture the flag challenge walkthrough. Beginner friendly. Tools used: Kali Linux, Wireshark.</p>
+      <div class="lab-tags">#CTF #KALI #ETHICALHACKING</div>
+    </div>
 
-<div class="lab-card">
-  <div class="lab-status">STATUS: COMING</div>
-  <h2 class="lab-title">NMAP_FIELD_NOTES</h2>
-  <p class="lab-desc">Real commands I use daily for network scanning. Not a tutorial — actual field notes from the job.</p>
-  <div class="lab-tags">#NMAP #NETWORKING #TOOLS</div>
-</div>
+    <div class="lab-card">
+      <div class="lab-status">STATUS: COMING</div>
+      <h2 class="lab-title">NMAP_FIELD_NOTES</h2>
+      <p class="lab-desc">Real commands I use daily for network scanning. Not a tutorial — actual field notes from the job.</p>
+      <div class="lab-tags">#NMAP #NETWORKING #TOOLS</div>
+    </div>
 
-<div class="lab-card">
-  <div class="lab-status">STATUS: COMING</div>
-  <h2 class="lab-title">WIRESHARK_101</h2>
-  <p class="lab-desc">How to read packet captures like a network engineer. Starting from zero, ending at useful.</p>
-  <div class="lab-tags">#WIRESHARK #PACKETS #ANALYSIS</div>
-</div>
+    <div class="lab-card">
+      <div class="lab-status">STATUS: COMING</div>
+      <h2 class="lab-title">WIRESHARK_101</h2>
+      <p class="lab-desc">How to read packet captures like a network engineer. Starting from zero, ending at useful.</p>
+      <div class="lab-tags">#WIRESHARK #PACKETS #ANALYSIS</div>
+    </div>
+
+    <!-- FULL WIDTH CASE WRITEUP -->
+    <div class="lab-card active-project" style="grid-column:1/-1; border-left:2px solid #f0a014;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px; margin-bottom:20px;">
+        <div>
+          <div class="lab-status">STATUS: LIVE — REAL CASE</div>
+          <h2 class="lab-title" style="font-size:1.3rem; margin-top:6px;">CASE_01 — THE GHOST IN THE GATEWAY</h2>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <span style="font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:2px;padding:4px 10px;border:1px solid rgba(240,160,20,0.25);border-radius:100px;color:#f0a014;text-transform:uppercase;">Networking</span>
+          <span style="font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:2px;padding:4px 10px;border:1px solid rgba(255,255,255,0.1);border-radius:100px;color:rgba(240,236,224,0.4);text-transform:uppercase;">IP Conflict</span>
+          <span style="font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:2px;padding:4px 10px;border:1px solid rgba(255,255,255,0.1);border-radius:100px;color:rgba(240,236,224,0.4);text-transform:uppercase;">ARP</span>
+          <span style="font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:2px;padding:4px 10px;border:1px solid rgba(255,255,255,0.1);border-radius:100px;color:rgba(240,236,224,0.4);text-transform:uppercase;">Managed Switch</span>
+        </div>
+      </div>
+
+      <div style="width:100%;height:1px;background:rgba(240,160,20,0.08);margin-bottom:24px;"></div>
+
+      <div style="margin-bottom:22px;">
+        <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:#f0a014;opacity:0.6;text-transform:uppercase;margin-bottom:10px;">01 — THE SYMPTOM</div>
+        <p class="lab-desc" style="margin:0;">Half the office lost their network randomly. Emails wouldn't sync. Pages wouldn't load. Sessions kept dropping. The key detail — it wasn't completely dead. It was <strong style="color:#f0ece0;">erratic</strong>. Working, then not, then working again. That pattern matters.</p>
+      </div>
+
+      <div style="margin-bottom:22px;">
+        <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:#f0a014;opacity:0.6;text-transform:uppercase;margin-bottom:10px;">02 — THE HUNT</div>
+        <p class="lab-desc" style="margin:0 0 12px 0;">First move — continuous ping to the default gateway. Clean for a few rows, then boom. Request timed out. Then a spike to 1500ms. Then back to normal.</p>
+        <div style="background:#000;border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:14px 18px;font-family:'Space Mono',monospace;font-size:0.7rem;color:#f0a014;letter-spacing:1px;margin-bottom:12px;">ping -t 192.168.1.1</div>
+        <p class="lab-desc" style="margin:0;">First guess was a failing switch or a network loop. Checked uptime on all switches and access points. Everything looked physically fine. No errors, no resets. Time to go deeper.</p>
+      </div>
+
+      <div style="margin-bottom:22px;">
+        <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:#f0a014;opacity:0.6;text-transform:uppercase;margin-bottom:10px;">03 — THE BREAKTHROUGH</div>
+        <p class="lab-desc" style="margin:0 0 12px 0;">Ran <code style="background:#000;padding:2px 8px;border-radius:3px;color:#f0a014;">arp -a</code> during one of the drops. The gateway IP was flipping between two completely different MAC addresses every few seconds.</p>
+        <div style="background:#000;border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:14px 18px;font-family:'Space Mono',monospace;font-size:0.68rem;letter-spacing:1px;margin-bottom:12px;line-height:2;">
+          <span style="color:rgba(240,236,224,0.4);">C:\&gt;</span> <span style="color:#f0a014;">arp -a</span><br>
+          <span style="color:rgba(240,236,224,0.4);">Interface: 192.168.1.50</span><br>
+          <span style="color:rgba(240,236,224,0.6);">192.168.1.1</span>&nbsp;&nbsp;<span style="color:#f0a014;">aa-bb-cc-dd-ee-ff</span>&nbsp;&nbsp;<span style="color:rgba(240,236,224,0.3);">dynamic</span><br>
+          <span style="color:rgba(240,160,20,0.35);font-size:0.6rem;">← 10 seconds later, same IP, different MAC:</span><br>
+          <span style="color:rgba(240,236,224,0.6);">192.168.1.1</span>&nbsp;&nbsp;<span style="color:#f0a014;">11-22-33-44-55-66</span>&nbsp;&nbsp;<span style="color:rgba(240,236,224,0.3);">dynamic</span>
+        </div>
+        <p class="lab-desc" style="margin:0;">That's never normal. One IP should only ever belong to one piece of hardware. Two MACs fighting over the same IP meant one thing — <strong style="color:#f0ece0;">IP address conflict.</strong></p>
+      </div>
+
+      <div style="margin-bottom:22px;">
+        <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:#f0a014;opacity:0.6;text-transform:uppercase;margin-bottom:10px;">04 — WHY IT BREAKS EVERYTHING</div>
+        <p class="lab-desc" style="margin:0;">Every time the rogue device spoke on the network, it told the switches "I own this IP." So did the real router. The switches kept updating their MAC address tables back and forth — creating a tug of war. Every device briefly lost the ability to find the real gateway. That's the erratic pattern everyone experienced.</p>
+      </div>
+
+      <div style="margin-bottom:22px;">
+        <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:rgba(80,200,100,0.7);text-transform:uppercase;margin-bottom:10px;">05 — THE FIX</div>
+        <p class="lab-desc" style="margin:0 0 12px 0;">Used the rogue MAC from the ARP table, logged into the managed switch, found which port that MAC was on, and shut the port down remotely. Network stabilized instantly.</p>
+        <div style="background:#000;border:1px solid rgba(80,200,100,0.1);border-radius:6px;padding:14px 18px;font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(80,200,100,0.7);letter-spacing:1px;line-height:2;">
+          Switch(config)# interface FastEthernet0/[PORT]<br>
+          Switch(config-if)# shutdown<br>
+          <span style="color:rgba(240,236,224,0.3);">→ Network stabilized immediately</span>
+        </div>
+      </div>
+
+      <div style="padding:16px 20px;background:rgba(240,160,20,0.04);border:1px solid rgba(240,160,20,0.12);border-radius:6px;">
+        <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:#f0a014;opacity:0.6;text-transform:uppercase;margin-bottom:10px;">TAKEAWAY</div>
+        <p class="lab-desc" style="margin:0;color:rgba(240,236,224,0.5);line-height:2;">
+          1. Erratic network = suspect IP conflict before hardware failure.<br>
+          2. <code style="background:#000;padding:1px 6px;border-radius:3px;color:#f0a014;">arp -a</code> is one of the fastest diagnostic commands you have — use it early.<br>
+          3. Never let users manually assign static IPs without checking your DHCP exclusion range first.
+        </p>
+      </div>
+
+    </div>
+
+  </main>
+
+  <div class="chat-trigger" onclick="toggleChat()" id="chatBtn">MSG</div>
+  <div class="chat-dock" id="chatBox">
+    <div class="chat-header">
+      <span>COMM_LINK_V1</span>
+      <span class="chat-close" onclick="toggleChat()">[ CLOSE ]</span>
+    </div>
+    <iframe src="https://www5.cbox.ws/box/?boxid=962257&boxtag=nzOFGW" width="100%" height="400" allowtransparency="yes" frameborder="0" style="display:block;"></iframe>
+  </div>
 
   <script src="universe.js"></script>
 </body>
