@@ -122,7 +122,86 @@
       </div>
 
     </div>
+<!-- CASE 02 — copy everything below and paste it inside your lab-grid in lab.html, after the first case writeup -->
 
+<div class="lab-card" style="grid-column:1/-1; border-left:2px solid rgba(240,160,20,0.4);">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px; margin-bottom:20px;">
+    <div>
+      <div class="lab-status">STATUS: LIVE — REAL CASE</div>
+      <h2 class="lab-title" style="font-size:1.3rem; margin-top:6px;">CASE_02 — THE PRINTER THAT FORGOT ITS NAME</h2>
+    </div>
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <span style="font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:2px;padding:4px 10px;border:1px solid rgba(240,160,20,0.25);border-radius:100px;color:#f0a014;text-transform:uppercase;">DHCP</span>
+      <span style="font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:2px;padding:4px 10px;border:1px solid rgba(255,255,255,0.1);border-radius:100px;color:rgba(240,236,224,0.4);text-transform:uppercase;">Printing</span>
+      <span style="font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:2px;padding:4px 10px;border:1px solid rgba(255,255,255,0.1);border-radius:100px;color:rgba(240,236,224,0.4);text-transform:uppercase;">Network</span>
+    </div>
+  </div>
+
+  <div style="width:100%;height:1px;background:rgba(240,160,20,0.08);margin-bottom:24px;"></div>
+
+  <div style="margin-bottom:22px;">
+    <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:#f0a014;opacity:0.6;text-transform:uppercase;margin-bottom:10px;">01 — THE SYMPTOM</div>
+    <p class="lab-desc" style="margin:0;">Every time the office printer restarted — power cut, maintenance, firmware update — nobody could print. The printer was on, connected, showing online. But jobs just sat in the queue going nowhere. Classic "it worked yesterday" complaint.</p>
+  </div>
+
+  <div style="margin-bottom:22px;">
+    <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:#f0a014;opacity:0.6;text-transform:uppercase;margin-bottom:10px;">02 — THE CAUSE</div>
+    <p class="lab-desc" style="margin:0 0 12px 0;">The printer was set to DHCP — meaning every time it restarted, it asked the router for an IP address. The router gave it whatever was available. Problem: that IP changed every time. But every computer on the network still had the <strong style="color:#f0ece0;">old IP</strong> saved as the printer address. So print jobs were flying off to an IP that no longer belonged to the printer.</p>
+    <div style="background:#000;border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:14px 18px;font-family:'Space Mono',monospace;font-size:0.68rem;letter-spacing:1px;line-height:2.2;margin-bottom:0;">
+      <span style="color:rgba(240,236,224,0.4);">Before restart:</span><br>
+      <span style="color:rgba(240,236,224,0.6);">Printer IP →</span> <span style="color:#f0a014;">192.168.1.45</span> <span style="color:rgba(80,200,100,0.6);">← all computers pointed here</span><br><br>
+      <span style="color:rgba(240,236,224,0.4);">After restart:</span><br>
+      <span style="color:rgba(240,236,224,0.6);">Printer IP →</span> <span style="color:#f0a014;">192.168.1.78</span> <span style="color:rgba(220,80,60,0.7);">← printer moved, nobody knows</span><br>
+      <span style="color:rgba(240,236,224,0.6);">192.168.1.45</span> <span style="color:rgba(240,236,224,0.3);">→ nothing there anymore</span>
+    </div>
+  </div>
+
+  <div style="margin-bottom:22px;">
+    <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:#f0a014;opacity:0.6;text-transform:uppercase;margin-bottom:10px;">03 — THE DIAGNOSIS</div>
+    <p class="lab-desc" style="margin:0 0 12px 0;">First check — ping the printer's saved IP from a computer that can't print:</p>
+    <div style="background:#000;border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:14px 18px;font-family:'Space Mono',monospace;font-size:0.7rem;color:#f0a014;letter-spacing:1px;margin-bottom:12px;line-height:2;">
+      ping 192.168.1.45<br>
+      <span style="color:rgba(220,80,60,0.7);">Request timed out.</span><br>
+      <span style="color:rgba(240,236,224,0.3);">→ nothing at that IP anymore</span>
+    </div>
+    <p class="lab-desc" style="margin:0 0 12px 0;">Then find where the printer actually went — check the DHCP lease table on the router, or print a network config page directly from the printer's physical buttons. The printer will print its own current IP.</p>
+    <div style="background:#000;border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:14px 18px;font-family:'Space Mono',monospace;font-size:0.68rem;letter-spacing:1px;line-height:2.2;">
+      <span style="color:rgba(240,236,224,0.4);">Router DHCP table:</span><br>
+      <span style="color:rgba(240,236,224,0.6);">HP-LaserJet-M428</span> &nbsp;<span style="color:#f0a014;">192.168.1.78</span> &nbsp;<span style="color:rgba(240,236,224,0.3);">aa:bb:cc:dd:ee:ff</span><br>
+      <span style="color:rgba(240,160,20,0.4);font-size:0.6rem;">← there it is, different IP</span>
+    </div>
+  </div>
+
+  <div style="margin-bottom:22px;">
+    <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:rgba(80,200,100,0.7);text-transform:uppercase;margin-bottom:10px;">04 — THE FIX</div>
+    <p class="lab-desc" style="margin:0 0 12px 0;">Two ways to fix this permanently:</p>
+
+    <div style="margin-bottom:14px;">
+      <div style="font-family:'Space Mono',monospace;font-size:0.55rem;letter-spacing:2px;color:rgba(240,236,224,0.5);text-transform:uppercase;margin-bottom:8px;">Option A — DHCP Reservation (best way)</div>
+      <p class="lab-desc" style="margin:0 0 10px 0;">Go into the router settings, find the DHCP reservation table, and tell the router "always give this MAC address this IP." The printer keeps using DHCP but always gets the same address.</p>
+      <div style="background:#000;border:1px solid rgba(80,200,100,0.1);border-radius:6px;padding:14px 18px;font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(80,200,100,0.7);letter-spacing:1px;line-height:2;">
+        MAC: aa:bb:cc:dd:ee:ff<br>
+        Reserved IP: 192.168.1.45<br>
+        <span style="color:rgba(240,236,224,0.3);">→ printer always gets same IP, forever</span>
+      </div>
+    </div>
+
+    <div>
+      <div style="font-family:'Space Mono',monospace;font-size:0.55rem;letter-spacing:2px;color:rgba(240,236,224,0.5);text-transform:uppercase;margin-bottom:8px;">Option B — Static IP on the printer itself</div>
+      <p class="lab-desc" style="margin:0;">Go into the printer's own network settings (usually through its screen menu or web interface) and set a fixed IP manually. Make sure the IP is outside your DHCP range so nothing else accidentally gets the same address.</p>
+    </div>
+  </div>
+
+  <div style="padding:16px 20px;background:rgba(240,160,20,0.04);border:1px solid rgba(240,160,20,0.12);border-radius:6px;">
+    <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:#f0a014;opacity:0.6;text-transform:uppercase;margin-bottom:10px;">TAKEAWAY</div>
+    <p class="lab-desc" style="margin:0;color:rgba(240,236,224,0.5);line-height:2;">
+      1. Shared network devices — printers, scanners, servers — should never have a random DHCP address. Always reserve or set static.<br>
+      2. When a shared device "stops working" after a restart, check its IP first. Nine times out of ten it moved.<br>
+      3. DHCP reservation is cleaner than static — the device still uses DHCP but always gets the same address. Best of both worlds.
+    </p>
+  </div>
+
+</div>
   </main>
 
   <div class="chat-trigger" onclick="toggleChat()" id="chatBtn">MSG</div>
