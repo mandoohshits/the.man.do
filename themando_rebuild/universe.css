@@ -307,3 +307,10 @@ a, a:visited, a:hover, a:active { text-decoration: none; color: inherit; outline
 }
 .add-btn:hover { background: rgba(240,160,20,0.1); border-color: var(--accent); }
 .add-btn.out   { border-color: rgba(255,255,255,0.08); color: rgba(255,255,255,0.18); cursor: not-allowed; }
+
+
+.page-logo {
+  width: 80px !important;
+  height: auto !important;
+  opacity: 0.7;
+}
