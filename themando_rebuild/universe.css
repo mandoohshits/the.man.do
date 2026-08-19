@@ -314,3 +314,11 @@ a, a:visited, a:hover, a:active { text-decoration: none; color: inherit; outline
   height: auto !important;
   opacity: 0.7;
 }
+.page-logo {
+  width: 80px !important;
+  height: auto !important;
+  opacity: 0.7;
+  margin-bottom: 8px;
+}
+
+
