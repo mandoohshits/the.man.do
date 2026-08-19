@@ -311,14 +311,17 @@ a, a:visited, a:hover, a:active { text-decoration: none; color: inherit; outline
 
 .page-logo {
   width: 80px !important;
+  max-width: 80px !important;
   height: auto !important;
-  opacity: 0.7;
-}
-.page-logo {
-  width: 80px !important;
-  height: auto !important;
+  display: block !important;
   opacity: 0.7;
   margin-bottom: 8px;
+}
+
+.page-header img {
+  width: 80px !important;
+  max-width: 80px !important;
+  height: auto !important;
 }
 
 
