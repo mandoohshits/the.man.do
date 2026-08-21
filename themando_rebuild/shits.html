@@ -223,7 +223,7 @@
   </nav>
 
   <header class="page-header">
-    <img src="photos/logo/logo.png" class="page-logo" alt="THE.MAN.DO">
+    <img src="images/MD_LOGO.png" class="page-logo" alt="THE.MAN.DO">
     <h1 class="page-title">the.man.do.shits</h1>
     <p class="page-sub">Raw frames. Click to read.</p>
   </header>
@@ -248,7 +248,8 @@
 
     <!-- PHOTO 1 -->
     <div class="photo-cell" onclick="openPhoto(1)">
-      <img src="photos/Shits/sh1.png" alt="">
+      <div class="no-photo">+ ADD PHOTO</div>
+      <!-- <img src="images/shits/photo1.jpg" alt=""> -->
       <div class="photo-overlay">
         <span class="overlay-hint">READ →</span>
       </div>
@@ -320,19 +321,19 @@
         <div class="lb-sign" id="lbSign">— M</div>
 
         <!-- RIDDLE UNLOCK -->
-        <div class="riddle-box" data-answer="minhaj">
+        <div class="riddle-box" id="riddleBox" data-answer="">
           <div class="riddle-locked">
             <div class="riddle-icon">?</div>
-            <div class="riddle-question">Who is the person with me?</div>
+            <div class="riddle-question" id="riddleQuestion"></div>
             <div class="riddle-input-wrap">
-              <input class="riddle-input" type="text" placeholder="type your answer..." autocomplete="off">
+              <input class="riddle-input" id="riddleInput" type="text" placeholder="type your answer..." autocomplete="off">
               <button class="riddle-submit" onclick="checkRiddle(this)">→</button>
             </div>
-            <div class="riddle-wrong">wrong.</div>
+            <div class="riddle-wrong" id="riddleWrong">wrong.</div>
           </div>
-          <div class="riddle-unlocked">
+          <div class="riddle-unlocked" id="riddleUnlocked">
             <div class="unlock-line">unlocked.</div>
-            <div class="unlocked-quote">fuck you minhaajjjjjj</div>
+            <div class="unlocked-quote" id="unlockedQuote"></div>
             <div class="unlock-sign">— M</div>
           </div>
         </div>
@@ -354,12 +355,11 @@
 <script>
 // ══════════════════════════════════════════════
 // YOUR PHOTOS — edit these to match your content
-// id must match the openPhoto(number) in HTML
-// imgSrc: path to your photo file
-// title: big heading in the letter panel
-// date + location: shown at top of letter
-// letter: the text shown when clicked
-// sign: your signature at the bottom
+// ══════════════════════════════════════════════
+// PHOTOS — update these to match your content
+// riddle: the question shown under the letter
+// answer: the correct answer (lowercase)
+// quote:  what reveals when they get it right
 // ══════════════════════════════════════════════
 const PHOTOS = {
   1: {
@@ -369,6 +369,9 @@ const PHOTOS = {
     location: 'Dubai',
     letter:   'Write your letter here. This is the message that lives behind the photo. Tell the story of where you were, what you felt, what this moment meant. No algorithm decides who reads this. They clicked. They earned it.',
     sign:     '— M',
+    riddle:   'Who is the person with me?',
+    answer:   'minhaj',
+    quote:    'fuck you minhaajjjjjj',
   },
   2: {
     imgSrc:   'images/shits/photo2.jpg',
@@ -377,6 +380,9 @@ const PHOTOS = {
     location: 'Kannur',
     letter:   'Second frame, second story. The salt flats don\'t care about your timeline. They just hold the light until someone is ready to look.',
     sign:     '— M',
+    riddle:   'Add your riddle for photo 2 here',
+    answer:   'your answer',
+    quote:    'your unlocked quote for photo 2',
   },
   3: {
     imgSrc:   'images/shits/photo3.jpg',
@@ -385,6 +391,9 @@ const PHOTOS = {
     location: 'Empty Quarter',
     letter:   'Three in the morning in the desert. Nothing but stars and the sound of your own breathing. That\'s the only place I feel completely real.',
     sign:     '— M',
+    riddle:   'Add your riddle for photo 3 here',
+    answer:   'your answer',
+    quote:    'your unlocked quote for photo 3',
   },
   4: {
     imgSrc:   'images/shits/photo4.jpg',
@@ -393,6 +402,9 @@ const PHOTOS = {
     location: 'Abu Dhabi',
     letter:   'Write your fourth letter here.',
     sign:     '— M',
+    riddle:   'Add your riddle for photo 4 here',
+    answer:   'your answer',
+    quote:    'your unlocked quote for photo 4',
   },
   5: {
     imgSrc:   'images/shits/photo5.jpg',
@@ -401,6 +413,9 @@ const PHOTOS = {
     location: 'Jebel Jais',
     letter:   'Write your fifth letter here.',
     sign:     '— M',
+    riddle:   'Add your riddle for photo 5 here',
+    answer:   'your answer',
+    quote:    'your unlocked quote for photo 5',
   },
   6: {
     imgSrc:   'images/shits/photo6.jpg',
@@ -409,6 +424,9 @@ const PHOTOS = {
     location: 'Musandam',
     letter:   'Write your sixth letter here.',
     sign:     '— M',
+    riddle:   'Add your riddle for photo 6 here',
+    answer:   'your answer',
+    quote:    'your unlocked quote for photo 6',
   },
   // ADD MORE: copy any entry above, change the number
 };
@@ -430,6 +448,24 @@ function openPhoto(id) {
   document.getElementById('lbTitle').textContent = data.title;
   document.getElementById('lbBody').textContent  = data.letter;
   document.getElementById('lbSign').textContent  = data.sign;
+
+  // Set riddle dynamically — each photo gets its own
+  const riddleBox      = document.getElementById('riddleBox');
+  const riddleQuestion = document.getElementById('riddleQuestion');
+  const riddleInput    = document.getElementById('riddleInput');
+  const riddleWrong    = document.getElementById('riddleWrong');
+  const riddleUnlocked = document.getElementById('riddleUnlocked');
+  const unlockedQuote  = document.getElementById('unlockedQuote');
+
+  // Reset riddle state every time a new photo opens
+  riddleBox.classList.remove('unlocked-state');
+  riddleInput.value = '';
+  riddleWrong.classList.remove('show');
+
+  // Load this photo's riddle data
+  riddleBox.dataset.answer  = data.answer;
+  riddleQuestion.textContent = data.riddle;
+  unlockedQuote.textContent  = data.quote;
 
   // Open lightbox
   document.getElementById('lightbox').classList.add('open');
