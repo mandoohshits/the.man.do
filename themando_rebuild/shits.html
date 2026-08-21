@@ -185,6 +185,28 @@
       .photo-grid { grid-template-columns: repeat(2,1fr); }
     }
 
+    /* ── RIDDLE ── */
+    .riddle-box{margin:14px 0;padding:16px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;transition:border-color 0.3s;}
+    .riddle-box.unlocked-state{border-color:rgba(240,160,20,0.3);}
+    .riddle-locked{display:flex;flex-direction:column;gap:10px;}
+    .riddle-box.unlocked-state .riddle-locked{display:none;}
+    .riddle-unlocked{display:none;flex-direction:column;gap:8px;}
+    .riddle-box.unlocked-state .riddle-unlocked{display:flex;animation:revealQuote 0.6s ease forwards;}
+    .riddle-icon{font-family:var(--font-mono);font-size:1rem;color:rgba(240,160,20,0.3);}
+    .riddle-question{font-family:var(--font-mono);font-size:0.6rem;letter-spacing:2px;color:rgba(240,236,224,0.4);text-transform:uppercase;line-height:1.6;}
+    .riddle-input-wrap{display:flex;gap:6px;}
+    .riddle-input{flex:1;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:4px;padding:7px 10px;color:#f0ece0;font-family:var(--font-mono);font-size:0.6rem;letter-spacing:1px;outline:none;transition:border-color 0.2s;}
+    .riddle-input:focus{border-color:rgba(240,160,20,0.3);}
+    .riddle-input::placeholder{color:rgba(240,236,224,0.15);}
+    .riddle-submit{background:none;border:1px solid rgba(240,160,20,0.25);border-radius:4px;padding:7px 12px;color:#f0a014;font-family:var(--font-mono);font-size:0.65rem;cursor:pointer;transition:all 0.2s;}
+    .riddle-submit:hover{background:rgba(240,160,20,0.08);border-color:#f0a014;}
+    .riddle-wrong{font-family:var(--font-mono);font-size:0.5rem;letter-spacing:3px;color:rgba(220,80,60,0.6);text-transform:uppercase;opacity:0;transition:opacity 0.3s;}
+    .riddle-wrong.show{opacity:1;}
+    .unlock-line{font-family:var(--font-mono);font-size:0.48rem;letter-spacing:4px;color:rgba(240,160,20,0.4);text-transform:uppercase;}
+    .unlocked-quote{font-family:var(--font-body);font-size:0.95rem;line-height:1.7;color:#f0ece0;font-style:italic;}
+    .unlock-sign{font-family:var(--font-mono);font-size:0.5rem;letter-spacing:3px;color:rgba(240,160,20,0.4);}
+    @keyframes revealQuote{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
   </style>
 </head>
 <body>
@@ -226,7 +248,8 @@
 
     <!-- PHOTO 1 -->
     <div class="photo-cell" onclick="openPhoto(1)">
-     <img src="photos/Shits/sh1.png" alt="">
+      <div class="no-photo">+ ADD PHOTO</div>
+      <!-- <img src="images/shits/photo1.jpg" alt=""> -->
       <div class="photo-overlay">
         <span class="overlay-hint">READ →</span>
       </div>
@@ -296,24 +319,24 @@
         <div class="lb-title" id="lbTitle">TITLE</div>
         <p class="lb-body" id="lbBody">Letter text here.</p>
         <div class="lb-sign" id="lbSign">— M</div>
-        
+
         <!-- RIDDLE UNLOCK -->
-<div class="riddle-box" data-answer="minhaj">
-  <div class="riddle-locked">
-    <div class="riddle-icon">?</div>
-    <div class="riddle-question">Who is the person with me?</div>
-    <div class="riddle-input-wrap">
-      <input class="riddle-input" type="text" placeholder="type your answer..." autocomplete="off">
-      <button class="riddle-submit" onclick="checkRiddle(this)">→</button>
-    </div>
-    <div class="riddle-wrong">wrong.</div>
-  </div>
-  <div class="riddle-unlocked">
-    <div class="unlock-line">unlocked.</div>
-    <div class="unlocked-quote">fuck you minhaajjjjjj</div>
-    <div class="unlock-sign">— M</div>
-  </div>
-</div>
+        <div class="riddle-box" data-answer="minhaj">
+          <div class="riddle-locked">
+            <div class="riddle-icon">?</div>
+            <div class="riddle-question">Who is the person with me?</div>
+            <div class="riddle-input-wrap">
+              <input class="riddle-input" type="text" placeholder="type your answer..." autocomplete="off">
+              <button class="riddle-submit" onclick="checkRiddle(this)">→</button>
+            </div>
+            <div class="riddle-wrong">wrong.</div>
+          </div>
+          <div class="riddle-unlocked">
+            <div class="unlock-line">unlocked.</div>
+            <div class="unlocked-quote">fuck you minhaajjjjjj</div>
+            <div class="unlock-sign">— M</div>
+          </div>
+        </div>
 
         <button class="lb-close" onclick="closeLightbox()">[ CLOSE ]</button>
       </div>
@@ -340,14 +363,14 @@
 // sign: your signature at the bottom
 // ══════════════════════════════════════════════
 const PHOTOS = {
-  1: { 
-  imgSrc: 'photos/Shits/sh1.png', 
-  title: 'INTO THE WILD', 
-  date: '2024', 
-  location: 'Dubai', 
-  letter: 'YOUR REAL LETTER HERE', 
-  sign: '— M' 
-},
+  1: {
+    imgSrc:   'images/shits/photo1.jpg',
+    title:    'INTO THE WILD',
+    date:     '2024',
+    location: 'Dubai',
+    letter:   'Write your letter here. This is the message that lives behind the photo. Tell the story of where you were, what you felt, what this moment meant. No algorithm decides who reads this. They clicked. They earned it.',
+    sign:     '— M',
+  },
   2: {
     imgSrc:   'images/shits/photo2.jpg',
     title:    'SALT FLATS',
@@ -423,30 +446,6 @@ function closeLightbox(e) {
 
 // Close on ESC key
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { document.getElementById('lightbox').classList.remove('open'); document.body.style.overflow = ''; } });
-
-
-function checkRiddle(btn) {
-  const box   = btn.closest('.riddle-box');
-  const input = box.querySelector('.riddle-input');
-  const wrong = box.querySelector('.riddle-wrong');
-  const answer = box.dataset.answer.toLowerCase().trim();
-  const guess  = input.value.toLowerCase().trim();
-  if (guess === answer) {
-    box.classList.add('unlocked-state');
-  } else {
-    wrong.classList.add('show');
-    input.value = '';
-    input.focus();
-    setTimeout(() => wrong.classList.remove('show'), 2000);
-  }
-}
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.riddle-input').forEach(input => {
-    input.addEventListener('keydown', e => {
-      if (e.key === 'Enter') checkRiddle(input.nextElementSibling);
-    });
-  });
-});
 
 function toggleChat() {
   const box = document.getElementById('chatBox');
