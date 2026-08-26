@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -255,6 +255,28 @@
     @keyframes dotPulse{0%,100%{opacity:0.15;transform:scale(1);}50%{opacity:1;transform:scale(1.5);}}
     @keyframes waveBar{from{transform:scaleY(0.3);opacity:0.4;}to{transform:scaleY(1);opacity:1;}}
 
+    /* ── VIDEO RIDDLE ── */
+    .video-riddle-box{margin-top:2px;padding:18px 20px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-top:none;border-radius:0 0 12px 12px;}
+    .video-riddle-box.vr-unlocked{border-color:rgba(240,160,20,0.25);}
+    .vriddle-locked{display:flex;flex-direction:column;gap:10px;}
+    .video-riddle-box.vr-unlocked .vriddle-locked{display:none;}
+    .vriddle-unlocked{display:none;flex-direction:column;gap:8px;animation:revealQuote 0.6s ease forwards;}
+    .video-riddle-box.vr-unlocked .vriddle-unlocked{display:flex;}
+    .vriddle-question{font-family:var(--font-mono);font-size:0.6rem;letter-spacing:1px;color:rgba(240,236,224,0.45);line-height:1.7;}
+    .vriddle-question strong{color:rgba(240,160,20,0.7);}
+    .vriddle-icon{margin-right:6px;opacity:0.5;}
+    .vriddle-input-wrap{display:flex;gap:6px;}
+    .vriddle-input{flex:1;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:4px;padding:7px 10px;color:#f0ece0;font-family:var(--font-mono);font-size:0.6rem;letter-spacing:2px;outline:none;transition:border-color 0.2s;}
+    .vriddle-input:focus{border-color:rgba(240,160,20,0.3);}
+    .vriddle-input::placeholder{color:rgba(240,236,224,0.15);}
+    .vriddle-submit{background:none;border:1px solid rgba(240,160,20,0.25);border-radius:4px;padding:7px 12px;color:#f0a014;font-family:var(--font-mono);font-size:0.65rem;cursor:pointer;transition:all 0.2s;}
+    .vriddle-submit:hover{background:rgba(240,160,20,0.08);border-color:#f0a014;}
+    .vriddle-wrong{font-family:var(--font-mono);font-size:0.5rem;letter-spacing:3px;color:rgba(220,80,60,0.6);text-transform:uppercase;opacity:0;transition:opacity 0.3s;}
+    .vriddle-wrong.show{opacity:1;}
+    .vriddle-unlock-line{font-family:var(--font-mono);font-size:0.55rem;letter-spacing:4px;color:#f0a014;text-transform:uppercase;}
+    .vriddle-prize{font-family:var(--font-body);font-size:0.9rem;line-height:1.8;color:rgba(240,236,224,0.7);}
+    .vriddle-prize strong{color:#f0a014;}
+
   </style>
 </head>
 <body>
@@ -292,7 +314,7 @@
 
   <main class="photo-grid">
 
-    <!-- PHOTO 1 -->
+     <!-- PHOTO 1 -->
     <div class="photo-cell" onclick="openPhoto(1)">
     <img src="photos/Shits/sh1.png" alt="">
       <div class="photo-overlay">
@@ -340,7 +362,6 @@
         <span class="overlay-hint">READ →</span>
       </div>
     </div>
-
     <!-- PASTE MORE PHOTO CELLS HERE — copy any block above -->
 
   </main>
@@ -407,8 +428,6 @@
     <div class="video-post">
       <div class="video-wrap" id="wrap-1" onclick="handleClick('yt-1','wrap-1','skel-1','bar-1')">
         <div class="video-skeleton" id="skel-1">
-           <img src="photos/cover/cm1.jpg" class="skeleton-cover" alt="">
-
           <div class="skeleton-dots"><div class="skeleton-dot"></div><div class="skeleton-dot"></div><div class="skeleton-dot"></div></div>
           <div class="play-trigger">▶</div>
           <span class="skeleton-title">INTO THE WILD</span>
@@ -427,6 +446,24 @@
         <div class="status-right">
           <span class="video-post-title">INTO THE WILD</span>
           <span class="video-post-meta">RAW · 2024</span>
+        </div>
+      </div>
+      <!-- VIDEO RIDDLE 1 -->
+      <div class="video-riddle-box" id="vriddle-1" data-answer="YOUR_TIMESTAMP_HERE">
+        <div class="vriddle-locked">
+          <div class="vriddle-question">
+            <span class="vriddle-icon">⏱</span>
+            At what second does <strong>YOUR HIDDEN THING</strong> appear?
+          </div>
+          <div class="vriddle-input-wrap">
+            <input class="vriddle-input" type="text" placeholder="e.g. 0:47" autocomplete="off">
+            <button class="vriddle-submit" onclick="checkVideoRiddle(this)">→</button>
+          </div>
+          <div class="vriddle-wrong">wrong. watch again.</div>
+        </div>
+        <div class="vriddle-unlocked">
+          <div class="vriddle-unlock-line">🏆 you found it.</div>
+          <div class="vriddle-prize">you won a prize from Mandooh.<br>contact <strong>@mandooh</strong> to claim it.</div>
         </div>
       </div>
     </div>
@@ -453,6 +490,24 @@
         <div class="status-right">
           <span class="video-post-title">RAW SESSION</span>
           <span class="video-post-meta">RAW · 2024</span>
+        </div>
+      </div>
+      <!-- VIDEO RIDDLE 2 -->
+      <div class="video-riddle-box" id="vriddle-2" data-answer="YOUR_TIMESTAMP_HERE">
+        <div class="vriddle-locked">
+          <div class="vriddle-question">
+            <span class="vriddle-icon">⏱</span>
+            At what second does <strong>YOUR HIDDEN THING</strong> appear?
+          </div>
+          <div class="vriddle-input-wrap">
+            <input class="vriddle-input" type="text" placeholder="e.g. 0:47" autocomplete="off">
+            <button class="vriddle-submit" onclick="checkVideoRiddle(this)">→</button>
+          </div>
+          <div class="vriddle-wrong">wrong. watch again.</div>
+        </div>
+        <div class="vriddle-unlocked">
+          <div class="vriddle-unlock-line">🏆 you found it.</div>
+          <div class="vriddle-prize">you won a prize from Mandooh.<br>contact <strong>@mandooh</strong> to claim it.</div>
         </div>
       </div>
     </div>
@@ -622,7 +677,7 @@ function closeLightbox(e) {
 // Add your YouTube IDs here
 // For IDs starting with - use embedUrl instead
 const VIDEO_LIST = [
-  { playerId:'yt-1', videoId:'gCXoltKq36s', wrapId:'wrap-1', skelId:'skel-1', barId:'bar-1' },
+  { playerId:'yt-1', videoId:'ZmMQv3IzdAg', wrapId:'wrap-1', skelId:'skel-1', barId:'bar-1' },
   { playerId:'yt-2', videoId:'-hoRj5SZyBM', wrapId:'wrap-2', skelId:'skel-2', barId:'bar-2',
     embedUrl:'https://www.youtube.com/embed/-hoRj5SZyBM?enablejsapi=1&controls=1&rel=0&playsinline=1' },
   // ADD MORE: { playerId:'yt-3', videoId:'YOUR_ID', wrapId:'wrap-3', skelId:'skel-3', barId:'bar-3' },
@@ -707,6 +762,31 @@ function setBar(barId, state) {
 
 // Close on ESC key
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { document.getElementById('lightbox').classList.remove('open'); document.body.style.overflow = ''; } });
+
+function checkVideoRiddle(btn) {
+  const box    = btn.closest('.video-riddle-box');
+  const input  = box.querySelector('.vriddle-input');
+  const wrong  = box.querySelector('.vriddle-wrong');
+  const answer = box.dataset.answer.toLowerCase().replace(/\s/g,'');
+  const guess  = input.value.toLowerCase().replace(/\s/g,'');
+  if (guess === answer) {
+    box.classList.add('vr-unlocked');
+  } else {
+    wrong.classList.add('show');
+    input.value = '';
+    input.focus();
+    setTimeout(() => wrong.classList.remove('show'), 2000);
+  }
+}
+
+// Enter key for video riddles
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.vriddle-input').forEach(input => {
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') checkVideoRiddle(input.nextElementSibling);
+    });
+  });
+});
 
 function checkRiddle(btn) {
   const box    = btn.closest('.riddle-box');
