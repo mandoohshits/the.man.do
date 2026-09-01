@@ -8,6 +8,129 @@
   <style>
 
     /* ── INSTAGRAM-STYLE GRID ── */
+.photo-cell.locked {
+  position: relative;
+  background: #080808;
+  cursor: default;
+  overflow: hidden;
+}
+
+.photo-cell.locked .locked-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.lock-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  z-index: 3;
+  padding: 12px;
+  transition: opacity 0.3s;
+}
+
+.photo-cell.locked.unlocked .lock-overlay {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.lock-icon {
+  font-size: 1.2rem;
+  opacity: 0.3;
+}
+
+.lock-input-wrap {
+  display: flex;
+  gap: 4px;
+  width: 100%;
+}
+
+.lock-input {
+  flex: 1;
+  min-width: 0;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 3px;
+  padding: 5px 8px;
+  color: #f0ece0;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.52rem;
+  letter-spacing: 1px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.lock-input:focus { border-color: rgba(240,160,20,0.4); }
+.lock-input::placeholder { color: rgba(240,236,224,0.15); font-size: 0.48rem; }
+
+.lock-submit {
+  background: none;
+  border: 1px solid rgba(240,160,20,0.2);
+  border-radius: 3px;
+  padding: 5px 8px;
+  color: #f0a014;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.lock-submit:hover { background: rgba(240,160,20,0.08); border-color: #f0a014; }
+
+.lock-wrong {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.45rem;
+  letter-spacing: 2px;
+  color: rgba(220,80,60,0.6);
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.lock-wrong.show { opacity: 1; }
+
+.lock-hint {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.42rem;
+  letter-spacing: 1px;
+  color: rgba(240,160,20,0.25);
+  text-transform: uppercase;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.photo-cell.locked.unlocked .locked-photo {
+  opacity: 1;
+  pointer-events: all;
+  animation: glitchReveal 0.8s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+
+/* Scanline effect during glitch */
+.photo-cell.locked.unlocked::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.15) 2px,
+    rgba(0,0,0,0.15) 4px
+  );
+  z-index: 4;
+  animation: glitchFlash 0.8s ease forwards;
+  pointer-events: none;
+}
     .photo-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -277,6 +400,25 @@
     .vriddle-prize{font-family:var(--font-body);font-size:0.9rem;line-height:1.8;color:rgba(240,236,224,0.7);}
     .vriddle-prize strong{color:#f0a014;}
 
+    @keyframes glitchReveal {
+  0%   { opacity:0; clip-path: inset(100% 0 0 0); transform: skewX(0deg); }
+  10%  { opacity:1; clip-path: inset(60% 0 0 0);  transform: skewX(-8deg); }
+  20%  { clip-path: inset(40% 0 20% 0);            transform: skewX(5deg); filter: hue-rotate(90deg); }
+  30%  { clip-path: inset(20% 0 40% 0);            transform: skewX(-3deg); }
+  40%  { clip-path: inset(0% 0 60% 0);             transform: skewX(6deg); filter: hue-rotate(0deg); }
+  50%  { clip-path: inset(0% 0 30% 0);             transform: skewX(-2deg); }
+  60%  { clip-path: inset(0% 0 10% 0);             transform: skewX(1deg); }
+  75%  { clip-path: inset(0% 0 0% 0);              transform: skewX(-0.5deg); }
+  85%  { transform: skewX(0.3deg) scaleX(1.01); }
+  100% { opacity:1; clip-path: inset(0% 0 0% 0);   transform: skewX(0deg) scaleX(1); filter: none; }
+}
+
+@keyframes glitchFlash {
+  0%,100% { opacity: 1; }
+  25%     { opacity: 0.4; }
+  50%     { opacity: 0.8; }
+  75%     { opacity: 0.2; }
+}
   </style>
 </head>
 <body>
@@ -370,6 +512,23 @@
       </div>
     </div>
     <!-- PASTE MORE PHOTO CELLS HERE — copy any block above -->
+    <div class="photo-cell locked" data-answer="YOUR_ANSWER_HERE">
+      <!-- The hidden photo — revealed on unlock -->
+  <img src="photos/Shits/shX.png" class="locked-photo" alt=""
+       onclick="openPhoto(8)">
+      <!-- Lock UI -->
+  <div class="lock-overlay">
+    <div class="lock-icon">🔒</div>
+    <div class="lock-hint">THIS PHOTO IS LOCKED<br>ENTER THE CORRECT ANSWER</div>
+    <div class="lock-input-wrap">
+      <input class="lock-input" type="text" placeholder="answer..." autocomplete="off" spellcheck="false">
+      <button class="lock-submit" onclick="unlockPhoto(this)">→</button>
+    </div>
+    <div class="lock-wrong">wrong.</div>
+  </div>
+
+</div>
+
 
   </main>
 
@@ -839,6 +998,54 @@ function toggleChat() {
   box.classList.toggle('active');
   btn.textContent = box.classList.contains('active') ? 'CLOSE' : 'MSG';
 }
+
+<script id="locked-js">
+function unlockPhoto(btn) {
+  const cell   = btn.closest('.photo-cell');
+  const input  = cell.querySelector('.lock-input');
+  const wrong  = cell.querySelector('.lock-wrong');
+  const answer = cell.dataset.answer.toLowerCase().trim();
+  const guess  = input.value.toLowerCase().trim();
+
+  if (guess === answer) {
+    // GLITCH REVEAL 🔥
+    cell.classList.add('unlocked');
+    // Make photo clickable after glitch finishes
+    setTimeout(() => {
+      cell.style.cursor = 'pointer';
+    }, 800);
+  } else {
+    wrong.classList.add('show');
+    input.value = '';
+    input.focus();
+    // Shake animation
+    cell.style.animation = 'shake 0.3s ease';
+    setTimeout(() => {
+      wrong.classList.remove('show');
+      cell.style.animation = '';
+    }, 2000);
+  }
+}
+
+// Enter key support
+document.querySelectorAll('.lock-input').forEach(input => {
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') unlockPhoto(input.nextElementSibling);
+  });
+});
+
+// Shake keyframe — add to CSS
+const shakeStyle = document.createElement('style');
+shakeStyle.textContent = `
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%     { transform: translateX(-6px); }
+    40%     { transform: translateX(6px); }
+    60%     { transform: translateX(-4px); }
+    80%     { transform: translateX(4px); }
+  }
+`;
+document.head.appendChild(shakeStyle);
 </script>
 
   <script src="https://www.youtube.com/iframe_api"></script>
