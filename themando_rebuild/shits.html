@@ -565,7 +565,7 @@
 
   <div class="video-feed">
 
-    <!-- VIDEO 1 -->
+<!-- VIDEO 1 -->
     <div class="video-post">
       <div class="video-wrap" id="wrap-1" onclick="handleClick('yt-1','wrap-1','skel-1','bar-1')">
         <div class="video-skeleton" id="skel-1">
@@ -619,8 +619,10 @@
       </div>
     </div>
 
+    <!-- VIDEO 3 -->
     <div class="video-post">
-      <div class="video-wrap" id="wrap-1" onclick="handleClick('yt-3','wrap-3','skel-3','bar-3')">
+      <!-- FIXED ID HERE: id="wrap-3" -->
+      <div class="video-wrap" id="wrap-3" onclick="handleClick('yt-3','wrap-3','skel-3','bar-3')">
         <div class="video-skeleton" id="skel-3">
           <img src="photos/cover/cm1.jpg" class="skeleton-cover" alt="">
           <div class="skeleton-dots"><div class="skeleton-dot"></div><div class="skeleton-dot"></div><div class="skeleton-dot"></div></div>
@@ -644,7 +646,7 @@
         </div>
       </div>
     </div>
-
+    
   </div>
 
   <div class="chat-trigger" onclick="toggleChat()" id="chatBtn">MSG</div>
@@ -820,7 +822,7 @@ function closeLightbox(e) {
 const VIDEO_LIST = [
   { playerId:'yt-1', videoId:'gCXoltKq36s', wrapId:'wrap-1', skelId:'skel-1', barId:'bar-1' },
   { playerId:'yt-2', videoId:'mSW_NBeRB48', wrapId:'wrap-2', skelId:'skel-2', barId:'bar-2' },
-  { playerId:'yt-2', videoId:'J4Plb1Zc1h0', wrapId:'wrap-2', skelId:'skel-2', barId:'bar-3' },
+  { playerId:'yt-3', videoId:'J4Plb1Zc1h0', wrapId:'wrap-3', skelId:'skel-3', barId:'bar-3' },
 ];
 
 const players  = {};
