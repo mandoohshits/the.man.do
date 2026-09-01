@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -8,129 +8,130 @@
   <style>
 
     /* ── INSTAGRAM-STYLE GRID ── */
-.photo-cell.locked {
-  position: relative;
-  background: #080808;
-  cursor: default;
-  overflow: hidden;
-}
+    .photo-cell.locked {
+      position: relative;
+      background: #080808;
+      cursor: default;
+      overflow: hidden;
+    }
 
-.photo-cell.locked .locked-photo {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0;
-  pointer-events: none;
-}
+    .photo-cell.locked .locked-photo {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      pointer-events: none;
+    }
 
-.lock-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  z-index: 3;
-  padding: 12px;
-  transition: opacity 0.3s;
-}
+    .lock-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      z-index: 3;
+      padding: 12px;
+      transition: opacity 0.3s;
+    }
 
-.photo-cell.locked.unlocked .lock-overlay {
-  opacity: 0;
-  pointer-events: none;
-}
+    .photo-cell.locked.unlocked .lock-overlay {
+      opacity: 0;
+      pointer-events: none;
+    }
 
-.lock-icon {
-  font-size: 1.2rem;
-  opacity: 0.3;
-}
+    .lock-icon {
+      font-size: 1.2rem;
+      opacity: 0.3;
+    }
 
-.lock-input-wrap {
-  display: flex;
-  gap: 4px;
-  width: 100%;
-}
+    .lock-input-wrap {
+      display: flex;
+      gap: 4px;
+      width: 100%;
+    }
 
-.lock-input {
-  flex: 1;
-  min-width: 0;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 3px;
-  padding: 5px 8px;
-  color: #f0ece0;
-  font-family: 'Space Mono', monospace;
-  font-size: 0.52rem;
-  letter-spacing: 1px;
-  outline: none;
-  transition: border-color 0.2s;
-}
+    .lock-input {
+      flex: 1;
+      min-width: 0;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 3px;
+      padding: 5px 8px;
+      color: #f0ece0;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.52rem;
+      letter-spacing: 1px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
 
-.lock-input:focus { border-color: rgba(240,160,20,0.4); }
-.lock-input::placeholder { color: rgba(240,236,224,0.15); font-size: 0.48rem; }
+    .lock-input:focus { border-color: rgba(240,160,20,0.4); }
+    .lock-input::placeholder { color: rgba(240,236,224,0.15); font-size: 0.48rem; }
 
-.lock-submit {
-  background: none;
-  border: 1px solid rgba(240,160,20,0.2);
-  border-radius: 3px;
-  padding: 5px 8px;
-  color: #f0a014;
-  font-family: 'Space Mono', monospace;
-  font-size: 0.6rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  flex-shrink: 0;
-}
+    .lock-submit {
+      background: none;
+      border: 1px solid rgba(240,160,20,0.2);
+      border-radius: 3px;
+      padding: 5px 8px;
+      color: #f0a014;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
 
-.lock-submit:hover { background: rgba(240,160,20,0.08); border-color: #f0a014; }
+    .lock-submit:hover { background: rgba(240,160,20,0.08); border-color: #f0a014; }
 
-.lock-wrong {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.45rem;
-  letter-spacing: 2px;
-  color: rgba(220,80,60,0.6);
-  text-transform: uppercase;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
+    .lock-wrong {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.45rem;
+      letter-spacing: 2px;
+      color: rgba(220,80,60,0.6);
+      text-transform: uppercase;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
 
-.lock-wrong.show { opacity: 1; }
+    .lock-wrong.show { opacity: 1; }
 
-.lock-hint {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.42rem;
-  letter-spacing: 1px;
-  color: rgba(240,160,20,0.25);
-  text-transform: uppercase;
-  text-align: center;
-  line-height: 1.6;
-}
+    .lock-hint {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.42rem;
+      letter-spacing: 1px;
+      color: rgba(240,160,20,0.25);
+      text-transform: uppercase;
+      text-align: center;
+      line-height: 1.6;
+    }
 
-.photo-cell.locked.unlocked .locked-photo {
-  opacity: 1;
-  pointer-events: all;
-  animation: glitchReveal 0.8s cubic-bezier(0.16,1,0.3,1) forwards;
-}
+    .photo-cell.locked.unlocked .locked-photo {
+      opacity: 1;
+      pointer-events: all;
+      animation: glitchReveal 0.8s cubic-bezier(0.16,1,0.3,1) forwards;
+    }
 
-/* Scanline effect during glitch */
-.photo-cell.locked.unlocked::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0,0,0,0.15) 2px,
-    rgba(0,0,0,0.15) 4px
-  );
-  z-index: 4;
-  animation: glitchFlash 0.8s ease forwards;
-  pointer-events: none;
-}
+    /* Scanline effect during glitch */
+    .photo-cell.locked.unlocked::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.15) 2px,
+        rgba(0,0,0,0.15) 4px
+      );
+      z-index: 4;
+      animation: glitchFlash 0.8s ease forwards;
+      pointer-events: none;
+    }
+
     .photo-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -400,25 +401,49 @@
     .vriddle-prize{font-family:var(--font-body);font-size:0.9rem;line-height:1.8;color:rgba(240,236,224,0.7);}
     .vriddle-prize strong{color:#f0a014;}
 
-    @keyframes glitchReveal {
-  0%   { opacity:0; clip-path: inset(100% 0 0 0); transform: skewX(0deg); }
-  10%  { opacity:1; clip-path: inset(60% 0 0 0);  transform: skewX(-8deg); }
-  20%  { clip-path: inset(40% 0 20% 0);            transform: skewX(5deg); filter: hue-rotate(90deg); }
-  30%  { clip-path: inset(20% 0 40% 0);            transform: skewX(-3deg); }
-  40%  { clip-path: inset(0% 0 60% 0);             transform: skewX(6deg); filter: hue-rotate(0deg); }
-  50%  { clip-path: inset(0% 0 30% 0);             transform: skewX(-2deg); }
-  60%  { clip-path: inset(0% 0 10% 0);             transform: skewX(1deg); }
-  75%  { clip-path: inset(0% 0 0% 0);              transform: skewX(-0.5deg); }
-  85%  { transform: skewX(0.3deg) scaleX(1.01); }
-  100% { opacity:1; clip-path: inset(0% 0 0% 0);   transform: skewX(0deg) scaleX(1); filter: none; }
-}
+    /* ── CHAT DOCK ── */
+    .chat-trigger {
+      position: fixed; bottom: 20px; right: 20px; z-index: 9999;
+      background: #000; border: 1px solid rgba(240,160,20,0.4);
+      color: var(--accent, #f0a014); font-family: var(--font-mono, monospace);
+      font-size: 0.6rem; padding: 10px 16px; border-radius: 4px;
+      cursor: pointer; letter-spacing: 2px; transition: all 0.2s;
+    }
+    .chat-trigger:hover { background: rgba(240,160,20,0.1); }
+    .chat-dock {
+      position: fixed; bottom: 70px; right: 20px; z-index: 9999;
+      width: 320px; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px; overflow: hidden; display: none;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    }
+    .chat-dock.active { display: block; }
+    .chat-header {
+      background: #000; padding: 10px 14px; display: flex;
+      justify-content: space-between; align-items: center;
+      font-family: var(--font-mono, monospace); font-size: 0.55rem;
+      color: rgba(240,236,224,0.5); border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .chat-close { cursor: pointer; color: var(--accent, #f0a014); }
 
-@keyframes glitchFlash {
-  0%,100% { opacity: 1; }
-  25%     { opacity: 0.4; }
-  50%     { opacity: 0.8; }
-  75%     { opacity: 0.2; }
-}
+    @keyframes glitchReveal {
+      0%   { opacity:0; clip-path: inset(100% 0 0 0); transform: skewX(0deg); }
+      10%  { opacity:1; clip-path: inset(60% 0 0 0);  transform: skewX(-8deg); }
+      20%  { clip-path: inset(40% 0 20% 0);            transform: skewX(5deg); filter: hue-rotate(90deg); }
+      30%  { clip-path: inset(20% 0 40% 0);            transform: skewX(-3deg); }
+      40%  { clip-path: inset(0% 0 60% 0);             transform: skewX(6deg); filter: hue-rotate(0deg); }
+      50%  { clip-path: inset(0% 0 30% 0);             transform: skewX(-2deg); }
+      60%  { clip-path: inset(0% 0 10% 0);             transform: skewX(1deg); }
+      75%  { clip-path: inset(0% 0 0% 0);              transform: skewX(-0.5deg); }
+      85%  { transform: skewX(0.3deg) scaleX(1.01); }
+      100% { opacity:1; clip-path: inset(0% 0 0% 0);   transform: skewX(0deg) scaleX(1); filter: none; }
+    }
+
+    @keyframes glitchFlash {
+      0%,100% { opacity: 1; }
+      25%     { opacity: 0.4; }
+      50%     { opacity: 0.8; }
+      75%     { opacity: 0.2; }
+    }
   </style>
 </head>
 <body>
@@ -438,27 +463,11 @@
     <p class="page-sub">Raw frames. Click to read.</p>
   </header>
 
-  <!--
-  ══════════════════════════════════════════════
-  HOW TO ADD A PHOTO:
-
-  1. Put your photo in: images/shits/photo4.jpg
-  2. Copy any photo-cell block below
-  3. Change onclick number: openPhoto(4)
-  4. Replace <div class="no-photo"> with:
-     <img src="images/shits/photo4.jpg" alt="">
-  5. Add the letter data in the PHOTOS array in
-     the script below — copy any existing entry,
-     change the id number, title, date, location,
-     and letter text
-  ══════════════════════════════════════════════
-  -->
-
   <main class="photo-grid">
 
-       <!-- PHOTO 1 -->
+    <!-- PHOTO 1 -->
     <div class="photo-cell" onclick="openPhoto(1)">
-    <img src="photos/Shits/sh1.png" alt="">
+      <img src="photos/Shits/sh1.png" alt="">
       <div class="photo-overlay">
         <span class="overlay-hint">READ →</span>
       </div>
@@ -490,7 +499,7 @@
 
     <!-- PHOTO 5 -->
     <div class="photo-cell" onclick="openPhoto(5)">
-     <img src="photos/Shits/sh5.png" alt="">
+      <img src="photos/Shits/sh5.png" alt="">
       <div class="photo-overlay">
         <span class="overlay-hint">READ →</span>
       </div>
@@ -498,37 +507,33 @@
 
     <!-- PHOTO 6 -->
     <div class="photo-cell" onclick="openPhoto(6)">
-  <img src="photos/Shits/sh6.png" alt="">
+      <img src="photos/Shits/sh6.png" alt="">
       <div class="photo-overlay">
         <span class="overlay-hint">READ →</span>
       </div>
     </div>
 
- <!-- PHOTO 7 -->
-     <div class="photo-cell" onclick="openPhoto(7)">
-  <img src="photos/Shits/sh7.png" alt="">
+    <!-- PHOTO 7 -->
+    <div class="photo-cell" onclick="openPhoto(7)">
+      <img src="photos/Shits/sh7.png" alt="">
       <div class="photo-overlay">
         <span class="overlay-hint">READ →</span>
       </div>
     </div>
-    <!-- PASTE MORE PHOTO CELLS HERE — copy any block above -->
+
+    <!-- LOCKED PHOTO CELL -->
     <div class="photo-cell locked" data-answer="YOUR_ANSWER_HERE">
-      <!-- The hidden photo — revealed on unlock -->
-  <img src="photos/Shits/sh8.png" class="locked-photo" alt=""
-       onclick="openPhoto(8)">
-      <!-- Lock UI -->
-  <div class="lock-overlay">
-    <div class="lock-icon">🔒</div>
-    <div class="lock-hint">THIS PHOTO IS LOCKED<br>ENTER THE CORRECT ANSWER</div>
-    <div class="lock-input-wrap">
-      <input class="lock-input" type="text" placeholder="answer..." autocomplete="off" spellcheck="false">
-      <button class="lock-submit" onclick="unlockPhoto(this)">→</button>
+      <img src="photos/Shits/sh8.png" class="locked-photo" alt="" onclick="openPhoto(8)">
+      <div class="lock-overlay">
+        <div class="lock-icon">🔒</div>
+        <div class="lock-hint">THIS PHOTO IS LOCKED<br>ENTER THE CORRECT ANSWER</div>
+        <div class="lock-input-wrap">
+          <input class="lock-input" type="text" placeholder="answer..." autocomplete="off" spellcheck="false">
+          <button class="lock-submit" onclick="unlockPhoto(this)">→</button>
+        </div>
+        <div class="lock-wrong">wrong.</div>
+      </div>
     </div>
-    <div class="lock-wrong">wrong.</div>
-  </div>
-
-</div>
-
 
   </main>
 
@@ -571,7 +576,7 @@
     </div>
   </div>
 
-  <!-- ── HIDDEN AUDIO PLAYER — music per photo ── -->
+  <!-- ── HIDDEN AUDIO PLAYER ── -->
   <audio id="photoMusic" loop style="display:none;">
     <source id="photoMusicSrc" src="" type="audio/mpeg">
   </audio>
@@ -582,19 +587,11 @@
 
   <div class="video-feed">
 
-    <!--
-    HOW TO ADD A VIDEO:
-    1. Get YouTube ID from your link (after ?v= or after youtu.be/)
-    2. Add to VIDEO_LIST in the script below
-    3. Copy a video-post block, change all numbers
-       wrap-1→wrap-2, skel-1→skel-2, bar-1→bar-2, yt-1→yt-2
-    -->
-
     <!-- VIDEO 1 -->
     <div class="video-post">
       <div class="video-wrap" id="wrap-1" onclick="handleClick('yt-1','wrap-1','skel-1','bar-1')">
         <div class="video-skeleton" id="skel-1">
-           <img src="photos/cover/cm1.jpg" class="skeleton-cover" alt="">
+          <img src="photos/cover/cm1.jpg" class="skeleton-cover" alt="">
           <div class="skeleton-dots"><div class="skeleton-dot"></div><div class="skeleton-dot"></div><div class="skeleton-dot"></div></div>
           <div class="play-trigger">▶</div>
           <span class="skeleton-title">INTO THE WILD</span>
@@ -680,8 +677,6 @@
       </div>
     </div>
 
-    <!-- PASTE MORE VIDEO POSTS HERE -->
-
   </div>
 
   <div class="chat-trigger" onclick="toggleChat()" id="chatBtn">MSG</div>
@@ -694,14 +689,6 @@
   </div>
 
 <script>
-// ══════════════════════════════════════════════
-// YOUR PHOTOS — edit these to match your content
-// ══════════════════════════════════════════════
-// PHOTOS — update these to match your content
-// riddle: the question shown under the letter
-// answer: the correct answer (lowercase)
-// quote:  what reveals when they get it right
-// ══════════════════════════════════════════════
 const PHOTOS = {
   1: {
     imgSrc:   'photos/Shits/sh1.png',
@@ -713,7 +700,7 @@ const PHOTOS = {
     riddle:   'Who is the person with me?',
     answer:   'minhaj',
     quote:    'fuck you minhaajjjjjj',
-    music:    'music/sm1.mp3',  // ← upload your mp3 to music/ folder on GitHub
+    music:    'music/sm1.mp3',
   },
   2: {
     imgSrc:   'photos/Shits/sh2.png',
@@ -739,29 +726,29 @@ const PHOTOS = {
     quote:    'vodka shot bhai mera hot',
   },
   4: {
-  imgSrc:   'photos/Shits/sh4.png',
-  title:    'eyniverse',
-  date:     '2017',
-  location: 'mars',
-  letter:   "BiTCHASTIC",
-  sign:     "— E",
-  riddle:   "what is the worst and good thing i have?",
-  answer:   "ego",
-  quote:    "Hey Irappi You are honestly one of the best gifts—and most chaotic humans—life has ever thrown at me. I'm not making fake promises that we'll always be at 100% or that we won't drive each other nuts because we're both human (and let's be real slightly crazy). But I will promise you this I will always fight to fix it so we can keep causing trouble building cool stuff and growing old useless together.",
-  music:    'music/sm4.mp3',
-},
-5: {
-  imgSrc:   'photos/Shits/sh5.png',
-  title:    'illusion',
-  date:     '2017',
-  location: 'neptune',
-  letter:   "street cultures",
-  sign:     "— m",
-  riddle:   "what makes people cry?",
-  answer:   "memories",
-  quote:    "Friends change, life gets busy, and people drift into different schedules, but the good ones always leave a mark. The trick isn't to stop missing the old times—it's to make sure you occasionally text them a quick update, send a random meme, or just let them know you were thinking about them.",
-  music:    'music/sm5.mp3',
-},
+    imgSrc:   'photos/Shits/sh4.png',
+    title:    'eyniverse',
+    date:     '2017',
+    location: 'mars',
+    letter:   "BiTCHASTIC",
+    sign:     "— E",
+    riddle:   "what is the worst and good thing i have?",
+    answer:   "ego",
+    quote:    "Hey Irappi You are honestly one of the best gifts—and most chaotic humans—life has ever thrown at me. I'm not making fake promises that we'll always be at 100% or that we won't drive each other nuts because we're both human (and let's be real slightly crazy). But I will promise you this I will always fight to fix it so we can keep causing trouble building cool stuff and growing old useless together.",
+    music:    'music/sm4.mp3',
+  },
+  5: {
+    imgSrc:   'photos/Shits/sh5.png',
+    title:    'illusion',
+    date:     '2017',
+    location: 'neptune',
+    letter:   "street cultures",
+    sign:     "— m",
+    riddle:   "what makes people cry?",
+    answer:   "memories",
+    quote:    "Friends change, life gets busy, and people drift into different schedules, but the good ones always leave a mark. The trick isn't to stop missing the old times—it's to make sure you occasionally text them a quick update, send a random meme, or just let them know you were thinking about them.",
+    music:    'music/sm5.mp3',
+  },
   6: {
     imgSrc:   'photos/Shits/sh6.png',
     title:    'india',
@@ -774,7 +761,7 @@ const PHOTOS = {
     quote:    'its funny even though i am still trying to figure out who i truly am loving the world and everything in it only reminds me MORE of how good it is to just simply exist with you brother sometimes life feels like a piece of poetr a random experience set out for me to travel  to all the things i love dearly.',
     music:    'music/sm6.mp3',
   },
-    7: {
+  7: {
     imgSrc:   'photos/Shits/sh7.png',
     title:    '------------',
     date:     '2024',
@@ -785,8 +772,7 @@ const PHOTOS = {
     answer:   'uttergi',
     quote:    'I was going to buy you a really expensive, thoughtful, life-changing gift this year. But then I remembered: you already have ME in your life. Honestly, what could possibly top that?',
     music:    'music/sm7.mp3',
-  },
-  // ADD MORE: copy any entry above, change the number
+  }
 };
 
 function openPhoto(id) {
@@ -804,7 +790,6 @@ function openPhoto(id) {
   document.getElementById('lbBody').textContent   = data.letter;
   document.getElementById('lbSign').textContent   = data.sign;
 
-  // Load riddle for this photo
   const riddleBox = document.getElementById('riddleBox');
   riddleBox.classList.remove('unlocked-state');
   document.getElementById('riddleInput').value = '';
@@ -813,7 +798,6 @@ function openPhoto(id) {
   document.getElementById('riddleQuestion').textContent = data.riddle;
   document.getElementById('unlockedQuote').textContent  = data.quote;
 
-  // Play music for this photo
   const music = document.getElementById('photoMusic');
   const src   = document.getElementById('photoMusicSrc');
   if (data.music) {
@@ -821,7 +805,6 @@ function openPhoto(id) {
     music.load();
     music.volume = 0;
     music.play().catch(() => {});
-    // Fade in
     let vol = 0;
     const fadeIn = setInterval(() => {
       vol = Math.min(vol + 0.05, 0.4);
@@ -841,7 +824,6 @@ function closeLightbox(e) {
   if (e && e.target !== document.getElementById('lightbox') && !e.target.classList.contains('lb-close')) return;
   document.getElementById('lightbox').classList.remove('open');
   document.body.style.overflow = '';
-  // Fade out music
   const music = document.getElementById('photoMusic');
   const fadeOut = setInterval(() => {
     if (music.volume > 0.05) {
@@ -854,14 +836,11 @@ function closeLightbox(e) {
   }, 80);
 }
 
-// ── VIDEO SYSTEM ──────────────────────────────
-// Add your YouTube IDs here
-// For IDs starting with - use embedUrl instead
+// ── VIDEO SYSTEM ──
 const VIDEO_LIST = [
   { playerId:'yt-1', videoId:'gCXoltKq36s', wrapId:'wrap-1', skelId:'skel-1', barId:'bar-1' },
   { playerId:'yt-2', videoId:'mSW_NBeRB48', wrapId:'wrap-2', skelId:'skel-2', barId:'bar-2',
     embedUrl:'https://www.youtube.com/embed/-hoRj5SZyBM?enablejsapi=1&controls=1&rel=0&playsinline=1' },
-  // ADD MORE: { playerId:'yt-3', videoId:'YOUR_ID', wrapId:'wrap-3', skelId:'skel-3', barId:'bar-3' },
 ];
 
 const players  = {};
@@ -941,8 +920,12 @@ function setBar(barId, state) {
   if (bar) bar.className = 'video-status-bar vsb-' + state;
 }
 
-// Close on ESC key
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { document.getElementById('lightbox').classList.remove('open'); document.body.style.overflow = ''; } });
+document.addEventListener('keydown', e => { 
+  if (e.key === 'Escape') { 
+    document.getElementById('lightbox').classList.remove('open'); 
+    document.body.style.overflow = ''; 
+  } 
+});
 
 function checkVideoRiddle(btn) {
   const box    = btn.closest('.video-riddle-box');
@@ -960,15 +943,6 @@ function checkVideoRiddle(btn) {
   }
 }
 
-// Enter key for video riddles
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.vriddle-input').forEach(input => {
-    input.addEventListener('keydown', e => {
-      if (e.key === 'Enter') checkVideoRiddle(input.nextElementSibling);
-    });
-  });
-});
-
 function checkRiddle(btn) {
   const box    = btn.closest('.riddle-box');
   const input  = box.querySelector('.riddle-input');
@@ -985,12 +959,6 @@ function checkRiddle(btn) {
   }
 }
 
-document.querySelectorAll('.riddle-input').forEach(input => {
-  input.addEventListener('keydown', e => {
-    if (e.key === 'Enter') checkRiddle(input.nextElementSibling);
-  });
-});
-
 function toggleChat() {
   const box = document.getElementById('chatBox');
   const btn = document.getElementById('chatBtn');
@@ -998,6 +966,21 @@ function toggleChat() {
   box.classList.toggle('active');
   btn.textContent = box.classList.contains('active') ? 'CLOSE' : 'MSG';
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.vriddle-input').forEach(input => {
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') checkVideoRiddle(input.nextElementSibling);
+    });
+  });
+
+  document.querySelectorAll('.riddle-input').forEach(input => {
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') checkRiddle(input.nextElementSibling);
+    });
+  });
+});
+</script>
 
 <script id="locked-js">
 function unlockPhoto(btn) {
@@ -1008,9 +991,7 @@ function unlockPhoto(btn) {
   const guess  = input.value.toLowerCase().trim();
 
   if (guess === answer) {
-    // GLITCH REVEAL 🔥
     cell.classList.add('unlocked');
-    // Make photo clickable after glitch finishes
     setTimeout(() => {
       cell.style.cursor = 'pointer';
     }, 800);
@@ -1018,7 +999,6 @@ function unlockPhoto(btn) {
     wrong.classList.add('show');
     input.value = '';
     input.focus();
-    // Shake animation
     cell.style.animation = 'shake 0.3s ease';
     setTimeout(() => {
       wrong.classList.remove('show');
@@ -1027,14 +1007,14 @@ function unlockPhoto(btn) {
   }
 }
 
-// Enter key support
-document.querySelectorAll('.lock-input').forEach(input => {
-  input.addEventListener('keydown', e => {
-    if (e.key === 'Enter') unlockPhoto(input.nextElementSibling);
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.lock-input').forEach(input => {
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') unlockPhoto(input.nextElementSibling);
+    });
   });
 });
 
-// Shake keyframe — add to CSS
 const shakeStyle = document.createElement('style');
 shakeStyle.textContent = `
   @keyframes shake {
