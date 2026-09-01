@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SHITS // THE.MAN.DO</title>
+  <link rel="stylesheet" href="universe.css">
+  <style>
+
+    /* ── INSTAGRAM-STYLE GRID ── */
+    .photo-cell.locked {
+      position: relative;
+      background: #080808;
+      cursor: default;
+      overflow: hidden;
+    }
+
+    .photo-cell.locked .locked-photo {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .lock-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      z-index: 3;
+      padding: 12px;
+      transition: opacity 0.3s;
+    }
+
+    .photo-cell.locked.unlocked .lock-overlay {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .lock-icon {
+      font-size: 1.2rem;
+      opacity: 0.3;
+    }
+
+    .lock-input-wrap {
+      display: flex;
+      gap: 4px;
+      width: 100%;
+    }
+
+    .lock-input {
+      flex: 1;
+      min-width: 0;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 3px;
+      padding: 5px 8px;
+      color: #f0ece0;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.52rem;
+      letter-spacing: 1px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .lock-input:focus { border-color: rgba(240,160,20,0.4); }
+    .lock-input::placeholder { color: rgba(240,236,224,0.15); font-size: 0.48rem; }
+
+    .lock-submit {
+      background: none;
+      border: 1px solid rgba(240,160,20,0.2);
+      border-radius: 3px;
+      padding: 5px 8px;
+      color: #f0a014;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .lock-submit:hover { background: rgba(240,160,20,0.08); border-color: #f0a014; }
+
+    .lock-wrong {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.45rem;
+      letter-spacing: 2px;
+      color: rgba(220,80,60,0.6);
+      text-transform: uppercase;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .lock-wrong.show { opacity: 1; }
+
+    .lock-hint {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.42rem;
+      letter-spacing: 1px;
+      color: rgba(240,160,20,0.25);
+      text-transform: uppercase;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .photo-cell.locked.unlocked .locked-photo {
+      opacity: 1;
+      pointer-events: all;
+      animation: glitchReveal 0.8s cubic-bezier(0.16,1,0.3,1) forwards;
+    }
+
+    /* Scanline effect during glitch */
+    .photo-cell.locked.unlocked::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.15) 2px,
+        rgba(0,0,0,0.15) 4px
+      );
+      z-index: 4;
+      animation: glitchFlash 0.8s ease forwards;
+      pointer-events: none;
+    }
+
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3px;
+      padding: 30px 0 100px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    /* Each cell is a square */
+    .photo-cell {
+      position: relative;
+      aspect-ratio: 1/1;
+      overflow: hidden;
+      background: #0a0a0a;
+      cursor: pointer;
+    }
+
+    /* Photo */
+    .photo-cell img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      opacity: 0.9;
+      transition: opacity 0.35s, transform 0.5s;
+    }
+
+    .photo-cell:hover img { opacity: 0.4; transform: scale(1.04); }
+
+    /* Placeholder when no image yet */
+    .photo-cell .no-photo {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono); font-size: 0.5rem;
+      letter-spacing: 3px; color: rgba(240,160,20,0.18);
+      text-transform: uppercase; background: #0a0a0a;
+    }
+
+    /* Hover overlay — shows on hover */
+    .photo-overlay {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.3s;
+    }
+
+    .photo-cell:hover .photo-overlay { opacity: 1; }
+
+    .overlay-hint {
+      font-family: var(--font-mono);
+      font-size: 0.55rem; letter-spacing: 3px;
+      color: var(--accent); text-transform: uppercase;
+      text-align: center;
+    }
+
+    /* ── LIGHTBOX (letter reveal) ── */
+    .lightbox {
+      position: fixed; inset: 0; z-index: 99998;
+      background: rgba(0,0,0,0.92);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.35s;
+    }
+
+    .lightbox.open { opacity: 1; pointer-events: all; }
+
+    .lightbox-inner {
+      display: flex;
+      gap: 0;
+      width: 100%;
+      max-width: 900px;
+      max-height: 90vh;
+      border-radius: 10px;
+      overflow: hidden;
+      transform: scale(0.94);
+      transition: transform 0.35s cubic-bezier(0.16,1,0.3,1);
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .lightbox.open .lightbox-inner { transform: scale(1); }
+
+    /* Left — the photo */
+    .lb-photo {
+      flex: 1;
+      min-width: 0;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      max-height: 90vh;
+    }
+
+    .lb-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .lb-photo .lb-placeholder {
+      font-family: var(--font-mono);
+      font-size: 0.55rem; letter-spacing: 3px;
+      color: rgba(240,160,20,0.2); text-transform: uppercase;
+      padding: 40px;
+    }
+
+    /* Right — the letter */
+    .lb-letter {
+      width: 340px;
+      flex-shrink: 0;
+      background: #0a0a09;
+      border-left: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      flex-direction: column;
+      padding: 32px 28px;
+      gap: 18px;
+      overflow-y: auto;
+    }
+
+    .lb-from {
+      font-family: var(--font-mono);
+      font-size: 0.5rem; letter-spacing: 3px;
+      color: var(--accent); opacity: 0.5;
+      text-transform: uppercase;
+      display: flex; justify-content: space-between;
+    }
+
+    .lb-divider {
+      width: 100%; height: 1px;
+      background: rgba(240,160,20,0.08);
+    }
+
+    .lb-title {
+      font-family: var(--font-display);
+      font-size: 1.6rem; letter-spacing: 2px;
+      color: var(--text); line-height: 1;
+    }
+
+    .lb-body {
+      font-family: var(--font-body);
+      font-size: 0.88rem; line-height: 1.9;
+      color: rgba(240,236,224,0.65);
+      font-weight: 300; font-style: italic;
+      flex: 1;
+    }
+
+    .lb-sign {
+      font-family: var(--font-mono);
+      font-size: 0.55rem; letter-spacing: 3px;
+      color: rgba(240,160,20,0.4); text-transform: uppercase;
+    }
+
+    .lb-close {
+      font-family: var(--font-mono);
+      font-size: 0.45rem; letter-spacing: 2px;
+      color: rgba(240,236,224,0.15); text-transform: uppercase;
+      cursor: pointer; transition: color 0.2s;
+      text-align: right; border: none; background: none;
+      padding: 0;
+    }
+
+    .lb-close:hover { color: var(--accent); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 700px) {
+      .photo-grid { grid-template-columns: repeat(3,1fr); gap: 2px; padding-bottom: 80px; }
+      .lightbox-inner { flex-direction: column; max-height: 95vh; }
+      .lb-photo { max-height: 50vh; }
+      .lb-letter { width: 100%; border-left: none; border-top: 1px solid rgba(255,255,255,0.06); padding: 20px; }
+    }
+
+    @media (max-width: 400px) {
+      .photo-grid { grid-template-columns: repeat(2,1fr); }
+    }
+
+    /* ── RIDDLE ── */
+    .riddle-box{margin:14px 0;padding:16px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;transition:border-color 0.3s;}
+    .riddle-box.unlocked-state{border-color:rgba(240,160,20,0.3);}
+    .riddle-locked{display:flex;flex-direction:column;gap:10px;}
+    .riddle-box.unlocked-state .riddle-locked{display:none;}
+    .riddle-unlocked{display:none;flex-direction:column;gap:8px;}
+    .riddle-box.unlocked-state .riddle-unlocked{display:flex;animation:revealQuote 0.6s ease forwards;}
+    .riddle-icon{font-family:var(--font-mono);font-size:1rem;color:rgba(240,160,20,0.3);}
+    .riddle-question{font-family:var(--font-mono);font-size:0.6rem;letter-spacing:2px;color:rgba(240,236,224,0.4);text-transform:uppercase;line-height:1.6;}
+    .riddle-input-wrap{display:flex;gap:6px;}
+    .riddle-input{flex:1;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:4px;padding:7px 10px;color:#f0ece0;font-family:var(--font-mono);font-size:0.6rem;letter-spacing:1px;outline:none;transition:border-color 0.2s;}
+    .riddle-input:focus{border-color:rgba(240,160,20,0.3);}
+    .riddle-input::placeholder{color:rgba(240,236,224,0.15);}
+    .riddle-submit{background:none;border:1px solid rgba(240,160,20,0.25);border-radius:4px;padding:7px 12px;color:#f0a014;font-family:var(--font-mono);font-size:0.65rem;cursor:pointer;transition:all 0.2s;}
+    .riddle-submit:hover{background:rgba(240,160,20,0.08);border-color:#f0a014;}
+    .riddle-wrong{font-family:var(--font-mono);font-size:0.5rem;letter-spacing:3px;color:rgba(220,80,60,0.6);text-transform:uppercase;opacity:0;transition:opacity 0.3s;}
+    .riddle-wrong.show{opacity:1;}
+    .unlock-line{font-family:var(--font-mono);font-size:0.48rem;letter-spacing:4px;color:rgba(240,160,20,0.4);text-transform:uppercase;}
+    .unlocked-quote{font-family:var(--font-body);font-size:0.95rem;line-height:1.7;color:#f0ece0;font-style:italic;}
+    .unlock-sign{font-family:var(--font-mono);font-size:0.5rem;letter-spacing:3px;color:rgba(240,160,20,0.4);}
+    @keyframes revealQuote{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+    /* ── SECTION LABELS ── */
+    .shits-section-label{font-family:var(--font-mono);font-size:0.55rem;letter-spacing:5px;color:var(--accent);text-transform:uppercase;opacity:0.5;padding:50px 5% 16px;display:block;}
+    .shits-divider{height:1px;background:rgba(255,255,255,0.05);margin:0 5% 40px;}
+
+    /* ── VIDEO FEED ── */
+    .video-feed{display:flex;flex-direction:column;align-items:center;gap:30px;padding:0 5% 100px;}
+    .video-post{width:100%;max-width:720px;display:flex;flex-direction:column;}
+    .video-wrap{position:relative;border-radius:16px 16px 0 0;overflow:hidden;background:#000;border:1px solid rgba(255,255,255,0.07);border-bottom:none;cursor:pointer;height:110px;transition:height 0.5s cubic-bezier(0.16,1,0.3,1),border-color 0.3s;}
+    .video-wrap.expanded{height:calc(720px * 9/16);border-color:rgba(240,160,20,0.25);}
+    @media(max-width:760px){.video-wrap.expanded{height:calc(90vw * 9/16);}}
+    .yt-player{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity 0.4s;pointer-events:none;}
+    .video-wrap.expanded .yt-player{pointer-events:all;opacity:1;}
+    .yt-player iframe{width:100%!important;height:100%!important;border:none;display:block;}
+    .video-skeleton{position:absolute;inset:0;background:#090909;display:flex;flex-direction:row;align-items:center;gap:16px;padding:0 20px;z-index:10;transition:opacity 0.4s;}
+    .video-wrap.expanded .video-skeleton{flex-direction:column;justify-content:center;padding:0;}
+    .video-skeleton.hidden{opacity:0;pointer-events:none;}
+    .play-trigger{position:relative;z-index:2;width:36px;height:36px;border-radius:50%;border:1px solid rgba(240,160,20,0.5);background:rgba(6,6,6,0.85);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:0.5rem;color:var(--accent);flex-shrink:0;transition:transform 0.2s,background 0.2s;}
+    .video-wrap.expanded .play-trigger{width:52px;height:52px;font-size:0.6rem;}
+    .video-wrap:hover .play-trigger{background:rgba(240,160,20,0.15);transform:scale(1.1);}
+    .skeleton-dots{position:relative;z-index:2;display:none;gap:4px;}
+    .video-skeleton.loading .skeleton-dots{display:flex;}
+    .video-skeleton.loading .play-trigger{display:none;}
+    .skeleton-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);}
+    .video-skeleton.loading .skeleton-dot:nth-child(1){animation:dotPulse 1s ease-in-out infinite 0s;}
+    .video-skeleton.loading .skeleton-dot:nth-child(2){animation:dotPulse 1s ease-in-out infinite 0.2s;}
+    .video-skeleton.loading .skeleton-dot:nth-child(3){animation:dotPulse 1s ease-in-out infinite 0.4s;}
+    .skeleton-title{position:relative;z-index:2;font-family:var(--font-mono);font-size:0.58rem;letter-spacing:4px;color:var(--accent);text-transform:uppercase;opacity:0.65;}
+    .expand-hint{position:absolute;right:14px;top:50%;transform:translateY(-50%);z-index:11;font-family:var(--font-mono);font-size:0.42rem;letter-spacing:2px;color:rgba(240,160,20,0.3);text-transform:uppercase;pointer-events:none;}
+    .video-wrap.expanded .expand-hint{display:none;}
+    .video-status-bar{background:rgba(6,6,6,0.97);border:1px solid rgba(255,255,255,0.07);border-top:1px solid rgba(240,160,20,0.06);border-radius:0 0 16px 16px;padding:9px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:38px;}
+    .status-left{display:flex;align-items:center;gap:8px;}
+    .buf-dots{display:flex;gap:3px;}
+    .buf-dot{width:4px;height:4px;border-radius:50%;background:var(--accent);opacity:0.12;}
+    .vsb-idle .buf-dot{opacity:0.1;animation:none!important;} .vsb-idle .buf-text{opacity:0.2;} .vsb-idle .play-text{opacity:0;} .vsb-idle .pause-text{opacity:0;} .vsb-idle .waveform-mini{opacity:0;}
+    .vsb-buffering .buf-dot:nth-child(1){animation:dotPulse 1s ease-in-out infinite 0s;opacity:1;} .vsb-buffering .buf-dot:nth-child(2){animation:dotPulse 1s ease-in-out infinite 0.2s;opacity:1;} .vsb-buffering .buf-dot:nth-child(3){animation:dotPulse 1s ease-in-out infinite 0.4s;opacity:1;} .vsb-buffering .buf-text{opacity:1;} .vsb-buffering .play-text{opacity:0;} .vsb-buffering .pause-text{opacity:0;} .vsb-buffering .waveform-mini{opacity:0;}
+    .vsb-playing .buf-dot{opacity:0.08;animation:none!important;} .vsb-playing .buf-text{opacity:0;} .vsb-playing .play-text{opacity:0.85;} .vsb-playing .pause-text{opacity:0;} .vsb-playing .waveform-mini{opacity:1;}
+    .vsb-paused .buf-dot{opacity:0.08;animation:none!important;} .vsb-paused .buf-text{opacity:0;} .vsb-paused .play-text{opacity:0;} .vsb-paused .pause-text{opacity:0.5;} .vsb-paused .waveform-mini{opacity:0;}
+    .buf-text,.play-text,.pause-text{font-family:var(--font-mono);font-size:0.5rem;letter-spacing:2px;text-transform:uppercase;transition:opacity 0.3s;white-space:nowrap;}
+    .buf-text{color:var(--accent);} .play-text{color:rgba(80,200,100,0.9);} .pause-text{color:rgba(240,236,224,0.35);}
+    .waveform-mini{display:flex;align-items:flex-end;gap:2px;height:13px;opacity:0;transition:opacity 0.3s;}
+    .waveform-mini span{width:2px;border-radius:1px;background:var(--accent);animation:waveBar 0.9s ease-in-out infinite alternate;}
+    .waveform-mini span:nth-child(1){height:4px;animation-delay:0s;} .waveform-mini span:nth-child(2){height:11px;animation-delay:0.12s;} .waveform-mini span:nth-child(3){height:6px;animation-delay:0.24s;} .waveform-mini span:nth-child(4){height:12px;animation-delay:0.06s;} .waveform-mini span:nth-child(5){height:5px;animation-delay:0.18s;}
+    .status-right{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;}
+    .video-post-title{font-family:var(--font-mono);font-size:0.6rem;letter-spacing:2px;color:var(--text);text-transform:uppercase;}
+    .video-post-meta{font-family:var(--font-mono);font-size:0.48rem;letter-spacing:1px;color:rgba(240,236,224,0.25);text-transform:uppercase;}
+    @keyframes dotPulse{0%,100%{opacity:0.15;transform:scale(1);}50%{opacity:1;transform:scale(1.5);}}
+    @keyframes waveBar{from{transform:scaleY(0.3);opacity:0.4;}to{transform:scaleY(1);opacity:1;}}
+
+    /* ── CHAT DOCK ── */
+    .chat-trigger {
+      position: fixed; bottom: 20px; right: 20px; z-index: 9999;
+      background: #000; border: 1px solid rgba(240,160,20,0.4);
+      color: var(--accent, #f0a014); font-family: var(--font-mono, monospace);
+      font-size: 0.6rem; padding: 10px 16px; border-radius: 4px;
+      cursor: pointer; letter-spacing: 2px; transition: all 0.2s;
+    }
+    .chat-trigger:hover { background: rgba(240,160,20,0.1); }
+    .chat-dock {
+      position: fixed; bottom: 70px; right: 20px; z-index: 9999;
+      width: 320px; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px; overflow: hidden; display: none;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    }
+    .chat-dock.active { display: block; }
+    .chat-header {
+      background: #000; padding: 10px 14px; display: flex;
+      justify-content: space-between; align-items: center;
+      font-family: var(--font-mono, monospace); font-size: 0.55rem;
+      color: rgba(240,236,224,0.5); border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .chat-close { cursor: pointer; color: var(--accent, #f0a014); }
+
+    @keyframes glitchReveal {
+      0%   { opacity:0; clip-path: inset(100% 0 0 0); transform: skewX(0deg); }
+      10%  { opacity:1; clip-path: inset(60% 0 0 0);  transform: skewX(-8deg); }
+      20%  { clip-path: inset(40% 0 20% 0);            transform: skewX(5deg); filter: hue-rotate(90deg); }
+      30%  { clip-path: inset(20% 0 40% 0);            transform: skewX(-3deg); }
+      40%  { clip-path: inset(0% 0 60% 0);             transform: skewX(6deg); filter: hue-rotate(0deg); }
+      50%  { clip-path: inset(0% 0 30% 0);             transform: skewX(-2deg); }
+      60%  { clip-path: inset(0% 0 10% 0);             transform: skewX(1deg); }
+      75%  { clip-path: inset(0% 0 0% 0);              transform: skewX(-0.5deg); }
+      85%  { transform: skewX(0.3deg) scaleX(1.01); }
+      100% { opacity:1; clip-path: inset(0% 0 0% 0);   transform: skewX(0deg) scaleX(1); filter: none; }
+    }
+
+    @keyframes glitchFlash {
+      0%,100% { opacity: 1; }
+      25%     { opacity: 0.4; }
+      50%     { opacity: 0.8; }
+      75%     { opacity: 0.2; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="universe-nav">
+    <a href="index.html">Index</a>
+    <a href="shits.html" class="active">Shits</a>
+    <a href="writings.html">Writings</a>
+    <a href="lab.html">Lab</a>
+    <a href="products.html">Products</a>
+    <a href="gives.html">gives</a>
+  </nav>
+
+  <header class="page-header">
+    <img src="photos/logo/logo.png" class="page-logo" alt="THE.MAN.DO">
+    <h1 class="page-title">the.man.do.shits</h1>
+    <p class="page-sub">Raw frames. Click to read.</p>
+  </header>
+
+  <main class="photo-grid">
+
+    <!-- PHOTO 1 -->
+    <div class="photo-cell" onclick="openPhoto(1)">
+      <img src="photos/Shits/sh1.png" alt="">
+      <div class="photo-overlay">
+        <span class="overlay-hint">READ →</span>
+      </div>
+    </div>
+
+    <!-- PHOTO 2 -->
+    <div class="photo-cell" onclick="openPhoto(2)">
+      <img src="photos/Shits/sh2.png" alt="">
+      <div class="photo-overlay">
+        <span class="overlay-hint">READ →</span>
+      </div>
+    </div>
+
+    <!-- PHOTO 3 -->
+    <div class="photo-cell" onclick="openPhoto(3)">
+      <img src="photos/Shits/sh3.png" alt="">
+      <div class="photo-overlay">
+        <span class="overlay-hint">READ →</span>
+      </div>
+    </div>
+
+    <!-- PHOTO 4 -->
+    <div class="photo-cell" onclick="openPhoto(4)">
+      <img src="photos/Shits/sh4.png" alt="">
+      <div class="photo-overlay">
+        <span class="overlay-hint">READ →</span>
+      </div>
+    </div>
+
+    <!-- PHOTO 5 -->
+    <div class="photo-cell" onclick="openPhoto(5)">
+      <img src="photos/Shits/sh5.png" alt="">
+      <div class="photo-overlay">
+        <span class="overlay-hint">READ →</span>
+      </div>
+    </div>
+
+    <!-- PHOTO 6 -->
+    <div class="photo-cell" onclick="openPhoto(6)">
+      <img src="photos/Shits/sh6.png" alt="">
+      <div class="photo-overlay">
+        <span class="overlay-hint">READ →</span>
+      </div>
+    </div>
+
+    <!-- PHOTO 7 -->
+    <div class="photo-cell" onclick="openPhoto(7)">
+      <img src="photos/Shits/sh7.png" alt="">
+      <div class="photo-overlay">
+        <span class="overlay-hint">READ →</span>
+      </div>
+    </div>
+
+    <!-- LOCKED PHOTO CELL -->
+    <div class="photo-cell locked" data-answer="CR7">
+      <img src="photos/Shits/sh8.jpeg" class="locked-photo" alt="" onclick="openPhoto(8)">
+      <div class="lock-overlay">
+        <div class="lock-icon">🔒</div>
+        <div class="lock-hint">THIS PHOTO IS LOCKED<br>ENTER THE CODE</div>
+        <div class="lock-input-wrap">
+          <input class="lock-input" type="text" placeholder="answer..." autocomplete="off" spellcheck="false">
+          <button class="lock-submit" onclick="unlockPhoto(this)">→</button>
+        </div>
+        <div class="lock-wrong">wrong.</div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ── LIGHTBOX ── -->
+  <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+    <div class="lightbox-inner">
+      <div class="lb-photo" id="lbPhoto">
+        <div class="lb-placeholder">SELECT A PHOTO</div>
+      </div>
+      <div class="lb-letter">
+        <div class="lb-from">
+          <span id="lbFrom">FROM — THE.MAN.DO</span>
+          <span id="lbDate">2024</span>
+        </div>
+        <div class="lb-divider"></div>
+        <div class="lb-title" id="lbTitle">TITLE</div>
+        <p class="lb-body" id="lbBody">Letter text here.</p>
+        <div class="lb-sign" id="lbSign">— M</div>
+
+        <!-- RIDDLE UNLOCK -->
+        <div class="riddle-box" id="riddleBox" data-answer="">
+          <div class="riddle-locked">
+            <div class="riddle-icon">?</div>
+            <div class="riddle-question" id="riddleQuestion"></div>
+            <div class="riddle-input-wrap">
+              <input class="riddle-input" id="riddleInput" type="text" placeholder="type your answer..." autocomplete="off">
+              <button class="riddle-submit" onclick="checkRiddle(this)">→</button>
+            </div>
+            <div class="riddle-wrong" id="riddleWrong">wrong.</div>
+          </div>
+          <div class="riddle-unlocked" id="riddleUnlocked">
+            <div class="unlock-line">unlocked.</div>
+            <div class="unlocked-quote" id="unlockedQuote"></div>
+            <div class="unlock-sign">— M</div>
+          </div>
+        </div>
+
+        <button class="lb-close" onclick="closeLightbox()">[ CLOSE ]</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── HIDDEN AUDIO PLAYER ── -->
+  <audio id="photoMusic" loop style="display:none;">
+    <source id="photoMusicSrc" src="" type="audio/mpeg">
+  </audio>
+
+  <!-- ── VIDEO SECTION ── -->
+  <span class="shits-section-label">02 — Videos</span>
+  <div class="shits-divider"></div>
+
+  <div class="video-feed">
+
+<!-- VIDEO 1 -->
+    <div class="video-post">
+      <div class="video-wrap" id="wrap-1" onclick="handleClick('yt-1','wrap-1','skel-1','bar-1')">
+        <div class="video-skeleton" id="skel-1">
+          <img src="photos/cover/cm1.jpg" class="skeleton-cover" alt="">
+          <div class="skeleton-dots"><div class="skeleton-dot"></div><div class="skeleton-dot"></div><div class="skeleton-dot"></div></div>
+          <div class="play-trigger">▶</div>
+          <span class="skeleton-title">INTO THE WILD</span>
+        </div>
+        <span class="expand-hint">CLICK TO EXPAND</span>
+        <div id="yt-1" class="yt-player"></div>
+      </div>
+      <div class="video-status-bar vsb-idle" id="bar-1">
+        <div class="status-left">
+          <div class="buf-dots"><div class="buf-dot"></div><div class="buf-dot"></div><div class="buf-dot"></div></div>
+          <span class="buf-text">BUFFERING</span>
+          <span class="play-text">PLAYING</span>
+          <span class="pause-text">PAUSED</span>
+          <div class="waveform-mini"><span></span><span></span><span></span><span></span><span></span></div>
+        </div>
+        <div class="status-right">
+          <span class="video-post-title">INTO THE WILD</span>
+          <span class="video-post-meta">RAW · 2024</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIDEO 2 -->
+    <div class="video-post">
+      <div class="video-wrap" id="wrap-2" onclick="handleClick('yt-2','wrap-2','skel-2','bar-2')">
+        <div class="video-skeleton" id="skel-2">
+          <img src="photos/cover/cm2.jpg" class="skeleton-cover" alt="">
+          <div class="skeleton-dots"><div class="skeleton-dot"></div><div class="skeleton-dot"></div><div class="skeleton-dot"></div></div>
+          <div class="play-trigger">▶</div>
+          <span class="skeleton-title">RAW SESSION</span>
+        </div>
+        <span class="expand-hint">CLICK TO EXPAND</span>
+        <div id="yt-2" class="yt-player"></div>
+      </div>
+      <div class="video-status-bar vsb-idle" id="bar-2">
+        <div class="status-left">
+          <div class="buf-dots"><div class="buf-dot"></div><div class="buf-dot"></div><div class="buf-dot"></div></div>
+          <span class="buf-text">BUFFERING</span>
+          <span class="play-text">PLAYING</span>
+          <span class="pause-text">PAUSED</span>
+          <div class="waveform-mini"><span></span><span></span><span></span><span></span><span></span></div>
+        </div>
+        <div class="status-right">
+          <span class="video-post-title">RAW SESSION</span>
+          <span class="video-post-meta">RAW · 2024</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIDEO 3 -->
+    <div class="video-post">
+      <!-- FIXED ID HERE: id="wrap-3" -->
+      <div class="video-wrap" id="wrap-3" onclick="handleClick('yt-3','wrap-3','skel-3','bar-3')">
+        <div class="video-skeleton" id="skel-3">
+          <img src="photos/cover/cm3.jpg" class="skeleton-cover" alt="">
+          <div class="skeleton-dots"><div class="skeleton-dot"></div><div class="skeleton-dot"></div><div class="skeleton-dot"></div></div>
+          <div class="play-trigger">▶</div>
+          <span class="skeleton-title">eyes</span>
+        </div>
+        <span class="expand-hint">CLICK TO EXPAND</span>
+        <div id="yt-3" class="yt-player"></div>
+      </div>
+      <div class="video-status-bar vsb-idle" id="bar-3">
+        <div class="status-left">
+          <div class="buf-dots"><div class="buf-dot"></div><div class="buf-dot"></div><div class="buf-dot"></div></div>
+          <span class="buf-text">BUFFERING</span>
+          <span class="play-text">PLAYING</span>
+          <span class="pause-text">PAUSED</span>
+          <div class="waveform-mini"><span></span><span></span><span></span><span></span><span></span></div>
+        </div>
+        <div class="status-right">
+          <span class="video-post-title">eyes as camera</span>
+          <span class="video-post-meta">RAW · 2024</span>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+
+  <div class="chat-trigger" onclick="toggleChat()" id="chatBtn">MSG</div>
+  <div class="chat-dock" id="chatBox">
+    <div class="chat-header">
+      <span>COMM_LINK_V1</span>
+      <span class="chat-close" onclick="toggleChat()">[ CLOSE ]</span>
+    </div>
+    <iframe src="https://www5.cbox.ws/box/?boxid=962257&boxtag=nzOFGW" width="100%" height="400" allowtransparency="yes" frameborder="0" style="display:block;"></iframe>
+  </div>
+
+<script>
+const PHOTOS = {
+  1: {
+    imgSrc:   'photos/Shits/sh1.png',
+    title:    'stings',
+    date:     '2024',
+    location: 'Dubai',
+    letter:   'Can a glance carry more information than a thousand words?.',
+    sign:     '— M',
+    riddle:   'Who is the person with me?',
+    answer:   'minhaj',
+    quote:    'fuck you minhaajjjjjj',
+    music:    'music/sm1.mp3',
+  },
+  2: {
+    imgSrc:   'photos/Shits/sh2.png',
+    title:    'SALT FLATS',
+    date:     '2024',
+    location: 'Kannur',
+    letter:   'I recommend Vodka.',
+    sign:     '— v',
+    riddle:   'who is my fav yellow',
+    answer:   'mom',
+    quote:    'I wanted to take a moment to write this to you ummi simply because people like you are so rare. In a world where it often feels like everyone is in a rush to react offer unsolicited advice or form quick opinions being around you is a complete breath of fresh air. You give me a space where I can speak openly without needing to filter my thoughts polish my words or worry about being judged. I especially love the questions you ask—they really help me open up and talk keeping me from slipping back into my usual silence. Thank you for being such a safe harbor for me. Having you in my life means more than I can easily put into words',
+    music:    'music/sm2.mp3',
+  },
+  3: {
+    imgSrc:   'photos/Shits/sh3.png',
+    title:    'DESERT HOUR',
+    date:     '2024',
+    location: 'Empty Quarter',
+    letter:   'I\'d stay in the garden ',
+    sign:     '— M',
+    riddle:   'there is a word under the skeleton',
+    answer:   'manduchiii',
+    quote:    'vodka shot bhai mera hot',
+  },
+  4: {
+    imgSrc:   'photos/Shits/sh4.png',
+    title:    'eyniverse',
+    date:     '2017',
+    location: 'mars',
+    letter:   "BiTCHASTIC",
+    sign:     "— E",
+    riddle:   "what is the worst and good thing i have?",
+    answer:   "ego",
+    quote:    "Hey Irappi You are honestly one of the best gifts—and most chaotic humans—life has ever thrown at me. I'm not making fake promises that we'll always be at 100% or that we won't drive each other nuts because we're both human (and let's be real slightly crazy). But I will promise you this I will always fight to fix it so we can keep causing trouble building cool stuff and growing old useless together.",
+    music:    'music/sm4.mp3',
+  },
+  5: {
+    imgSrc:   'photos/Shits/sh5.png',
+    title:    'illusion',
+    date:     '2017',
+    location: 'neptune',
+    letter:   "street cultures",
+    sign:     "— m",
+    riddle:   "what makes people cry?",
+    answer:   "memories",
+    quote:    "Friends change, life gets busy, and people drift into different schedules, but the good ones always leave a mark. The trick isn't to stop missing the old times—it's to make sure you occasionally text them a quick update, send a random meme, or just let them know you were thinking about them.",
+    music:    'music/sm5.mp3',
+  },
+  6: {
+    imgSrc:   'photos/Shits/sh6.png',
+    title:    'india',
+    date:     '2024',
+    location: 'Meeshapulimala',
+    letter:   'sherikkum evdiyaa ennu choicha enikanne valla pidiyilla..',
+    sign:     '— M',
+    riddle:   'where is the place?',
+    answer:   'lonavala',
+    quote:    'its funny even though i am still trying to figure out who i truly am loving the world and everything in it only reminds me MORE of how good it is to just simply exist with you brother sometimes life feels like a piece of poetr a random experience set out for me to travel  to all the things i love dearly.',
+    music:    'music/sm6.mp3',
+  },
+  7: {
+    imgSrc:   'photos/Shits/sh7.png',
+    title:    '------------',
+    date:     '2024',
+    location: 'tharavad',
+    letter:   'cinco rat',
+    sign:     '— M',
+    riddle:   'ut__er_i',
+    answer:   'uttergi',
+    quote:    'I was going to buy you a really expensive, thoughtful, life-changing gift this year. But then I remembered: you already have ME in your life. Honestly, what could possibly top that?',
+    music:    'music/sm7.mp3',
+  },
+  8: {
+    imgSrc:   'photos/Shits/sh8.jpeg',
+    title:    '------------',
+    date:     '2024',
+    location: 'tharavad',
+    letter:   'ONAM',
+    sign:     '— M',
+    riddle:   'ut__er_i',
+    answer:   'uttergi',
+    quote:    'I was going to buy you a really expensive, thoughtful, life-changing gift this year. But then I remembered: you already have ME in your life. Honestly, what could possibly top that?',
+    music:    'music/sm8.m4a',
+  }
+};
+
+function openPhoto(id) {
+  const data = PHOTOS[id];
+  if (!data) return;
+
+  const lbPhoto = document.getElementById('lbPhoto');
+  lbPhoto.innerHTML = data.imgSrc
+    ? `<img src="${data.imgSrc}" alt="${data.title}">`
+    : `<div class="lb-placeholder">${data.title}</div>`;
+
+  document.getElementById('lbFrom').textContent   = 'FROM — THE.MAN.DO';
+  document.getElementById('lbDate').textContent   = data.date + ' · ' + data.location;
+  document.getElementById('lbTitle').textContent  = data.title;
+  document.getElementById('lbBody').textContent   = data.letter;
+  document.getElementById('lbSign').textContent   = data.sign;
+
+  const riddleBox = document.getElementById('riddleBox');
+  riddleBox.classList.remove('unlocked-state');
+  document.getElementById('riddleInput').value = '';
+  document.getElementById('riddleWrong').classList.remove('show');
+  riddleBox.dataset.answer = data.answer;
+  document.getElementById('riddleQuestion').textContent = data.riddle;
+  document.getElementById('unlockedQuote').textContent  = data.quote;
+
+  const music = document.getElementById('photoMusic');
+  const src   = document.getElementById('photoMusicSrc');
+  if (data.music) {
+    src.src = data.music;
+    music.load();
+    music.volume = 0;
+    music.play().catch(() => {});
+    let vol = 0;
+    const fadeIn = setInterval(() => {
+      vol = Math.min(vol + 0.05, 0.4);
+      music.volume = vol;
+      if (vol >= 0.4) clearInterval(fadeIn);
+    }, 80);
+  } else {
+    music.pause();
+    music.currentTime = 0;
+  }
+
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox(e) {
+  if (e && e.target !== document.getElementById('lightbox') && !e.target.classList.contains('lb-close')) return;
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+  const music = document.getElementById('photoMusic');
+  const fadeOut = setInterval(() => {
+    if (music.volume > 0.05) {
+      music.volume = Math.max(0, music.volume - 0.05);
+    } else {
+      music.pause();
+      music.currentTime = 0;
+      clearInterval(fadeOut);
+    }
+  }, 80);
+}
+
+// ── VIDEO SYSTEM ──
+const VIDEO_LIST = [
+  { playerId:'yt-1', videoId:'gCXoltKq36s', wrapId:'wrap-1', skelId:'skel-1', barId:'bar-1' },
+  { playerId:'yt-2', videoId:'mSW_NBeRB48', wrapId:'wrap-2', skelId:'skel-2', barId:'bar-2' },
+  { playerId:'yt-3', videoId:'J4Plb1Zc1h0', wrapId:'wrap-3', skelId:'skel-3', barId:'bar-3' },
+];
+
+const players  = {};
+const YT_STATE = { UNSTARTED:-1, ENDED:0, PLAYING:1, PAUSED:2, BUFFERING:3, CUED:5 };
+
+function onYouTubeIframeAPIReady() {
+  VIDEO_LIST.forEach(v => {
+    const container = document.getElementById(v.playerId);
+    if (!container) return;
+
+    players[v.playerId] = new YT.Player(v.playerId, {
+      videoId: v.videoId,
+      playerVars: { autoplay:0, controls:1, modestbranding:1, rel:0, playsinline:1, fs:1 },
+      events: {
+        onReady:       () => setBar(v.barId, 'idle'),
+        onStateChange: (e) => onStateChange(e, v),
+      }
+    });
+  });
+}
+
+function onStateChange(e, v) {
+  const wrap = document.getElementById(v.wrapId);
+  const skel = document.getElementById(v.skelId);
+  const ytEl = document.getElementById(v.playerId);
+  if (e.data === YT_STATE.BUFFERING) { setBar(v.barId, 'buffering'); }
+  if (e.data === YT_STATE.PLAYING) {
+    if (ytEl) ytEl.style.opacity = '1';
+    if (skel) skel.classList.add('hidden');
+    if (wrap) wrap.classList.add('expanded');
+    setBar(v.barId, 'playing');
+  }
+  if (e.data === YT_STATE.PAUSED) { if (wrap) wrap.classList.remove('expanded'); setBar(v.barId, 'paused'); }
+  if (e.data === YT_STATE.ENDED)  { if (wrap) wrap.classList.remove('expanded'); setBar(v.barId, 'idle'); }
+}
+
+function handleClick(playerId, wrapId, skelId, barId) {
+  const wrap = document.getElementById(wrapId);
+  const skel = document.getElementById(skelId);
+  const player = players[playerId];
+
+  if (!player || typeof player.getPlayerState !== 'function') return;
+
+  if (player.getPlayerState() === YT_STATE.PLAYING) {
+    player.pauseVideo();
+  } else {
+    if (skel) skel.classList.add('loading');
+    setBar(barId, 'buffering');
+    player.unMute(); player.setVolume(100); player.playVideo();
+  }
+}
+
+function setBar(barId, state) {
+  const bar = document.getElementById(barId);
+  if (bar) bar.className = 'video-status-bar vsb-' + state;
+}
+
+document.addEventListener('keydown', e => { 
+  if (e.key === 'Escape') { 
+    document.getElementById('lightbox').classList.remove('open'); 
+    document.body.style.overflow = ''; 
+  } 
+});
+
+function checkRiddle(btn) {
+  const box    = btn.closest('.riddle-box');
+  const input  = box.querySelector('.riddle-input');
+  const wrong  = box.querySelector('.riddle-wrong');
+  const answer = box.dataset.answer.toLowerCase().trim();
+  const guess  = input.value.toLowerCase().trim();
+  if (guess === answer) {
+    box.classList.add('unlocked-state');
+  } else {
+    wrong.classList.add('show');
+    input.value = '';
+    input.focus();
+    setTimeout(() => wrong.classList.remove('show'), 2000);
+  }
+}
+
+function toggleChat() {
+  const box = document.getElementById('chatBox');
+  const btn = document.getElementById('chatBtn');
+  if (!box) return;
+  box.classList.toggle('active');
+  btn.textContent = box.classList.contains('active') ? 'CLOSE' : 'MSG';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.riddle-input').forEach(input => {
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') checkRiddle(input.nextElementSibling);
+    });
+  });
+});
+</script>
+
+<script id="locked-js">
+function unlockPhoto(btn) {
+  const cell   = btn.closest('.photo-cell');
+  const input  = cell.querySelector('.lock-input');
+  const wrong  = cell.querySelector('.lock-wrong');
+  const answer = cell.dataset.answer.toLowerCase().trim();
+  const guess  = input.value.toLowerCase().trim();
+
+  if (guess === answer) {
+    cell.classList.add('unlocked');
+    setTimeout(() => {
+      cell.style.cursor = 'pointer';
+    }, 800);
+  } else {
+    wrong.classList.add('show');
+    input.value = '';
+    input.focus();
+    cell.style.animation = 'shake 0.3s ease';
+    setTimeout(() => {
+      wrong.classList.remove('show');
+      cell.style.animation = '';
+    }, 2000);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.lock-input').forEach(input => {
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') unlockPhoto(input.nextElementSibling);
+    });
+  });
+});
+
+const shakeStyle = document.createElement('style');
+shakeStyle.textContent = `
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%     { transform: translateX(-6px); }
+    40%     { transform: translateX(6px); }
+    60%     { transform: translateX(-4px); }
+    80%     { transform: translateX(4px); }
+  }
+`;
+document.head.appendChild(shakeStyle);
+</script>
+
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script src="universe.js"></script>
+</body>
+</html>
