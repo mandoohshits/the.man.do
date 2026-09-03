@@ -1,0 +1,636 @@
+cat > /mnt/user-data/outputs/mandogame.html << 'ENDHTML'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MANDOLAB GAME</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      background: #060606;
+      font-family: 'Space Mono', monospace;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    #gameCanvas {
+      display: block;
+      background: #060606;
+    }
+
+    /* UI overlay */
+    #ui {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .ui-label {
+      font-size: 0.55rem;
+      letter-spacing: 4px;
+      color: rgba(240,160,20,0.5);
+      text-transform: uppercase;
+    }
+
+    .ui-score {
+      font-size: 1.4rem;
+      letter-spacing: 3px;
+      color: #f0a014;
+    }
+
+    .ui-lives {
+      font-size: 1rem;
+      letter-spacing: 2px;
+      color: rgba(240,160,20,0.6);
+    }
+
+    /* Start screen */
+    #startScreen {
+      position: fixed;
+      inset: 0;
+      background: #060606;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      z-index: 20;
+    }
+
+    .game-title {
+      font-size: clamp(2rem, 6vw, 4rem);
+      letter-spacing: 8px;
+      color: #f0ece0;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+
+    .game-sub {
+      font-size: 0.6rem;
+      letter-spacing: 4px;
+      color: rgba(240,160,20,0.5);
+      text-transform: uppercase;
+    }
+
+    .game-desc {
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      color: rgba(240,236,224,0.3);
+      text-align: center;
+      line-height: 2;
+    }
+
+    .start-btn {
+      margin-top: 10px;
+      padding: 12px 36px;
+      background: none;
+      border: 1px solid rgba(240,160,20,0.4);
+      color: #f0a014;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .start-btn:hover {
+      background: rgba(240,160,20,0.08);
+      border-color: #f0a014;
+    }
+
+    .controls-hint {
+      font-size: 0.5rem;
+      letter-spacing: 3px;
+      color: rgba(240,236,224,0.15);
+      text-transform: uppercase;
+      text-align: center;
+      line-height: 2.2;
+    }
+
+    /* Game over screen */
+    #gameOverScreen {
+      position: fixed;
+      inset: 0;
+      background: rgba(6,6,6,0.95);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      z-index: 20;
+    }
+
+    #gameOverScreen.show { display: flex; }
+
+    .gameover-title {
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      letter-spacing: 6px;
+      color: #f0ece0;
+    }
+
+    .final-score {
+      font-size: 0.65rem;
+      letter-spacing: 4px;
+      color: rgba(240,160,20,0.6);
+      text-transform: uppercase;
+    }
+
+    .final-score span {
+      color: #f0a014;
+      font-size: 1.2rem;
+    }
+
+    .eaten-list {
+      font-size: 0.55rem;
+      letter-spacing: 2px;
+      color: rgba(240,236,224,0.25);
+      text-align: center;
+      line-height: 2.2;
+      text-transform: uppercase;
+    }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<canvas id="gameCanvas"></canvas>
+
+<!-- UI -->
+<div id="ui">
+  <div>
+    <div class="ui-label">score</div>
+    <div class="ui-score" id="scoreDisplay">0</div>
+  </div>
+  <div style="text-align:center;">
+    <div class="ui-label">mandolab</div>
+    <div style="font-size:0.55rem;letter-spacing:3px;color:rgba(240,236,224,0.2);margin-top:4px;">EAT THEM ALL</div>
+  </div>
+  <div style="text-align:right;">
+    <div class="ui-label">lives</div>
+    <div class="ui-lives" id="livesDisplay">💀💀💀</div>
+  </div>
+</div>
+
+<!-- START SCREEN -->
+<div id="startScreen">
+  <div class="game-title">MANDO<br>EATS</div>
+  <div class="game-sub">a mandolab production</div>
+  <div class="game-desc">
+    You are the skeleton.<br>
+    Chase and eat everyone.<br>
+    Don't let them escape.
+  </div>
+  <button class="start-btn" onclick="startGame()">START EATING →</button>
+  <div class="controls-hint">
+    DESKTOP: arrow keys or WASD to move<br>
+    MOBILE: tap where you want to go
+  </div>
+</div>
+
+<!-- GAME OVER -->
+<div id="gameOverScreen">
+  <div class="gameover-title">GAME OVER</div>
+  <div class="final-score">you ate <span id="finalScore">0</span> people</div>
+  <div class="eaten-list" id="eatenList"></div>
+  <button class="start-btn" onclick="restartGame()" style="margin-top:10px;">EAT AGAIN →</button>
+</div>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx    = canvas.getContext('2d');
+
+// ══════════════════════════════════════════════
+// PEOPLE — add your friends/family here!
+// name: their name shown above their head
+// emoji: their face (use any emoji or letter)
+// color: their body color
+// ══════════════════════════════════════════════
+const PEOPLE = [
+  { name: 'MINHAJ',   emoji: '😎', color: '#e74c3c' },
+  { name: 'IRAPPI',   emoji: '🤪', color: '#9b59b6' },
+  { name: 'MOM',      emoji: '👩', color: '#e91e63' },
+  { name: 'DAD',      emoji: '👨', color: '#2196f3' },
+  { name: 'BRO',      emoji: '🤙', color: '#4caf50' },
+  { name: 'BOSS',     emoji: '😤', color: '#ff9800' },
+  { name: 'RANDOM',   emoji: '🙂', color: '#607d8b' },
+  // ADD MORE: { name: 'YOURFRIEND', emoji: '😂', color: '#hex' },
+];
+
+// ── GAME STATE ────────────────────────────────
+let W, H, player, people, score, lives, gameLoop, gameActive, eatenNames;
+let keys = {};
+let touchTarget = null;
+
+// ── RESIZE ────────────────────────────────────
+function resize() {
+  W = canvas.width  = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+
+window.addEventListener('resize', resize);
+resize();
+
+// ── PLAYER (Skeleton Mandooh) ─────────────────
+function createPlayer() {
+  return {
+    x: W / 2,
+    y: H / 2,
+    size: 28,
+    speed: 4.5,
+    vx: 0,
+    vy: 0,
+    mouthOpen: 0,
+    mouthDir: 1,
+    legAnim: 0,
+  };
+}
+
+// ── SPAWN A PERSON ────────────────────────────
+function spawnPerson() {
+  const side = Math.floor(Math.random() * 4);
+  let x, y;
+  if      (side === 0) { x = Math.random() * W; y = -40; }
+  else if (side === 1) { x = W + 40;            y = Math.random() * H; }
+  else if (side === 2) { x = Math.random() * W; y = H + 40; }
+  else                 { x = -40;               y = Math.random() * H; }
+
+  const template = PEOPLE[Math.floor(Math.random() * PEOPLE.length)];
+  return {
+    x, y,
+    name:    template.name,
+    emoji:   template.emoji,
+    color:   template.color,
+    speed:   1.8 + Math.random() * 1.5,
+    size:    22,
+    legAnim: Math.random() * Math.PI * 2,
+    scared:  false,
+    scaredTimer: 0,
+  };
+}
+
+// ── DRAW SKELETON PLAYER ──────────────────────
+function drawPlayer(p) {
+  ctx.save();
+  ctx.translate(p.x, p.y);
+
+  // Mouth animation
+  p.mouthOpen += 0.15 * p.mouthDir;
+  if (p.mouthOpen > 0.4 || p.mouthOpen < 0) p.mouthDir *= -1;
+
+  // Head (skull)
+  ctx.fillStyle = '#f0ece0';
+  ctx.beginPath();
+  ctx.arc(0, 0, p.size * 0.6, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Eye sockets
+  ctx.fillStyle = '#060606';
+  ctx.beginPath();
+  ctx.arc(-8, -4, 6, 0, Math.PI * 2);
+  ctx.arc(8, -4, 6, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Eye glow
+  ctx.fillStyle = '#f0a014';
+  ctx.beginPath();
+  ctx.arc(-8, -4, 3, 0, Math.PI * 2);
+  ctx.arc(8, -4, 3, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Mouth
+  ctx.strokeStyle = '#060606';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(0, 6, 8, p.mouthOpen, Math.PI - p.mouthOpen);
+  ctx.stroke();
+
+  // Spine
+  ctx.strokeStyle = '#f0ece0';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(0, p.size * 0.6);
+  ctx.lineTo(0, p.size * 1.8);
+  ctx.stroke();
+
+  // Ribs
+  for (let i = 0; i < 3; i++) {
+    const ry = p.size * 0.75 + i * 9;
+    ctx.beginPath();
+    ctx.moveTo(0, ry);
+    ctx.bezierCurveTo(-16, ry - 3, -18, ry + 6, -8, ry + 8);
+    ctx.moveTo(0, ry);
+    ctx.bezierCurveTo(16, ry - 3, 18, ry + 6, 8, ry + 8);
+    ctx.stroke();
+  }
+
+  // Arms
+  p.legAnim += 0.12;
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(0, p.size * 0.8);
+  ctx.lineTo(-20 + Math.sin(p.legAnim) * 8, p.size * 1.4 + Math.cos(p.legAnim) * 6);
+  ctx.moveTo(0, p.size * 0.8);
+  ctx.lineTo(20 + Math.sin(p.legAnim + Math.PI) * 8, p.size * 1.4 + Math.cos(p.legAnim + Math.PI) * 6);
+  ctx.stroke();
+
+  // Legs
+  ctx.beginPath();
+  ctx.moveTo(0, p.size * 1.8);
+  ctx.lineTo(-12 + Math.sin(p.legAnim + 1) * 10, p.size * 2.6);
+  ctx.moveTo(0, p.size * 1.8);
+  ctx.lineTo(12 + Math.sin(p.legAnim + Math.PI + 1) * 10, p.size * 2.6);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+// ── DRAW A PERSON ─────────────────────────────
+function drawPerson(person) {
+  ctx.save();
+  ctx.translate(person.x, person.y);
+
+  person.legAnim += 0.15;
+
+  // Scared shake
+  let sx = 0;
+  if (person.scared) {
+    person.scaredTimer--;
+    sx = (Math.random() - 0.5) * 4;
+    if (person.scaredTimer <= 0) person.scared = false;
+  }
+
+  ctx.translate(sx, 0);
+
+  // Name tag
+  ctx.font = 'bold 9px Space Mono';
+  ctx.fillStyle = 'rgba(240,160,20,0.7)';
+  ctx.textAlign = 'center';
+  ctx.fillText(person.name, 0, -person.size - 8);
+
+  // Head (emoji face)
+  ctx.font = `${person.size * 1.2}px serif`;
+  ctx.textAlign = 'center';
+  ctx.fillText(person.emoji, 0, 0);
+
+  // Stick body
+  ctx.strokeStyle = person.color;
+  ctx.lineWidth = 2.5;
+
+  // Body
+  ctx.beginPath();
+  ctx.moveTo(0, person.size * 0.5);
+  ctx.lineTo(0, person.size * 1.6);
+  ctx.stroke();
+
+  // Arms
+  ctx.beginPath();
+  ctx.moveTo(0, person.size * 0.8);
+  ctx.lineTo(-15 + Math.sin(person.legAnim) * 6, person.size * 1.3);
+  ctx.moveTo(0, person.size * 0.8);
+  ctx.lineTo(15 + Math.sin(person.legAnim + Math.PI) * 6, person.size * 1.3);
+  ctx.stroke();
+
+  // Legs
+  ctx.beginPath();
+  ctx.moveTo(0, person.size * 1.6);
+  ctx.lineTo(-10 + Math.sin(person.legAnim + 1) * 8, person.size * 2.4);
+  ctx.moveTo(0, person.size * 1.6);
+  ctx.lineTo(10 + Math.sin(person.legAnim + Math.PI + 1) * 8, person.size * 2.4);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+// ── DRAW BACKGROUND GRID ──────────────────────
+function drawBackground() {
+  ctx.strokeStyle = 'rgba(240,160,20,0.04)';
+  ctx.lineWidth = 0.5;
+  const gridSize = 60;
+  for (let x = 0; x < W; x += gridSize) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+  }
+  for (let y = 0; y < H; y += gridSize) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+}
+
+// ── EAT EFFECT ────────────────────────────────
+let particles = [];
+
+function eatEffect(x, y, color, name) {
+  for (let i = 0; i < 12; i++) {
+    const angle = (Math.PI * 2 / 12) * i;
+    particles.push({
+      x, y,
+      vx: Math.cos(angle) * (3 + Math.random() * 4),
+      vy: Math.sin(angle) * (3 + Math.random() * 4),
+      life: 40,
+      maxLife: 40,
+      color,
+      size: 3 + Math.random() * 4,
+    });
+  }
+  // Eat text
+  particles.push({
+    x, y: y - 20,
+    vx: 0, vy: -1.5,
+    life: 60, maxLife: 60,
+    text: 'NOM!',
+    color: '#f0a014',
+    size: 16,
+    isText: true,
+  });
+}
+
+function updateParticles() {
+  particles = particles.filter(p => p.life > 0);
+  particles.forEach(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.life--;
+    ctx.globalAlpha = p.life / p.maxLife;
+    if (p.isText) {
+      ctx.font = `bold ${p.size}px Space Mono`;
+      ctx.fillStyle = p.color;
+      ctx.textAlign = 'center';
+      ctx.fillText(p.text, p.x, p.y);
+    } else {
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * (p.life / p.maxLife), 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  });
+}
+
+// ── GAME LOOP ─────────────────────────────────
+let spawnTimer = 0;
+let spawnInterval = 120;
+
+function update() {
+  if (!gameActive) return;
+
+  // Player movement
+  if (touchTarget) {
+    const dx = touchTarget.x - player.x;
+    const dy = touchTarget.y - player.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if (dist > 5) {
+      player.x += (dx / dist) * player.speed;
+      player.y += (dy / dist) * player.speed;
+    }
+  } else {
+    if (keys['ArrowLeft']  || keys['a'] || keys['A']) player.x -= player.speed;
+    if (keys['ArrowRight'] || keys['d'] || keys['D']) player.x += player.speed;
+    if (keys['ArrowUp']    || keys['w'] || keys['W']) player.y -= player.speed;
+    if (keys['ArrowDown']  || keys['s'] || keys['S']) player.y += player.speed;
+  }
+
+  // Keep player on screen
+  player.x = Math.max(20, Math.min(W - 20, player.x));
+  player.y = Math.max(20, Math.min(H - 20, player.y));
+
+  // Spawn people
+  spawnTimer++;
+  if (spawnTimer >= spawnInterval) {
+    people.push(spawnPerson());
+    spawnTimer = 0;
+    spawnInterval = Math.max(40, spawnInterval - 2); // gets harder
+  }
+
+  // Move people — run away from player
+  people.forEach(person => {
+    const dx = person.x - player.x;
+    const dy = person.y - player.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+
+    if (dist < 150) {
+      // Run away!
+      person.scared = true;
+      person.scaredTimer = 20;
+      person.x += (dx / dist) * person.speed * 1.8;
+      person.y += (dy / dist) * person.speed * 1.8;
+    } else {
+      // Wander randomly
+      person.x += (Math.random() - 0.5) * person.speed;
+      person.y += (Math.random() - 0.5) * person.speed;
+    }
+  });
+
+  // Check if people escaped (off screen)
+  const before = people.length;
+  people = people.filter(p => p.x > -80 && p.x < W+80 && p.y > -80 && p.y < H+80);
+  const escaped = before - people.length;
+  if (escaped > 0) {
+    lives -= escaped;
+    updateLives();
+    if (lives <= 0) { gameOver(); return; }
+  }
+
+  // Check eat collision
+  people = people.filter(person => {
+    const dx = person.x - player.x;
+    const dy = person.y - player.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if (dist < player.size + person.size) {
+      // EATEN!
+      score += 10;
+      eatenNames.push(person.name);
+      eatEffect(person.x, person.y, person.color, person.name);
+      document.getElementById('scoreDisplay').textContent = score;
+      return false;
+    }
+    return true;
+  });
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  drawBackground();
+  people.forEach(drawPerson);
+  drawPlayer(player);
+  updateParticles();
+}
+
+function tick() {
+  update();
+  draw();
+  if (gameActive) requestAnimationFrame(tick);
+}
+
+// ── LIVES DISPLAY ─────────────────────────────
+function updateLives() {
+  document.getElementById('livesDisplay').textContent = '💀'.repeat(Math.max(0, lives));
+}
+
+// ── START / RESTART ───────────────────────────
+function startGame() {
+  document.getElementById('startScreen').style.display = 'none';
+  document.getElementById('gameOverScreen').classList.remove('show');
+  player        = createPlayer();
+  people        = [];
+  score         = 0;
+  lives         = 3;
+  eatenNames    = [];
+  spawnTimer    = 0;
+  spawnInterval = 120;
+  particles     = [];
+  gameActive    = true;
+  document.getElementById('scoreDisplay').textContent = '0';
+  updateLives();
+  // Spawn a few people immediately
+  for (let i = 0; i < 3; i++) people.push(spawnPerson());
+  requestAnimationFrame(tick);
+}
+
+function restartGame() {
+  startGame();
+}
+
+// ── GAME OVER ─────────────────────────────────
+function gameOver() {
+  gameActive = false;
+  document.getElementById('finalScore').textContent = score;
+  const unique = [...new Set(eatenNames)];
+  document.getElementById('eatenList').textContent =
+    unique.length ? 'you ate: ' + unique.join(', ') : 'you ate nobody 💀';
+  document.getElementById('gameOverScreen').classList.add('show');
+}
+
+// ── CONTROLS ──────────────────────────────────
+window.addEventListener('keydown', e => { keys[e.key] = true; });
+window.addEventListener('keyup',   e => { keys[e.key] = false; });
+
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  const t = e.touches[0];
+  touchTarget = { x: t.clientX, y: t.clientY };
+}, { passive: false });
+
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  const t = e.touches[0];
+  touchTarget = { x: t.clientX, y: t.clientY };
+}, { passive: false });
+
+canvas.addEventListener('touchend', () => { touchTarget = null; });
+
+canvas.addEventListener('click', e => {
+  if (gameActive) touchTarget = { x: e.clientX, y: e.clientY };
+  setTimeout(() => { touchTarget = null; }, 100);
+});
+</script>
+</body>
+</html>
+ENDHTML
+echo "done"

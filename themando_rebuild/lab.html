@@ -174,21 +174,28 @@
     </div>
   </div>
 
-  <!-- ═══════════════ CONCEPTS ═══════════════ -->
-  <div class="dept-panel" id="panel-concepts">
-    <div class="lab-grid" style="padding:40px 0 0;">
-
-      <div class="lab-card active-project">
-        <div class="lab-status">YOUR IDEA</div>
-        <h2 class="lab-title">ADD YOUR CONCEPT</h2>
-        <p class="lab-desc">This is where your ideas and concepts live. Copy this card and add your own thinking, experiments, theories.</p>
-        <div class="lab-tags">#CONCEPT #IDEA #THINKING</div>
-      </div>
-
-      <!-- PASTE MORE CONCEPT CARDS HERE -->
-
-    </div>
+  <!-- ═══════════════ CONCEPTS  ═══════════════ -->
+  <!-- CONCEPT 01 CARD -->
+<div class="lab-card">
+  <div class="card-header">
+    <span class="card-tag">[ CONCEPT 01 ]</span>
+    <span class="card-status">ACTIVE</span>
   </div>
+
+  <h3 class="card-title">MANDO EATS</h3>
+  <p class="card-desc">An interactive survival arcade experiment built for MandoLab.</p>
+
+  <!-- GAME CONTAINER -->
+  <div class="game-wrapper" id="gameWrapper">
+    <iframe src="mandogame.html" class="game-iframe" id="gameFrame" loading="lazy"></iframe>
+  </div>
+
+  <!-- CONTROL BAR -->
+  <div class="card-actions">
+    <button class="action-btn" onclick="toggleFullscreenGame()">FULLSCREEN ↗</button>
+    <button class="action-btn" onclick="reloadGame()">RELOAD GAME ↻</button>
+  </div>
+</div>
 
   <!-- ═══════════════ DJ ═══════════════ -->
   <div class="dept-panel" id="panel-dj">
@@ -270,6 +277,21 @@ function toggleChat() {
   const btn = document.getElementById('chatBtn');
   box.classList.toggle('active');
   btn.textContent = box.classList.contains('active') ? 'CLOSE' : 'MSG';
+}
+
+function reloadGame() {
+  const iframe = document.getElementById('gameFrame');
+  if (iframe) iframe.src = iframe.src;
+}
+
+function toggleFullscreenGame() {
+  const iframe = document.getElementById('gameFrame');
+  if (!iframe) return;
+  if (iframe.requestFullscreen) {
+    iframe.requestFullscreen();
+  } else if (iframe.webkitRequestFullscreen) {
+    iframe.webkitRequestFullscreen();
+  }
 }
 </script>
 
