@@ -1,4 +1,3 @@
-cat > /mnt/user-data/outputs/mandogame.html << 'ENDHTML'
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -215,15 +214,25 @@ const ctx    = canvas.getContext('2d');
 // color: their body color
 // ══════════════════════════════════════════════
 const PEOPLE = [
-  { name: 'MINHAJ',   emoji: '😎', color: '#e74c3c' },
-  { name: 'IRAPPI',   emoji: '🤪', color: '#9b59b6' },
-  { name: 'MOM',      emoji: '👩', color: '#e91e63' },
-  { name: 'DAD',      emoji: '👨', color: '#2196f3' },
-  { name: 'BRO',      emoji: '🤙', color: '#4caf50' },
-  { name: 'BOSS',     emoji: '😤', color: '#ff9800' },
-  { name: 'RANDOM',   emoji: '🙂', color: '#607d8b' },
-  // ADD MORE: { name: 'YOURFRIEND', emoji: '😂', color: '#hex' },
+  { name: 'MINHAJ',   emoji: '😎', color: '#e74c3c', face: 'game/faces/minhaj.png' },
+  { name: 'IRAPPI',   emoji: '🤪', color: '#9b59b6', face: 'game/faces/irappi.png' },
+  { name: 'MOM',      emoji: '👩', color: '#e91e63', face: null },
+  { name: 'DAD',      emoji: '👨', color: '#2196f3', face: null },
+  { name: 'BRO',      emoji: '🤙', color: '#4caf50', face: null },
+  { name: 'BOSS',     emoji: '😤', color: '#ff9800', face: null },
+  { name: 'RANDOM',   emoji: '🙂', color: '#607d8b', face: null },
+  // ADD MORE: { name: 'FRIEND', emoji: '😂', color: '#hex', face: 'game/faces/friend.png' },
 ];
+
+// Preload face images
+const faceImages = {};
+PEOPLE.forEach(p => {
+  if (p.face) {
+    const img = new Image();
+    img.src = p.face;
+    faceImages[p.name] = img;
+  }
+});
 
 // ── GAME STATE ────────────────────────────────
 let W, H, player, people, score, lives, gameLoop, gameActive, eatenNames;
@@ -245,7 +254,7 @@ function createPlayer() {
     x: W / 2,
     y: H / 2,
     size: 28,
-    speed: 4.5,
+    speed: 6,
     vx: 0,
     vy: 0,
     mouthOpen: 0,
@@ -256,12 +265,13 @@ function createPlayer() {
 
 // ── SPAWN A PERSON ────────────────────────────
 function spawnPerson() {
-  const side = Math.floor(Math.random() * 4);
-  let x, y;
-  if      (side === 0) { x = Math.random() * W; y = -40; }
-  else if (side === 1) { x = W + 40;            y = Math.random() * H; }
-  else if (side === 2) { x = Math.random() * W; y = H + 40; }
-  else                 { x = -40;               y = Math.random() * H; }
+  // Spawn anywhere on screen except near the player
+  let x, y, attempts = 0;
+  do {
+    x = 80 + Math.random() * (W - 160);
+    y = 80 + Math.random() * (H - 160);
+    attempts++;
+  } while (Math.sqrt((x-player.x)**2 + (y-player.y)**2) < 150 && attempts < 20);
 
   const template = PEOPLE[Math.floor(Math.random() * PEOPLE.length)];
   return {
@@ -269,7 +279,7 @@ function spawnPerson() {
     name:    template.name,
     emoji:   template.emoji,
     color:   template.color,
-    speed:   1.8 + Math.random() * 1.5,
+    speed:   1.2 + Math.random() * 1,
     size:    22,
     legAnim: Math.random() * Math.PI * 2,
     scared:  false,
@@ -372,14 +382,39 @@ function drawPerson(person) {
 
   // Name tag
   ctx.font = 'bold 9px Space Mono';
-  ctx.fillStyle = 'rgba(240,160,20,0.7)';
+  ctx.fillStyle = person.angry ? 'rgba(220,50,50,0.9)' : 'rgba(240,160,20,0.7)';
   ctx.textAlign = 'center';
-  ctx.fillText(person.name, 0, -person.size - 8);
+  ctx.fillText(person.angry ? '😡 ' + person.name : person.name, 0, -person.size - 8);
 
-  // Head (emoji face)
-  ctx.font = `${person.size * 1.2}px serif`;
-  ctx.textAlign = 'center';
-  ctx.fillText(person.emoji, 0, 0);
+  // Angry glow
+  if (person.angry) {
+    ctx.shadowColor = '#e74c3c';
+    ctx.shadowBlur = 15;
+  }
+
+  // Head — face image or emoji fallback
+  const faceImg = faceImages[person.name];
+  const headSize = person.size * 1.3;
+  if (faceImg && faceImg.complete && faceImg.naturalWidth > 0) {
+    // Draw circular face image
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(0, -headSize * 0.1, headSize * 0.65, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.drawImage(faceImg, -headSize * 0.65, -headSize * 0.75, headSize * 1.3, headSize * 1.3);
+    ctx.restore();
+    // Circle border
+    ctx.strokeStyle = person.angry ? '#e74c3c' : person.color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, -headSize * 0.1, headSize * 0.65, 0, Math.PI * 2);
+    ctx.stroke();
+  } else {
+    // Emoji fallback
+    ctx.font = `${person.size * 1.2}px serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(person.emoji, 0, 0);
+  }
 
   // Stick body
   ctx.strokeStyle = person.color;
@@ -407,6 +442,7 @@ function drawPerson(person) {
   ctx.lineTo(10 + Math.sin(person.legAnim + Math.PI + 1) * 8, person.size * 2.4);
   ctx.stroke();
 
+  ctx.shadowBlur = 0;
   ctx.restore();
 }
 
@@ -508,23 +544,50 @@ function update() {
     spawnInterval = Math.max(40, spawnInterval - 2); // gets harder
   }
 
-  // Move people — run away from player
+  // Move people — NIGHTMARE MODE
+  // They start scared but then hunt you back
   people.forEach(person => {
     const dx = person.x - player.x;
     const dy = person.y - player.y;
     const dist = Math.sqrt(dx*dx + dy*dy);
 
-    if (dist < 150) {
-      // Run away!
+    // After being alive 8 seconds they get angry and chase
+    person.aliveTime = (person.aliveTime || 0) + 1;
+    const isAngry = person.aliveTime > 480; // 8 seconds at 60fps
+
+    if (isAngry) {
+      // HUNT THE PLAYER
+      person.angry = true;
+      person.x -= (dx / dist) * person.speed * 1.6;
+      person.y -= (dy / dist) * person.speed * 1.6;
+    } else if (dist < 100) {
+      // Run away when close
       person.scared = true;
       person.scaredTimer = 20;
-      person.x += (dx / dist) * person.speed * 1.8;
-      person.y += (dy / dist) * person.speed * 1.8;
+      person.x += (dx / dist) * person.speed * 1.5;
+      person.y += (dy / dist) * person.speed * 1.5;
     } else {
-      // Wander randomly
-      person.x += (Math.random() - 0.5) * person.speed;
-      person.y += (Math.random() - 0.5) * person.speed;
+      // Wander
+      person.x += (Math.random() - 0.5) * 1.2;
+      person.y += (Math.random() - 0.5) * 1.2;
     }
+  });
+
+  // NIGHTMARE — if angry person touches player, lose a life
+  people = people.filter(person => {
+    if (!person.angry) return true;
+    const dx = person.x - player.x;
+    const dy = person.y - player.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if (dist < player.size + person.size + 5) {
+      // They got YOU
+      lives--;
+      updateLives();
+      eatEffect(player.x, player.y, '#e74c3c', 'CAUGHT!');
+      if (lives <= 0) { gameOver(); return false; }
+      return false; // remove them after hitting you
+    }
+    return true;
   });
 
   // Check if people escaped (off screen)
@@ -542,7 +605,7 @@ function update() {
     const dx = person.x - player.x;
     const dy = person.y - player.y;
     const dist = Math.sqrt(dx*dx + dy*dy);
-    if (dist < player.size + person.size) {
+    if (dist < player.size + person.size + 10) {
       // EATEN!
       score += 10;
       eatenNames.push(person.name);
@@ -632,5 +695,3 @@ canvas.addEventListener('click', e => {
 </script>
 </body>
 </html>
-ENDHTML
-echo "done"
