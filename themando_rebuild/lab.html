@@ -247,21 +247,64 @@
 
   <!-- ═══════════════ SECRET ═══════════════ -->
  <!-- SECRET -->
+<!-- SECRET PANEL -->
 <div class="dept-panel" id="panel-secret">
-  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;gap:24px;padding:60px 5%;text-align:center;">
+  <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:75vh; padding:40px 20px; text-align:center;">
     
-    <div style="font-family:var(--font-mono);font-size:0.52rem;letter-spacing:5px;color:rgba(240,160,20,0.25);text-transform:uppercase;">ACCESS RESTRICTED</div>
-    <div style="font-family:var(--font-display);font-size:clamp(2.5rem,7vw,5rem);letter-spacing:8px;color:var(--text);line-height:1;">YOU<br>FOUND IT</div>
-    <div style="width:60px;height:1px;background:rgba(240,160,20,0.2);"></div>
-    
-    <!-- ADD YOUR CUSTOM CONTENT HERE -->
-    <div style="font-family:var(--font-mono);font-size:0.75rem;letter-spacing:2px;color:#f0a014;">
-      WELCOME TO THE VAULT
+    <!-- STAGE 1: KEY INPUT -->
+    <div id="secretStage1" style="width:100%; max-width:550px;">
+      <div style="font-family:var(--font-mono); font-size:0.52rem; letter-spacing:5px; color:rgba(240,160,20,0.4); text-transform:uppercase;">
+        SYSTEM LOCKED // STEP 01
+      </div>
+      
+      <div style="font-family:var(--font-display); font-size:clamp(2rem, 5vw, 3.5rem); letter-spacing:6px; color:var(--text); margin:12px 0;">
+        ENTER PASSKEY
+      </div>
+
+      <div style="width:50px; height:1px; background:rgba(240,160,20,0.2); margin:0 auto 24px;"></div>
+
+      <div style="display:flex; gap:10px; justify-content:center;">
+        <input type="text" id="secretKeyInput" placeholder="KEY..." style="background:#040404; border:1px solid rgba(240,160,20,0.3); border-radius:4px; color:#f0a014; font-family:'Space Mono', monospace; font-size:0.8rem; padding:10px 16px; outline:none; text-align:center; letter-spacing:3px; text-transform:uppercase;">
+        <button onclick="checkSecretKey()" class="action-btn" style="padding:10px 20px;">UNLOCK ↵</button>
+      </div>
+
+      <div id="keyError" style="color:#e74c3c; font-family:'Space Mono', monospace; font-size:0.6rem; letter-spacing:2px; margin-top:14px; min-height:20px;"></div>
     </div>
-    
-    <p style="color: rgba(240,236,224,0.5); font-size: 0.8rem; max-width: 500px;">
-      Insert unreleased projects, easter eggs, hidden games, or secret messages here.
-    </p>
+
+    <!-- STAGE 2: THE NEXT TASK (Hidden by Default) -->
+    <div id="secretStage2" style="display:none; width:100%; max-width:750px;">
+      <div style="font-family:var(--font-mono); font-size:0.52rem; letter-spacing:5px; color:#f0a014; text-transform:uppercase;">
+        ACCESS GRANTED // MISSION 02
+      </div>
+
+      <div style="font-family:var(--font-display); font-size:clamp(2rem, 4vw, 3rem); letter-spacing:6px; color:var(--text); margin:12px 0;">
+        THE SECOND TASK
+      </div>
+
+      <div style="width:60px; height:1px; background:rgba(240,160,20,0.3); margin:0 auto 20px;"></div>
+
+      <!-- TASK CONTENT: CIPHER DECODER / PUZZLE -->
+      <div style="background:#050505; border:1px solid rgba(240,160,20,0.25); border-radius:8px; padding:28px; text-align:left; font-family:'Space Mono', monospace;">
+        <div style="color:rgba(240,236,224,0.4); font-size:0.65rem; letter-spacing:2px; margin-bottom:12px;">
+          DECRYPT THE FOLLOWING TRANSMISSION:
+        </div>
+        
+        <div style="background:#0a0a0a; border:1px dashed rgba(240,160,20,0.3); padding:16px; color:#f0a014; font-size:0.85rem; letter-spacing:4px; word-break:break-all; text-align:center; margin-bottom:20px;">
+          VFVOTk9XTiBNQU5ETyBMQUI=
+        </div>
+
+        <div style="font-size:0.65rem; color:rgba(240,236,224,0.3); line-height:1.8; margin-bottom:16px;">
+          Find the decoded text and type it below to unlock the final reward.
+        </div>
+
+        <div style="display:flex; gap:10px;">
+          <input type="text" id="task2Input" placeholder="FLAG{...}" style="background:#020202; border:1px solid rgba(240,160,20,0.3); border-radius:4px; color:#f0ece0; font-family:'Space Mono', monospace; font-size:0.75rem; padding:10px 14px; flex-grow:1; outline:none;">
+          <button onclick="checkTask2()" class="action-btn">SUBMIT FLAG ↗</button>
+        </div>
+        
+        <div id="task2Status" style="font-size:0.65rem; margin-top:12px; min-height:18px;"></div>
+      </div>
+    </div>
 
   </div>
 </div>
@@ -288,6 +331,35 @@ function toggleChat() {
   const btn = document.getElementById('chatBtn');
   box.classList.toggle('active');
   btn.textContent = box.classList.contains('active') ? 'CLOSE' : 'MSG';
+}
+// Step 1: Check the secret passkey
+function checkSecretKey() {
+  const input = document.getElementById('secretKeyInput').value.trim().toUpperCase();
+  const errorDiv = document.getElementById('keyError');
+  
+  // Set your desired secret key here (e.g., "MANDOLAB" or "VAULT")
+  if (input === 'MANDOLAB' || input === 'MANDO') {
+    document.getElementById('secretStage1').style.display = 'none';
+    document.getElementById('secretStage2').style.display = 'block';
+  } else {
+    errorDiv.textContent = 'ACCESS DENIED: INVALID KEY';
+  }
+}
+
+// Step 2: Check the decoded flag task
+function checkTask2() {
+  const input = document.getElementById('task2Input').value.trim();
+  const status = document.getElementById('task2Status');
+  
+  // Decoded answer for "VFVOTk9XTiBNQU5ETyBMQUI=" is "UNKNOWN MANDO LAB"
+  if (input.toUpperCase() === 'UNKNOWN MANDO LAB') {
+    status.style.color = '#2ecc71';
+    status.textContent = 'SUCCESS! UNLOCKING REWARD...';
+    // Trigger final reward (e.g. redirect to secret file, video, or audio stream)
+  } else {
+    status.style.color = '#e74c3c';
+    status.textContent = 'INCORRECT FLAG. TRY AGAIN.';
+  }
 }
 </script>
 
