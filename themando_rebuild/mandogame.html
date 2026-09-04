@@ -39,8 +39,6 @@
     .diff-btn:hover { border-color:rgba(240,160,20,0.4); color:rgba(240,160,20,0.7); }
     .diff-btn.selected { background:rgba(240,160,20,0.1); border-color:#f0a014; color:#f0a014; }
 
-    .diff-btn[data-diff="easy"]       { }
-    .diff-btn[data-diff="medium"]     { }
     .diff-btn[data-diff="hard"]       { border-color:rgba(220,120,0,0.3); }
     .diff-btn[data-diff="impossible"] { border-color:rgba(220,50,50,0.3); color:rgba(220,50,50,0.4); }
     .diff-btn[data-diff="impossible"]:hover { border-color:rgba(220,50,50,0.8); color:rgba(220,50,50,0.9); }
@@ -166,14 +164,6 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx    = canvas.getContext('2d');
 
-// ══════════════════════════════════════════════════════════
-// PEOPLE — add your friends here!
-// face: path to image in game/faces/ folder (or null)
-// ══════════════════════════════════════════════════════════
-<script>
-const canvas = document.getElementById('gameCanvas');
-const ctx    = canvas.getContext('2d');
-
 const PEOPLE_DATA = [
   { name:'Mandooh',  emoji:'😎', color:'#3498db', face:'photos/lab/mandogame/amal.png'},
   { name:'IRAPPI',   emoji:'🤪', color:'#9b59b6', face:'photos/lab/mandogame/irappi.png' },
@@ -199,7 +189,7 @@ let waveTimer, waveSpawning, peopleThisWave, peopleSpawned;
 let eatenNames = [], keys = {}, touchTarget = null;
 let particles = [];
 
-// NEW WAVE RED ENEMY TRACKERS
+// WAVE ENEMY TRACKERS
 let hasSpawnedRedThisWave = false;
 let waveRedHit = false;
 
@@ -233,12 +223,12 @@ function spawnPerson(isRed) {
     x = 80 + Math.random()*(W-160);
     y = 80 + Math.random()*(H-160);
     tries++;
-  } while (Math.hypot(x-player.x, y-player.y) < 180 && tries < 20);
+  } while (player && Math.hypot(x-player.x, y-player.y) < 180 && tries < 20);
 
   const t = PEOPLE_DATA[Math.floor(Math.random()*PEOPLE_DATA.length)];
   return {
     x, y,
-    name:     isRed ? '⚠ '+t.name : t.name,
+    name:    isRed ? '⚠ '+t.name : t.name,
     rawName: t.name,
     emoji:   t.emoji,
     color:   isRed ? '#e74c3c' : t.color,
@@ -362,7 +352,6 @@ function startWave() {
   peopleSpawned  = 0;
   waveTimer      = 0;
   
-  // RESET RED TRACKERS FOR THIS WAVE
   hasSpawnedRedThisWave = false;
   waveRedHit = false;
 
@@ -384,7 +373,12 @@ function update() {
   if (touchTarget) {
     const dx=touchTarget.x-player.x, dy=touchTarget.y-player.y;
     const d=Math.hypot(dx,dy);
-    if(d>6){ player.x+=dx/d*player.speed; player.y+=dy/d*player.speed; }
+    if(d>6){ 
+      player.x+=dx/d*player.speed; 
+      player.y+=dy/d*player.speed; 
+    } else {
+      touchTarget = null;
+    }
   } else {
     if(keys['ArrowLeft'] ||keys['a']||keys['A']) player.x-=player.speed;
     if(keys['ArrowRight']||keys['d']||keys['D']) player.x+=player.speed;
@@ -394,13 +388,12 @@ function update() {
   player.x=Math.max(25,Math.min(W-25,player.x));
   player.y=Math.max(25,Math.min(H-25,player.y));
 
-  // SPAWN PEOPLE (FORCE AT LEAST 1 RED ENEMY)
+  // SPAWN PEOPLE
   if (waveSpawning) {
     waveTimer++;
     if (waveTimer % cfg.waveGap === 0 && peopleSpawned < peopleThisWave) {
       let isRed = Math.random() < cfg.redChance;
 
-      // Force the last person of the wave to be red if none spawned yet
       if (!hasSpawnedRedThisWave && peopleSpawned === peopleThisWave - 1) {
         isRed = true;
       }
@@ -419,7 +412,7 @@ function update() {
     const dist=Math.hypot(dx,dy);
     p.aliveTime++;
 
-    const chases = p.isRed; // Red enemies chase player!
+    const chases = p.isRed;
 
     if (chases) {
       p.x -= (dx/dist)*p.speed*1.8;
@@ -440,16 +433,14 @@ function update() {
     const dist = Math.hypot(p.x-player.x, p.y-player.y);
     if (dist < player.size + p.size + 8) {
       if (p.isRed) {
-        // RED ENEMY ATTACKS & TAKES 1 LIFE
         lives--;
-        waveRedHit = true; // Mark red enemy hit!
+        waveRedHit = true;
         updateLives();
         burst(player.x, player.y, '#e74c3c', 'OUCH!');
         document.getElementById('dangerFlash').classList.add('flash');
         setTimeout(()=>document.getElementById('dangerFlash').classList.remove('flash'),150);
         if (lives<=0) { gameOver(); return; }
       } else {
-        // EAT NORMAL PERSON
         score += wave*10;
         eatenNames.push(p.rawName);
         burst(p.x, p.y, p.color, 'NOM!');
@@ -471,13 +462,12 @@ function update() {
     if (lives<=0) { gameOver(); return; }
   }
 
-  // LEVEL FINISH CHECK: ONLY FINISH WHEN ALL ARE CLEAR AND RED ENEMY HIT PLAYER
+  // LEVEL FINISH CHECK
   if (!waveSpawning && people.length === 0) {
     if (waveRedHit) {
       wave++;
       startWave();
     } else {
-      // Re-spawn 1 mandatory Red enemy if player didn't get hit yet!
       people.push(spawnPerson(true));
       hasSpawnedRedThisWave = true;
     }
@@ -547,7 +537,7 @@ window.addEventListener('keyup',  e=>{keys[e.key]=false;});
 canvas.addEventListener('touchstart',e=>{e.preventDefault();const t=e.touches[0];touchTarget={x:t.clientX,y:t.clientY};},{passive:false});
 canvas.addEventListener('touchmove', e=>{e.preventDefault();const t=e.touches[0];touchTarget={x:t.clientX,y:t.clientY};},{passive:false});
 canvas.addEventListener('touchend', ()=>{touchTarget=null;});
-canvas.addEventListener('click',e=>{if(gameActive){touchTarget={x:e.clientX,y:e.clientY};setTimeout(()=>{touchTarget=null;},80);}});
+canvas.addEventListener('click',e=>{if(gameActive){touchTarget={x:e.clientX,y:e.clientY};}});
 </script>
 </body>
 </html>
