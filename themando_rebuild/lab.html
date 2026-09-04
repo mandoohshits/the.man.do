@@ -174,28 +174,28 @@
     </div>
   </div>
 
-  <!-- ═══════════════ CONCEPTS  ═══════════════ -->
-  <!-- CONCEPT 01 CARD -->
-<div class="lab-card">
-  <div class="card-header">
-    <span class="card-tag">[ CONCEPT 01 ]</span>
-    <span class="card-status">ACTIVE</span>
-  </div>
+  <!-- ═══════════════ CONCEPTS ═══════════════ -->
+  <div class="dept-panel" id="panel-concepts">
+    <div style="padding:40px 0 0;">
 
-  <h3 class="card-title">MANDO EATS</h3>
-  <p class="card-desc">An interactive survival arcade experiment built for MandoLab.</p>
+      <!-- CONCEPT 01 — MANDO EATS -->
+      <div class="lab-card active-project">
+        <div class="lab-status">[ CONCEPT 01 ] ACTIVE</div>
+        <h2 class="lab-title">MANDO EATS</h2>
+        <p class="lab-desc">An interactive survival arcade experiment. You are the skeleton. Eat the people. Avoid the red ones. Survive.</p>
+        <div class="lab-tags">#GAME #EXPERIMENT #CHAOTIC</div>
+        <a href="mandogame.html"
+           style="display:inline-block;margin-top:16px;font-family:var(--font-mono);font-size:0.55rem;letter-spacing:3px;padding:9px 20px;border:1px solid rgba(240,160,20,0.3);color:#f0a014;text-transform:uppercase;transition:all 0.2s;text-decoration:none;border-radius:3px;"
+           onmouseover="this.style.background='rgba(240,160,20,0.08)'"
+           onmouseout="this.style.background='none'">
+          PLAY NOW →
+        </a>
+      </div>
 
-  <!-- GAME CONTAINER -->
-  <div class="game-wrapper" id="gameWrapper">
-    <iframe src="mandogame.html" class="game-iframe" id="gameFrame" loading="lazy"></iframe>
-  </div>
+      <!-- PASTE MORE CONCEPT CARDS HERE -->
 
-  <!-- CONTROL BAR -->
-  <div class="card-actions">
-    <button class="action-btn" onclick="toggleFullscreenGame()">FULLSCREEN ↗</button>
-    <button class="action-btn" onclick="reloadGame()">RELOAD GAME ↻</button>
+    </div>
   </div>
-</div>
 
   <!-- ═══════════════ DJ ═══════════════ -->
   <div class="dept-panel" id="panel-dj">
@@ -247,11 +247,16 @@
 
   <!-- ═══════════════ SECRET ═══════════════ -->
   <div class="dept-panel" id="panel-secret">
-    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;gap:20px;padding:60px 5%;">
-      <div style="font-family:var(--font-mono);font-size:0.55rem;letter-spacing:5px;color:rgba(240,160,20,0.3);text-transform:uppercase;">ACCESS RESTRICTED</div>
-      <div style="font-family:var(--font-display);font-size:clamp(2rem,6vw,4rem);letter-spacing:6px;color:var(--text);text-align:center;">YOU FOUND IT</div>
-      <div style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:3px;color:rgba(240,236,224,0.2);text-transform:uppercase;text-align:center;">but there's nothing here yet.<br>or is there?</div>
-      <!-- ADD YOUR SECRET CONTENT HERE -->
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;gap:24px;padding:60px 5%;text-align:center;">
+      <div style="font-family:var(--font-mono);font-size:0.52rem;letter-spacing:5px;color:rgba(240,160,20,0.25);text-transform:uppercase;">ACCESS RESTRICTED</div>
+      <div style="font-family:var(--font-display);font-size:clamp(2.5rem,7vw,5rem);letter-spacing:8px;color:var(--text);line-height:1;">YOU<br>FOUND IT</div>
+      <div style="width:60px;height:1px;background:rgba(240,160,20,0.2);"></div>
+      <div style="font-family:var(--font-mono);font-size:0.58rem;letter-spacing:3px;color:rgba(240,236,224,0.18);text-transform:uppercase;line-height:2.5;">
+        there's nothing here.<br>
+        or maybe there is.<br>
+        keep looking.
+      </div>
+      <!-- ADD YOUR SECRET CONTENT HERE — only real ones get to see it -->
     </div>
   </div>
 
@@ -277,21 +282,6 @@ function toggleChat() {
   const btn = document.getElementById('chatBtn');
   box.classList.toggle('active');
   btn.textContent = box.classList.contains('active') ? 'CLOSE' : 'MSG';
-}
-
-function reloadGame() {
-  const iframe = document.getElementById('gameFrame');
-  if (iframe) iframe.src = iframe.src;
-}
-
-function toggleFullscreenGame() {
-  const iframe = document.getElementById('gameFrame');
-  if (!iframe) return;
-  if (iframe.requestFullscreen) {
-    iframe.requestFullscreen();
-  } else if (iframe.webkitRequestFullscreen) {
-    iframe.webkitRequestFullscreen();
-  }
 }
 </script>
 
