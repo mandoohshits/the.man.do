@@ -170,17 +170,20 @@ const ctx    = canvas.getContext('2d');
 // PEOPLE — add your friends here!
 // face: path to image in game/faces/ folder (or null)
 // ══════════════════════════════════════════════════════════
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx    = canvas.getContext('2d');
+
 const PEOPLE_DATA = [
   { name:'Mandooh',  emoji:'😎', color:'#3498db', face:'photos/lab/mandogame/amal.png'},
-  { name:'IRAPPI',  emoji:'🤪', color:'#9b59b6', face:'photos/lab/mandogame/irappi.png' },
+  { name:'IRAPPI',   emoji:'🤪', color:'#9b59b6', face:'photos/lab/mandogame/irappi.png' },
   { name:'ummi',     emoji:'👩', color:'#e91e63', face:'photos/lab/mandogame/ummi.png' },
-  { name:'jaggz',     emoji:'👨', color:'#2196f3', face:'photos/lab/mandogame/jaggz.png' },
+  { name:'jaggz',    emoji:'👨', color:'#2196f3', face:'photos/lab/mandogame/jaggz.png' },
   { name:'arth',     emoji:'🤙', color:'#4caf50', face:'photos/lab/mandogame/arth.png' },
   { name:'kurus',    emoji:'😤', color:'#ff9800', face:'photos/lab/mandogame/kurus.png' },
-  { name:'NAOMI',   emoji:'🤖', color:'#00bcd4', face:'photos/lab/mandogame/meow.png' },
+  { name:'NAOMI',    emoji:'🤖', color:'#00bcd4', face:'photos/lab/mandogame/meow.png' },
 ];
 
-// ── DIFFICULTY CONFIG ─────────────────────────────────────
 const DIFF = {
   easy:       { playerSpeed:7,  runSpeed:0.8,  detectRange:60,  redChance:0.1, wavePeople:4, waveGap:180, label:'EASY' },
   medium:     { playerSpeed:6,  runSpeed:1.4,  detectRange:90,  redChance:0.2, wavePeople:5, waveGap:140, label:'MEDIUM' },
@@ -191,13 +194,15 @@ const DIFF = {
 let selectedDiff = 'easy';
 let cfg = DIFF[selectedDiff];
 
-// ── STATE ─────────────────────────────────────────────────
 let W, H, player, people, score, lives, wave, gameActive;
 let waveTimer, waveSpawning, peopleThisWave, peopleSpawned;
 let eatenNames = [], keys = {}, touchTarget = null;
 let particles = [];
 
-// ── FACE IMAGES ───────────────────────────────────────────
+// NEW WAVE RED ENEMY TRACKERS
+let hasSpawnedRedThisWave = false;
+let waveRedHit = false;
+
 const faceImgs = {};
 PEOPLE_DATA.forEach(p => {
   if (p.face) {
@@ -207,12 +212,10 @@ PEOPLE_DATA.forEach(p => {
   }
 });
 
-// ── RESIZE ────────────────────────────────────────────────
 function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
 window.addEventListener('resize', resize);
 resize();
 
-// ── DIFFICULTY SELECT ─────────────────────────────────────
 function selectDiff(btn) {
   document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
@@ -220,12 +223,10 @@ function selectDiff(btn) {
   cfg = DIFF[selectedDiff];
 }
 
-// ── PLAYER ────────────────────────────────────────────────
 function createPlayer() {
   return { x:W/2, y:H/2, size:26, speed:cfg.playerSpeed, vx:0, vy:0, mouthOpen:0, mouthDir:1, legAnim:0 };
 }
 
-// ── PERSON ────────────────────────────────────────────────
 function spawnPerson(isRed) {
   let x, y, tries=0;
   do {
@@ -237,7 +238,7 @@ function spawnPerson(isRed) {
   const t = PEOPLE_DATA[Math.floor(Math.random()*PEOPLE_DATA.length)];
   return {
     x, y,
-    name:    isRed ? '⚠ '+t.name : t.name,
+    name:     isRed ? '⚠ '+t.name : t.name,
     rawName: t.name,
     emoji:   t.emoji,
     color:   isRed ? '#e74c3c' : t.color,
@@ -251,7 +252,6 @@ function spawnPerson(isRed) {
   };
 }
 
-// ── DRAW GRID BG ──────────────────────────────────────────
 function drawBg() {
   ctx.strokeStyle = 'rgba(240,160,20,0.04)';
   ctx.lineWidth = 0.5;
@@ -259,30 +259,23 @@ function drawBg() {
   for (let y=0; y<H; y+=60) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
 }
 
-// ── DRAW PLAYER (skeleton) ────────────────────────────────
 function drawPlayer(p) {
   ctx.save();
   ctx.translate(p.x, p.y);
   p.mouthOpen += 0.15*p.mouthDir;
   if (p.mouthOpen>0.4||p.mouthOpen<0) p.mouthDir*=-1;
 
-  // Skull
   ctx.fillStyle = '#f0ece0';
   ctx.beginPath(); ctx.arc(0,0,p.size*0.6,0,Math.PI*2); ctx.fill();
-  // Eye sockets
   ctx.fillStyle = '#060606';
   ctx.beginPath(); ctx.arc(-8,-4,5,0,Math.PI*2); ctx.arc(8,-4,5,0,Math.PI*2); ctx.fill();
-  // Eye glow
   ctx.fillStyle = '#f0a014';
   ctx.beginPath(); ctx.arc(-8,-4,2.5,0,Math.PI*2); ctx.arc(8,-4,2.5,0,Math.PI*2); ctx.fill();
-  // Mouth
   ctx.strokeStyle = '#060606'; ctx.lineWidth=2;
   ctx.beginPath(); ctx.arc(0,6,7,p.mouthOpen,Math.PI-p.mouthOpen); ctx.stroke();
-  // Body
   p.legAnim+=0.12;
   ctx.strokeStyle='#f0ece0'; ctx.lineWidth=2.5;
   ctx.beginPath(); ctx.moveTo(0,p.size*0.6); ctx.lineTo(0,p.size*1.8); ctx.stroke();
-  // Ribs
   for(let i=0;i<3;i++){
     const ry=p.size*0.75+i*8;
     ctx.beginPath();
@@ -290,7 +283,6 @@ function drawPlayer(p) {
     ctx.moveTo(0,ry); ctx.bezierCurveTo(14,ry-3,16,ry+5,7,ry+7);
     ctx.stroke();
   }
-  // Arms & legs
   ctx.beginPath();
   ctx.moveTo(0,p.size*0.8); ctx.lineTo(-18+Math.sin(p.legAnim)*7,p.size*1.3+Math.cos(p.legAnim)*5);
   ctx.moveTo(0,p.size*0.8); ctx.lineTo(18+Math.sin(p.legAnim+Math.PI)*7,p.size*1.3+Math.cos(p.legAnim+Math.PI)*5);
@@ -300,26 +292,22 @@ function drawPlayer(p) {
   ctx.restore();
 }
 
-// ── DRAW PERSON ───────────────────────────────────────────
 function drawPerson(p) {
   ctx.save();
   ctx.translate(p.x, p.y);
   p.legAnim += 0.15;
 
-  // Red glow for dangerous ones
   if (p.isRed) {
     ctx.shadowColor = '#e74c3c';
     ctx.shadowBlur  = 18 + Math.sin(Date.now()*0.008)*8;
   }
 
-  // Name tag
   ctx.shadowBlur = p.isRed ? 10 : 0;
   ctx.font = 'bold 8px Space Mono';
   ctx.fillStyle = p.isRed ? 'rgba(220,50,50,0.9)' : 'rgba(240,160,20,0.7)';
   ctx.textAlign = 'center';
   ctx.fillText(p.name, 0, -p.size-10);
 
-  // Head
   const faceImg = faceImgs[p.rawName];
   if (!p.isRed && faceImg && faceImg.complete && faceImg.naturalWidth>0) {
     const r = p.size*0.7;
@@ -336,7 +324,6 @@ function drawPerson(p) {
     else ctx.fillText(p.emoji,0,p.size*0.4);
   }
 
-  // Stick body
   ctx.strokeStyle = p.color; ctx.lineWidth=2.5; ctx.shadowBlur=0;
   ctx.beginPath();
   ctx.moveTo(0,p.size*0.6); ctx.lineTo(0,p.size*1.6);
@@ -349,7 +336,6 @@ function drawPerson(p) {
   ctx.restore();
 }
 
-// ── PARTICLES ─────────────────────────────────────────────
 function burst(x, y, color, text) {
   for(let i=0;i<10;i++){
     const a=(Math.PI*2/10)*i;
@@ -375,6 +361,11 @@ function startWave() {
   peopleThisWave = cfg.wavePeople + (wave-1)*2;
   peopleSpawned  = 0;
   waveTimer      = 0;
+  
+  // RESET RED TRACKERS FOR THIS WAVE
+  hasSpawnedRedThisWave = false;
+  waveRedHit = false;
+
   showWaveAnnounce();
 }
 
@@ -387,11 +378,9 @@ function showWaveAnnounce() {
   document.getElementById('waveDisplay').textContent = wave;
 }
 
-// ── UPDATE ────────────────────────────────────────────────
 function update() {
   if (!gameActive) return;
 
-  // Player movement
   if (touchTarget) {
     const dx=touchTarget.x-player.x, dy=touchTarget.y-player.y;
     const d=Math.hypot(dx,dy);
@@ -405,25 +394,32 @@ function update() {
   player.x=Math.max(25,Math.min(W-25,player.x));
   player.y=Math.max(25,Math.min(H-25,player.y));
 
-  // Spawn wave people
+  // SPAWN PEOPLE (FORCE AT LEAST 1 RED ENEMY)
   if (waveSpawning) {
     waveTimer++;
     if (waveTimer % cfg.waveGap === 0 && peopleSpawned < peopleThisWave) {
-      const isRed = Math.random() < cfg.redChance;
+      let isRed = Math.random() < cfg.redChance;
+
+      // Force the last person of the wave to be red if none spawned yet
+      if (!hasSpawnedRedThisWave && peopleSpawned === peopleThisWave - 1) {
+        isRed = true;
+      }
+
+      if (isRed) hasSpawnedRedThisWave = true;
+
       people.push(spawnPerson(isRed));
       peopleSpawned++;
       if (peopleSpawned >= peopleThisWave) waveSpawning = false;
     }
   }
 
-  // Move people
+  // MOVE PEOPLE
   people.forEach(p => {
     const dx=p.x-player.x, dy=p.y-player.y;
     const dist=Math.hypot(dx,dy);
     p.aliveTime++;
 
-    // On hard/impossible waves, red people chase after a while
-    const chases = p.isRed && wave >= 2 && p.aliveTime > 300;
+    const chases = p.isRed; // Red enemies chase player!
 
     if (chases) {
       p.x -= (dx/dist)*p.speed*1.8;
@@ -438,21 +434,22 @@ function update() {
     }
   });
 
-  // Check collisions
+  // CHECK COLLISIONS
   const survived = [];
   for (const p of people) {
     const dist = Math.hypot(p.x-player.x, p.y-player.y);
     if (dist < player.size + p.size + 8) {
       if (p.isRed) {
-        // BAD — lose a life
+        // RED ENEMY ATTACKS & TAKES 1 LIFE
         lives--;
+        waveRedHit = true; // Mark red enemy hit!
         updateLives();
         burst(player.x, player.y, '#e74c3c', 'OUCH!');
         document.getElementById('dangerFlash').classList.add('flash');
         setTimeout(()=>document.getElementById('dangerFlash').classList.remove('flash'),150);
         if (lives<=0) { gameOver(); return; }
       } else {
-        // GOOD — eat them
+        // EAT NORMAL PERSON
         score += wave*10;
         eatenNames.push(p.rawName);
         burst(p.x, p.y, p.color, 'NOM!');
@@ -464,7 +461,7 @@ function update() {
   }
   people = survived;
 
-  // Remove escaped people (off screen) — lose a life for each
+  // REMOVE ESCAPED PEOPLE
   const before = people.length;
   people = people.filter(p => p.x>-100&&p.x<W+100&&p.y>-100&&p.y<H+100);
   const escaped = before - people.length;
@@ -474,14 +471,19 @@ function update() {
     if (lives<=0) { gameOver(); return; }
   }
 
-  // Next wave when all people eaten/gone
+  // LEVEL FINISH CHECK: ONLY FINISH WHEN ALL ARE CLEAR AND RED ENEMY HIT PLAYER
   if (!waveSpawning && people.length === 0) {
-    wave++;
-    startWave();
+    if (waveRedHit) {
+      wave++;
+      startWave();
+    } else {
+      // Re-spawn 1 mandatory Red enemy if player didn't get hit yet!
+      people.push(spawnPerson(true));
+      hasSpawnedRedThisWave = true;
+    }
   }
 }
 
-// ── DRAW ──────────────────────────────────────────────────
 function draw() {
   ctx.clearRect(0,0,W,H);
   drawBg();
@@ -495,12 +497,10 @@ function tick() {
   if (gameActive) requestAnimationFrame(tick);
 }
 
-// ── LIVES ─────────────────────────────────────────────────
 function updateLives() {
   document.getElementById('livesDisplay').textContent = '💀'.repeat(Math.max(0,lives));
 }
 
-// ── START ─────────────────────────────────────────────────
 function startGame() {
   cfg = DIFF[selectedDiff];
   document.getElementById('startScreen').classList.add('hidden');
@@ -529,7 +529,6 @@ function goMenu() {
   document.getElementById('startScreen').classList.remove('hidden');
 }
 
-// ── GAME OVER ─────────────────────────────────────────────
 function gameOver() {
   gameActive=false;
   document.getElementById('hud').classList.remove('show');
@@ -542,7 +541,6 @@ function gameOver() {
   document.getElementById('gameOverScreen').classList.remove('hidden');
 }
 
-// ── CONTROLS ──────────────────────────────────────────────
 window.addEventListener('keydown',e=>{keys[e.key]=true;});
 window.addEventListener('keyup',  e=>{keys[e.key]=false;});
 
