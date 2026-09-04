@@ -248,6 +248,10 @@
   <!-- ═══════════════ SECRET ═══════════════ -->
  <!-- SECRET -->
 <!-- SECRET PANEL -->
+ <!-- HIDDEN KEY BUTTON (Place on any page/section you want) -->
+<button onclick="revealMandoKey()" style="opacity:0.1; background:none; border:none; color:#f0a014; cursor:pointer; font-family:'Space Mono', monospace; font-size:0.6rem;">
+  [?]
+</button>
 <div class="dept-panel" id="panel-secret">
   <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:75vh; padding:40px 20px; text-align:center;">
     
@@ -513,6 +517,32 @@ function nextTask() {
     renderTask();
   } else {
     showFinalVictoryScreen();
+  }
+}
+// Function triggered when clicking the hidden [?] button
+function revealMandoKey() {
+  const mandoKey = "MANDOLAB"; // Your secret key
+  
+  // Alert or log the secret key
+  alert("🔑 KEY DISCOVERED: " + mandoKey);
+  
+  // Pre-fill the key into Stage 1 input automatically
+  const inputElem = document.getElementById('secretKeyInput');
+  if (inputElem) {
+    inputElem.value = mandoKey;
+  }
+}
+function checkSecretKey() {
+  const input = document.getElementById('secretKeyInput').value.trim().toUpperCase();
+  const errorDiv = document.getElementById('keyError');
+  
+  // Set the secret key here
+  if (input === 'MANDOLAB' || input === 'MANDO') {
+    document.getElementById('secretStage1').style.display = 'none';
+    document.getElementById('secretStage2').style.display = 'block';
+    renderTask(); // Starts Task 1 of the 10-task hunt
+  } else {
+    errorDiv.textContent = 'ACCESS DENIED: FIND THE HIDDEN BUTTON ON THE SITE!';
   }
 }
 
