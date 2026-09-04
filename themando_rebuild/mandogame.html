@@ -1,4 +1,3 @@
-cat > /mnt/user-data/outputs/mandogame.html << 'ENDHTML'
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,8 +9,6 @@ cat > /mnt/user-data/outputs/mandogame.html << 'ENDHTML'
     * { margin:0; padding:0; box-sizing:border-box; }
     body { background:#060606; font-family:'Space Mono',monospace; overflow:hidden; user-select:none; }
     #gameCanvas { display:block; }
-
-    /* ── SCREENS ── */
     .screen {
       position:fixed; inset:0;
       display:flex; flex-direction:column;
@@ -20,14 +17,10 @@ cat > /mnt/user-data/outputs/mandogame.html << 'ENDHTML'
       background:#060606;
     }
     .screen.hidden { display:none; }
-
-    .game-title { font-size:clamp(2.5rem,8vw,5rem); letter-spacing:10px; color:#f0ece0; line-height:1; }
+    .game-title { font-size:clamp(2.5rem,8vw,5rem); letter-spacing:10px; color:#f0ece0; line-height:1; text-align:center; }
     .game-sub   { font-size:0.55rem; letter-spacing:5px; color:rgba(240,160,20,0.5); text-transform:uppercase; }
     .game-desc  { font-size:0.65rem; letter-spacing:2px; color:rgba(240,236,224,0.25); text-align:center; line-height:2.2; text-transform:uppercase; }
-
-    /* difficulty buttons */
     .diff-row { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:8px; }
-
     .diff-btn {
       padding:10px 22px;
       background:none;
@@ -39,14 +32,9 @@ cat > /mnt/user-data/outputs/mandogame.html << 'ENDHTML'
     }
     .diff-btn:hover { border-color:rgba(240,160,20,0.4); color:rgba(240,160,20,0.7); }
     .diff-btn.selected { background:rgba(240,160,20,0.1); border-color:#f0a014; color:#f0a014; }
-
-    .diff-btn[data-diff="easy"]       { }
-    .diff-btn[data-diff="medium"]     { }
-    .diff-btn[data-diff="hard"]       { border-color:rgba(220,120,0,0.3); }
     .diff-btn[data-diff="impossible"] { border-color:rgba(220,50,50,0.3); color:rgba(220,50,50,0.4); }
     .diff-btn[data-diff="impossible"]:hover { border-color:rgba(220,50,50,0.8); color:rgba(220,50,50,0.9); }
     .diff-btn[data-diff="impossible"].selected { background:rgba(220,50,50,0.1); border-color:#e74c3c; color:#e74c3c; }
-
     .start-btn {
       padding:12px 40px; background:none;
       border:1px solid rgba(240,160,20,0.4); color:#f0a014;
@@ -55,10 +43,7 @@ cat > /mnt/user-data/outputs/mandogame.html << 'ENDHTML'
       cursor:pointer; transition:all 0.2s;
     }
     .start-btn:hover { background:rgba(240,160,20,0.08); border-color:#f0a014; }
-
     .controls-hint { font-size:0.45rem; letter-spacing:3px; color:rgba(240,236,224,0.12); text-transform:uppercase; text-align:center; line-height:2.5; }
-
-    /* ── HUD ── */
     #hud {
       position:fixed; top:0; left:0; right:0;
       padding:14px 20px;
@@ -68,12 +53,9 @@ cat > /mnt/user-data/outputs/mandogame.html << 'ENDHTML'
       z-index:10; pointer-events:none;
     }
     #hud.show { display:flex; }
-
     .hud-label { font-size:0.45rem; letter-spacing:4px; color:rgba(240,160,20,0.4); text-transform:uppercase; margin-bottom:4px; }
     .hud-val   { font-size:1.2rem; letter-spacing:2px; color:#f0a014; }
     .hud-wave  { font-size:0.8rem; letter-spacing:2px; color:rgba(240,236,224,0.4); }
-
-    /* danger flash */
     #dangerFlash {
       position:fixed; inset:0; z-index:15;
       background:rgba(220,50,50,0);
@@ -81,16 +63,12 @@ cat > /mnt/user-data/outputs/mandogame.html << 'ENDHTML'
       transition:background 0.1s;
     }
     #dangerFlash.flash { background:rgba(220,50,50,0.25); }
-
-    /* ── GAME OVER ── */
     #gameOverScreen { background:rgba(6,6,6,0.97); }
     .go-title  { font-size:clamp(2rem,6vw,4rem); letter-spacing:6px; color:#f0ece0; }
     .go-score  { font-size:0.6rem; letter-spacing:4px; color:rgba(240,160,20,0.5); text-transform:uppercase; }
     .go-score span { color:#f0a014; font-size:1.1rem; }
     .go-eaten  { font-size:0.5rem; letter-spacing:2px; color:rgba(240,236,224,0.2); text-align:center; line-height:2.5; text-transform:uppercase; max-width:400px; }
     .go-wave   { font-size:0.55rem; letter-spacing:3px; color:rgba(240,160,20,0.4); text-transform:uppercase; }
-
-    /* wave announce */
     #waveAnnounce {
       position:fixed; top:50%; left:50%;
       transform:translate(-50%,-50%);
@@ -105,12 +83,10 @@ cat > /mnt/user-data/outputs/mandogame.html << 'ENDHTML'
   </style>
 </head>
 <body>
-
 <canvas id="gameCanvas"></canvas>
 <div id="dangerFlash"></div>
 <div id="waveAnnounce"></div>
 
-<!-- HUD -->
 <div id="hud">
   <div>
     <div class="hud-label">score</div>
@@ -126,7 +102,6 @@ cat > /mnt/user-data/outputs/mandogame.html << 'ENDHTML'
   </div>
 </div>
 
-<!-- START SCREEN -->
 <div class="screen" id="startScreen">
   <div class="game-title">MANDO<br>EATS</div>
   <div class="game-sub">a mandolab production</div>
@@ -134,7 +109,6 @@ cat > /mnt/user-data/outputs/mandogame.html << 'ENDHTML'
     eat the people. avoid the red ones.<br>
     survive as long as you can.
   </div>
-
   <div style="text-align:center;">
     <div class="hud-label" style="margin-bottom:10px;">select difficulty</div>
     <div class="diff-row">
@@ -144,16 +118,13 @@ cat > /mnt/user-data/outputs/mandogame.html << 'ENDHTML'
       <button class="diff-btn"          data-diff="impossible" onclick="selectDiff(this)">Impossible</button>
     </div>
   </div>
-
   <button class="start-btn" onclick="startGame()">START EATING →</button>
-
   <div class="controls-hint">
     desktop: arrow keys / wasd · mouse click to move<br>
     mobile: tap where you want to go
   </div>
 </div>
 
-<!-- GAME OVER -->
 <div class="screen hidden" id="gameOverScreen">
   <div class="go-title">GAME OVER</div>
   <div class="go-wave">reached wave <span id="finalWave">1</span></div>
@@ -167,40 +138,16 @@ cat > /mnt/user-data/outputs/mandogame.html << 'ENDHTML'
 const canvas = document.getElementById('gameCanvas');
 const ctx    = canvas.getContext('2d');
 
-<<<<<<< HEAD
-// ══════════════════════════════════════════════════════════
-// PEOPLE — add your friends here!
-// face: path to image in game/faces/ folder (or null)
-// ══════════════════════════════════════════════════════════
 const PEOPLE_DATA = [
-  { name:'MINHAJ',  emoji:'😎', color:'#3498db', face:'game/faces/minhaj.png' },
-  { name:'IRAPPI',  emoji:'🤪', color:'#9b59b6', face:'game/faces/irappi.png' },
+  { name:'MINHAJ',  emoji:'😎', color:'#3498db', face:null },
+  { name:'IRAPPI',  emoji:'🤪', color:'#9b59b6', face:null },
   { name:'MOM',     emoji:'👩', color:'#e91e63', face:null },
   { name:'DAD',     emoji:'👨', color:'#2196f3', face:null },
   { name:'BRO',     emoji:'🤙', color:'#4caf50', face:null },
   { name:'BOSS',    emoji:'😤', color:'#ff9800', face:null },
   { name:'NAOMI',   emoji:'🤖', color:'#00bcd4', face:null },
-  // ADD MORE ↓
-=======
-// ══════════════════════════════════════════════
-// PEOPLE — add your friends/family here!
-// name: their name shown above their head
-// emoji: their face (use any emoji or letter)
-// color: their body color
-// ══════════════════════════════════════════════
-const PEOPLE = [
-  { name: 'MINHAJ',   emoji: '😎', color: '#e74c3c', face: 'game/faces/minhaj.png' },
-  { name: 'IRAPPI',   emoji: '🤪', color: '#9b59b6', face: 'game/faces/irappi.png' },
-  { name: 'MOM',      emoji: '👩', color: '#e91e63', face: null },
-  { name: 'DAD',      emoji: '👨', color: '#2196f3', face: null },
-  { name: 'BRO',      emoji: '🤙', color: '#4caf50', face: null },
-  { name: 'BOSS',     emoji: '😤', color: '#ff9800', face: null },
-  { name: 'ummi',   emoji: '🙂', color: '#607d8b', face: null },
-  // ADD MORE: { name: 'FRIEND', emoji: '😂', color: '#hex', face: 'game/faces/friend.png' },
->>>>>>> c74515990f21ef71013689faeecfa9d7fbbc2b43
 ];
 
-// ── DIFFICULTY CONFIG ─────────────────────────────────────
 const DIFF = {
   easy:       { playerSpeed:7,  runSpeed:0.8,  detectRange:60,  redChance:0.1, wavePeople:4, waveGap:180, label:'EASY' },
   medium:     { playerSpeed:6,  runSpeed:1.4,  detectRange:90,  redChance:0.2, wavePeople:5, waveGap:140, label:'MEDIUM' },
@@ -210,14 +157,11 @@ const DIFF = {
 
 let selectedDiff = 'easy';
 let cfg = DIFF[selectedDiff];
-
-// ── STATE ─────────────────────────────────────────────────
 let W, H, player, people, score, lives, wave, gameActive;
 let waveTimer, waveSpawning, peopleThisWave, peopleSpawned;
 let eatenNames = [], keys = {}, touchTarget = null;
 let particles = [];
 
-// ── FACE IMAGES ───────────────────────────────────────────
 const faceImgs = {};
 PEOPLE_DATA.forEach(p => {
   if (p.face) {
@@ -227,12 +171,13 @@ PEOPLE_DATA.forEach(p => {
   }
 });
 
-// ── RESIZE ────────────────────────────────────────────────
-function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+function resize() { 
+  W = canvas.width = window.innerWidth; 
+  H = canvas.height = window.innerHeight; 
+}
 window.addEventListener('resize', resize);
 resize();
 
-// ── DIFFICULTY SELECT ─────────────────────────────────────
 function selectDiff(btn) {
   document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
@@ -240,20 +185,17 @@ function selectDiff(btn) {
   cfg = DIFF[selectedDiff];
 }
 
-// ── PLAYER ────────────────────────────────────────────────
 function createPlayer() {
   return { x:W/2, y:H/2, size:26, speed:cfg.playerSpeed, vx:0, vy:0, mouthOpen:0, mouthDir:1, legAnim:0 };
 }
 
-// ── PERSON ────────────────────────────────────────────────
 function spawnPerson(isRed) {
   let x, y, tries=0;
   do {
     x = 80 + Math.random()*(W-160);
     y = 80 + Math.random()*(H-160);
     tries++;
-  } while (Math.hypot(x-player.x, y-player.y) < 180 && tries < 20);
-
+  } while (player && Math.hypot(x-player.x, y-player.y) < 180 && tries < 20);
   const t = PEOPLE_DATA[Math.floor(Math.random()*PEOPLE_DATA.length)];
   return {
     x, y,
@@ -271,7 +213,6 @@ function spawnPerson(isRed) {
   };
 }
 
-// ── DRAW GRID BG ──────────────────────────────────────────
 function drawBg() {
   ctx.strokeStyle = 'rgba(240,160,20,0.04)';
   ctx.lineWidth = 0.5;
@@ -279,30 +220,22 @@ function drawBg() {
   for (let y=0; y<H; y+=60) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
 }
 
-// ── DRAW PLAYER (skeleton) ────────────────────────────────
 function drawPlayer(p) {
   ctx.save();
   ctx.translate(p.x, p.y);
   p.mouthOpen += 0.15*p.mouthDir;
   if (p.mouthOpen>0.4||p.mouthOpen<0) p.mouthDir*=-1;
-
-  // Skull
   ctx.fillStyle = '#f0ece0';
   ctx.beginPath(); ctx.arc(0,0,p.size*0.6,0,Math.PI*2); ctx.fill();
-  // Eye sockets
   ctx.fillStyle = '#060606';
   ctx.beginPath(); ctx.arc(-8,-4,5,0,Math.PI*2); ctx.arc(8,-4,5,0,Math.PI*2); ctx.fill();
-  // Eye glow
   ctx.fillStyle = '#f0a014';
   ctx.beginPath(); ctx.arc(-8,-4,2.5,0,Math.PI*2); ctx.arc(8,-4,2.5,0,Math.PI*2); ctx.fill();
-  // Mouth
   ctx.strokeStyle = '#060606'; ctx.lineWidth=2;
   ctx.beginPath(); ctx.arc(0,6,7,p.mouthOpen,Math.PI-p.mouthOpen); ctx.stroke();
-  // Body
   p.legAnim+=0.12;
   ctx.strokeStyle='#f0ece0'; ctx.lineWidth=2.5;
   ctx.beginPath(); ctx.moveTo(0,p.size*0.6); ctx.lineTo(0,p.size*1.8); ctx.stroke();
-  // Ribs
   for(let i=0;i<3;i++){
     const ry=p.size*0.75+i*8;
     ctx.beginPath();
@@ -310,7 +243,6 @@ function drawPlayer(p) {
     ctx.moveTo(0,ry); ctx.bezierCurveTo(14,ry-3,16,ry+5,7,ry+7);
     ctx.stroke();
   }
-  // Arms & legs
   ctx.beginPath();
   ctx.moveTo(0,p.size*0.8); ctx.lineTo(-18+Math.sin(p.legAnim)*7,p.size*1.3+Math.cos(p.legAnim)*5);
   ctx.moveTo(0,p.size*0.8); ctx.lineTo(18+Math.sin(p.legAnim+Math.PI)*7,p.size*1.3+Math.cos(p.legAnim+Math.PI)*5);
@@ -320,26 +252,20 @@ function drawPlayer(p) {
   ctx.restore();
 }
 
-// ── DRAW PERSON ───────────────────────────────────────────
 function drawPerson(p) {
   ctx.save();
   ctx.translate(p.x, p.y);
   p.legAnim += 0.15;
-
-  // Red glow for dangerous ones
   if (p.isRed) {
     ctx.shadowColor = '#e74c3c';
     ctx.shadowBlur  = 18 + Math.sin(Date.now()*0.008)*8;
   }
-
-  // Name tag
   ctx.shadowBlur = p.isRed ? 10 : 0;
   ctx.font = 'bold 8px Space Mono';
   ctx.fillStyle = p.isRed ? 'rgba(220,50,50,0.9)' : 'rgba(240,160,20,0.7)';
   ctx.textAlign = 'center';
   ctx.fillText(p.name, 0, -p.size-10);
-
-  // Head
+  
   const faceImg = faceImgs[p.rawName];
   if (!p.isRed && faceImg && faceImg.complete && faceImg.naturalWidth>0) {
     const r = p.size*0.7;
@@ -355,8 +281,6 @@ function drawPerson(p) {
     if (p.isRed) ctx.fillText('💀',0,p.size*0.4);
     else ctx.fillText(p.emoji,0,p.size*0.4);
   }
-
-  // Stick body
   ctx.strokeStyle = p.color; ctx.lineWidth=2.5; ctx.shadowBlur=0;
   ctx.beginPath();
   ctx.moveTo(0,p.size*0.6); ctx.lineTo(0,p.size*1.6);
@@ -365,11 +289,9 @@ function drawPerson(p) {
   ctx.moveTo(0,p.size*1.6); ctx.lineTo(-9+Math.sin(p.legAnim+1)*7,p.size*2.3);
   ctx.moveTo(0,p.size*1.6); ctx.lineTo(9+Math.sin(p.legAnim+Math.PI+1)*7,p.size*2.3);
   ctx.stroke();
-
   ctx.restore();
 }
 
-// ── PARTICLES ─────────────────────────────────────────────
 function burst(x, y, color, text) {
   for(let i=0;i<10;i++){
     const a=(Math.PI*2/10)*i;
@@ -389,7 +311,6 @@ function drawParticles(){
   });
 }
 
-// ── WAVE SYSTEM ───────────────────────────────────────────
 function startWave() {
   waveSpawning   = true;
   peopleThisWave = cfg.wavePeople + (wave-1)*2;
@@ -407,25 +328,28 @@ function showWaveAnnounce() {
   document.getElementById('waveDisplay').textContent = wave;
 }
 
-// ── UPDATE ────────────────────────────────────────────────
 function update() {
   if (!gameActive) return;
-
-  // Player movement
+  
   if (touchTarget) {
     const dx=touchTarget.x-player.x, dy=touchTarget.y-player.y;
     const d=Math.hypot(dx,dy);
-    if(d>6){ player.x+=dx/d*player.speed; player.y+=dy/d*player.speed; }
+    if(d>6){ 
+      player.x+=dx/d*player.speed; 
+      player.y+=dy/d*player.speed; 
+    } else {
+      touchTarget = null;
+    }
   } else {
     if(keys['ArrowLeft'] ||keys['a']||keys['A']) player.x-=player.speed;
     if(keys['ArrowRight']||keys['d']||keys['D']) player.x+=player.speed;
     if(keys['ArrowUp']   ||keys['w']||keys['W']) player.y-=player.speed;
     if(keys['ArrowDown'] ||keys['s']||keys['S']) player.y+=player.speed;
   }
+  
   player.x=Math.max(25,Math.min(W-25,player.x));
   player.y=Math.max(25,Math.min(H-25,player.y));
 
-  // Spawn wave people
   if (waveSpawning) {
     waveTimer++;
     if (waveTimer % cfg.waveGap === 0 && peopleSpawned < peopleThisWave) {
@@ -436,15 +360,11 @@ function update() {
     }
   }
 
-  // Move people
   people.forEach(p => {
     const dx=p.x-player.x, dy=p.y-player.y;
     const dist=Math.hypot(dx,dy);
     p.aliveTime++;
-
-    // On hard/impossible waves, red people chase after a while
     const chases = p.isRed && wave >= 2 && p.aliveTime > 300;
-
     if (chases) {
       p.x -= (dx/dist)*p.speed*1.8;
       p.y -= (dy/dist)*p.speed*1.8;
@@ -458,13 +378,11 @@ function update() {
     }
   });
 
-  // Check collisions
   const survived = [];
   for (const p of people) {
     const dist = Math.hypot(p.x-player.x, p.y-player.y);
     if (dist < player.size + p.size + 8) {
       if (p.isRed) {
-        // BAD — lose a life
         lives--;
         updateLives();
         burst(player.x, player.y, '#e74c3c', 'OUCH!');
@@ -472,7 +390,6 @@ function update() {
         setTimeout(()=>document.getElementById('dangerFlash').classList.remove('flash'),150);
         if (lives<=0) { gameOver(); return; }
       } else {
-        // GOOD — eat them
         score += wave*10;
         eatenNames.push(p.rawName);
         burst(p.x, p.y, p.color, 'NOM!');
@@ -484,7 +401,6 @@ function update() {
   }
   people = survived;
 
-  // Remove escaped people (off screen) — lose a life for each
   const before = people.length;
   people = people.filter(p => p.x>-100&&p.x<W+100&&p.y>-100&&p.y<H+100);
   const escaped = before - people.length;
@@ -494,14 +410,12 @@ function update() {
     if (lives<=0) { gameOver(); return; }
   }
 
-  // Next wave when all people eaten/gone
   if (!waveSpawning && people.length === 0) {
     wave++;
     startWave();
   }
 }
 
-// ── DRAW ──────────────────────────────────────────────────
 function draw() {
   ctx.clearRect(0,0,W,H);
   drawBg();
@@ -511,26 +425,28 @@ function draw() {
 }
 
 function tick() {
-  update(); draw();
+  update(); 
+  draw();
   if (gameActive) requestAnimationFrame(tick);
 }
 
-// ── LIVES ─────────────────────────────────────────────────
 function updateLives() {
   document.getElementById('livesDisplay').textContent = '💀'.repeat(Math.max(0,lives));
 }
 
-// ── START ─────────────────────────────────────────────────
 function startGame() {
   cfg = DIFF[selectedDiff];
   document.getElementById('startScreen').classList.add('hidden');
   document.getElementById('gameOverScreen').classList.add('hidden');
   document.getElementById('hud').classList.add('show');
-
-  player=createPlayer(); people=[]; score=0; lives=3;
-  wave=1; eatenNames=[]; particles=[];
+  player=createPlayer(); 
+  people=[]; 
+  score=0; 
+  lives=3;
+  wave=1; 
+  eatenNames=[]; 
+  particles=[];
   gameActive=true;
-
   document.getElementById('scoreDisplay').textContent='0';
   updateLives();
   startWave();
@@ -549,7 +465,6 @@ function goMenu() {
   document.getElementById('startScreen').classList.remove('hidden');
 }
 
-// ── GAME OVER ─────────────────────────────────────────────
 function gameOver() {
   gameActive=false;
   document.getElementById('hud').classList.remove('show');
@@ -562,16 +477,30 @@ function gameOver() {
   document.getElementById('gameOverScreen').classList.remove('hidden');
 }
 
-// ── CONTROLS ──────────────────────────────────────────────
 window.addEventListener('keydown',e=>{keys[e.key]=true;});
 window.addEventListener('keyup',  e=>{keys[e.key]=false;});
 
-canvas.addEventListener('touchstart',e=>{e.preventDefault();const t=e.touches[0];touchTarget={x:t.clientX,y:t.clientY};},{passive:false});
-canvas.addEventListener('touchmove', e=>{e.preventDefault();const t=e.touches[0];touchTarget={x:t.clientX,y:t.clientY};},{passive:false});
-canvas.addEventListener('touchend', ()=>{touchTarget=null;});
-canvas.addEventListener('click',e=>{if(gameActive){touchTarget={x:e.clientX,y:e.clientY};setTimeout(()=>{touchTarget=null;},80);}});
+canvas.addEventListener('touchstart',e=>{
+  e.preventDefault();
+  const t=e.touches[0];
+  touchTarget={x:t.clientX,y:t.clientY};
+},{passive:false});
+
+canvas.addEventListener('touchmove', e=>{
+  e.preventDefault();
+  const t=e.touches[0];
+  touchTarget={x:t.clientX,y:t.clientY};
+},{passive:false});
+
+canvas.addEventListener('touchend', ()=>{
+  touchTarget=null;
+});
+
+canvas.addEventListener('click', e => {
+  if (gameActive) {
+    touchTarget = { x: e.clientX, y: e.clientY };
+  }
+});
 </script>
 </body>
 </html>
-ENDHTML
-echo "done"
