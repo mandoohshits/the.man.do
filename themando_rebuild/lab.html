@@ -16,12 +16,20 @@
     <a href="products.html">Products</a>
     <a href="gives.html">Gives</a>
   </nav>
-
-  <header class="page-header">
+<header class="page-header">
+  <!-- MANDOLAB LOGO WITH SECRET KEY TRIGGER -->
+  <div onclick="revealMandoKey()" title="Click for a secret..." style="cursor: pointer; display: inline-block;">
+    <div class="logo-icon">
       <img src="photos/logo/logo.png" class="logo" alt="THE.MAN.DO">
-    <h1 class="page-title">MANDOLAB</h1>
-    <p class="page-sub">ethical hacking · networking · ctf</p>
-  </header>
+    </div>
+    <h1 class="logo-title" style="font-family:'Space Mono', monospace; letter-spacing:6px; color:#f0ece0; font-size:2.8rem; margin:0;">
+      MANDOLAB
+    </h1>
+    <div style="font-size:0.55rem; letter-spacing:4px; color:rgba(240,160,20,0.6); text-transform:uppercase; margin-top:4px;">
+      hahhahahah
+    </div>
+  </div>
+</header>
 
   <!-- TABS -->
   <div class="dept-tabs">
@@ -282,6 +290,26 @@ function toggleChat() {
   const btn = document.getElementById('chatBtn');
   box.classList.toggle('active');
   btn.textContent = box.classList.contains('active') ? 'CLOSE' : 'MSG';
+}
+
+// Function triggered when the MANDOLAB logo is clicked
+function revealMandoKey() {
+  const secretPasskey = "MANDOLAB"; // The key required for Stage 1
+
+  // 1. Show a popup alert with the key
+  alert("🔑 MANDOLAB SYSTEM KEY UNLOCKED: " + secretPasskey);
+
+  // 2. Automatically switch to the SECRET tab if available
+  if (typeof switchTab === 'function') {
+    switchTab('secret');
+  }
+
+  // 3. Pre-fill the passkey input field in Stage 1 automatically
+  const keyInput = document.getElementById('secretKeyInput');
+  if (keyInput) {
+    keyInput.value = secretPasskey;
+    keyInput.focus();
+  }
 }
 </script>
 
