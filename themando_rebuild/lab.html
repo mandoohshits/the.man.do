@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -271,41 +271,46 @@
       <div id="keyError" style="color:#e74c3c; font-family:'Space Mono', monospace; font-size:0.6rem; letter-spacing:2px; margin-top:14px; min-height:20px;"></div>
     </div>
 
-    <!-- STAGE 2: THE NEXT TASK (Hidden by Default) -->
-    <div id="secretStage2" style="display:none; width:100%; max-width:750px;">
-      <div style="font-family:var(--font-mono); font-size:0.52rem; letter-spacing:5px; color:#f0a014; text-transform:uppercase;">
-        ACCESS GRANTED // MISSION 02
-      </div>
+   <!-- STAGE 2: 10-TASK MIND & FUNNY HUNT -->
+<div id="secretStage2" style="display:none; width:100%; max-width:750px;">
+  
+  <!-- HEADER & PROGRESS BAR -->
+  <div style="font-family:var(--font-mono); font-size:0.52rem; letter-spacing:5px; color:#f0a014; text-transform:uppercase;">
+    MANDOLAB VAULT // MIND HUNT
+  </div>
 
-      <div style="font-family:var(--font-display); font-size:clamp(2rem, 4vw, 3rem); letter-spacing:6px; color:var(--text); margin:12px 0;">
-        THE SECOND TASK
-      </div>
+  <div style="font-family:var(--font-display); font-size:clamp(1.8rem, 4vw, 2.8rem); letter-spacing:6px; color:var(--text); margin:8px 0 12px;">
+    THE 10 CHALLENGES
+  </div>
 
-      <div style="width:60px; height:1px; background:rgba(240,160,20,0.3); margin:0 auto 20px;"></div>
+  <!-- PROGRESS TRACKER -->
+  <div style="background:#080808; border:1px solid rgba(240,160,20,0.25); border-radius:6px; padding:10px 20px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; font-family:'Space Mono', monospace; font-size:0.7rem; color:#f0ece0;">
+    <span id="taskProgress">TASK 1 OF 10</span>
+    <span id="taskCategory" style="color:#f0a014; letter-spacing:2px; font-size:0.6rem;">CATEGORY: LOGIC</span>
+  </div>
 
-      <!-- TASK CONTENT: CIPHER DECODER / PUZZLE -->
-      <div style="background:#050505; border:1px solid rgba(240,160,20,0.25); border-radius:8px; padding:28px; text-align:left; font-family:'Space Mono', monospace;">
-        <div style="color:rgba(240,236,224,0.4); font-size:0.65rem; letter-spacing:2px; margin-bottom:12px;">
-          DECRYPT THE FOLLOWING TRANSMISSION:
-        </div>
-        
-        <div style="background:#0a0a0a; border:1px dashed rgba(240,160,20,0.3); padding:16px; color:#f0a014; font-size:0.85rem; letter-spacing:4px; word-break:break-all; text-align:center; margin-bottom:20px;">
-          VFVOTk9XTiBNQU5ETyBMQUI=
-        </div>
-
-        <div style="font-size:0.65rem; color:rgba(240,236,224,0.3); line-height:1.8; margin-bottom:16px;">
-          Find the decoded text and type it below to unlock the final reward.
-        </div>
-
-        <div style="display:flex; gap:10px;">
-          <input type="text" id="task2Input" placeholder="FLAG{...}" style="background:#020202; border:1px solid rgba(240,160,20,0.3); border-radius:4px; color:#f0ece0; font-family:'Space Mono', monospace; font-size:0.75rem; padding:10px 14px; flex-grow:1; outline:none;">
-          <button onclick="checkTask2()" class="action-btn">SUBMIT FLAG ↗</button>
-        </div>
-        
-        <div id="task2Status" style="font-size:0.65rem; margin-top:12px; min-height:18px;"></div>
-      </div>
+  <!-- TASK CONTAINER -->
+  <div style="background:#040404; border:1px solid rgba(240,160,20,0.3); border-radius:8px; padding:28px; text-align:left; font-family:'Space Mono', monospace; box-shadow:0 0 25px rgba(0,0,0,0.8);">
+    
+    <!-- QUESTION / PROMPT -->
+    <div id="taskQuestion" style="font-size:0.85rem; color:#f0ece0; line-height:1.7; margin-bottom:20px; white-space:pre-wrap;">
+      Loading task...
     </div>
 
+    <!-- MULTIPLE CHOICE OPTIONS (Dynamic) -->
+    <div id="taskOptions" style="display:grid; grid-template-columns:1fr; gap:10px; margin-bottom:16px;"></div>
+
+    <!-- TEXT INPUT AREA (Dynamic) -->
+    <div id="taskInputArea" style="display:none; flex-direction:column; gap:10px; margin-bottom:16px;">
+      <input type="text" id="taskTextInput" placeholder="Type your answer here..." style="background:#020202; border:1px solid rgba(240,160,20,0.3); border-radius:4px; color:#f0a014; font-family:'Space Mono', monospace; font-size:0.8rem; padding:12px; outline:none;" onkeydown="if(event.key==='Enter') submitTextAnswer()">
+      <button onclick="submitTextAnswer()" class="action-btn" style="padding:10px 20px;">SUBMIT ANSWER ↵</button>
+    </div>
+
+    <!-- STATUS / ROAST FEEDBACK -->
+    <div id="taskFeedback" style="font-size:0.65rem; min-height:22px; letter-spacing:1px; line-height:1.5;"></div>
+  </div>
+
+</div>
   </div>
 </div>
 
@@ -332,34 +337,217 @@ function toggleChat() {
   box.classList.toggle('active');
   btn.textContent = box.classList.contains('active') ? 'CLOSE' : 'MSG';
 }
-// Step 1: Check the secret passkey
+// ── THE 10 TASKS DATA ──
+const TASKS_DATA = [
+  {
+    type: "choice",
+    category: "LOGIC",
+    question: "1. I have cities, but no houses. I have mountains, but no trees. I have water, but no fish. What am I?",
+    options: [
+      { text: "A) A Globe or Map", correct: true },
+      { text: "B) A broken hard drive", correct: false, remark: "Wrong! That's just your corrupt OS." },
+      { text: "C) Dubai in 1950", correct: false, remark: "Funny, but wrong!" }
+    ]
+  },
+  {
+    type: "text",
+    category: "SNEAKY / BRAIN",
+    question: "2. The person who makes it doesn't want it. The person who buys it doesn't use it. The person who uses it can't see it. What is it?\n(Hint: Single word answer)",
+    answer: "coffin",
+    hint: "It's underground..."
+  },
+  {
+    type: "choice",
+    category: "TECH ROAST",
+    question: "3. A senior developer deletes the database 5 minutes before production launch. What is the correct protocol?",
+    options: [
+      { text: "A) Blame it on the intern immediately", correct: false, remark: "Classic, but the logs show your IP!" },
+      { text: "B) sudo shutdown -h now and run out of the building", correct: true, remark: "Correct! Live to debug another day!" },
+      { text: "C) Pray to the Linux kernel", correct: false, remark: "Tux cannot save you now." }
+    ]
+  },
+  {
+    type: "text",
+    category: "CIPHER",
+    question: "4. Decode this quick cipher: '4D 41 4E 44 4F'\n(Hint: Convert Hex to ASCII/Text)",
+    answer: "mando",
+    hint: "Think about the site name!"
+  },
+  {
+    type: "choice",
+    category: "FUNNY TRICK",
+    question: "5. How many months have 28 days?",
+    options: [
+      { text: "A) Only February", correct: false, remark: "Nope! Think carefully!" },
+      { text: "B) All 12 months", correct: true, remark: "Correct! Every month has AT LEAST 28 days!" },
+      { text: "C) 1 month every 4 years", correct: false, remark: "Leap year caught you slipping!" }
+    ]
+  },
+  {
+    type: "choice",
+    category: "COLLABORATION",
+    question: "6. Your friend says 'I wrote clean code with zero bugs today'. What actually happened?",
+    options: [
+      { text: "A) They wrote 0 lines of code", correct: true, remark: "Fact! Only unwritten code has zero bugs!" },
+      { text: "B) They are a legendary hacker", correct: false, remark: "Don't fall for the lie!" },
+      { text: "C) ChatGPT wrote it for them", correct: false, remark: "Even ChatGPT leaves bugs!" }
+    ]
+  },
+  {
+    type: "text",
+    category: "MATH PUZZLE",
+    question: "7. If 3 cats can catch 3 mice in 3 minutes, how many cats are needed to catch 100 mice in 100 minutes?",
+    answer: "3",
+    hint: "Focus on the rate, not the large numbers!"
+  },
+  {
+    type: "choice",
+    category: "BRAIN TEASER",
+    question: "8. What gets wetter and wetter the more it dries?",
+    options: [
+      { text: "A) A Towel", correct: true, remark: "Spot on! Brain operating at 100%." },
+      { text: "B) Rain", correct: false, remark: "Rain doesn't dry things!" },
+      { text: "C) A sponge in space", correct: false, remark: "Overthinking alert!" }
+    ]
+  },
+  {
+    type: "text",
+    category: "HIDDEN IN PLAIN SIGHT",
+    question: "9. Type the word 'incorrectly' below.",
+    answer: "incorrectly",
+    hint: "Literally type the exact word..."
+  },
+  {
+    type: "choice",
+    category: "FINAL BOSS",
+    question: "10. You made it to Task 10! What is the ultimate rule of MANDOLAB?",
+    options: [
+      { text: "A) Always test in production", correct: false, remark: "Never! RIP servers." },
+      { text: "B) Never share your flag with anyone except Mando", correct: true, remark: "YOU PASSED ALL 10 TASKS!" },
+      { text: "C) Alt + F4 gives free coffee", correct: false, remark: "Don't close your browser now!" }
+    ]
+  }
+];
+
+let currentTaskIndex = 0;
+
+// Unlock Stage 2
 function checkSecretKey() {
   const input = document.getElementById('secretKeyInput').value.trim().toUpperCase();
   const errorDiv = document.getElementById('keyError');
   
-  // Set your desired secret key here (e.g., "MANDOLAB" or "VAULT")
   if (input === 'MANDOLAB' || input === 'MANDO') {
     document.getElementById('secretStage1').style.display = 'none';
     document.getElementById('secretStage2').style.display = 'block';
+    renderTask();
   } else {
     errorDiv.textContent = 'ACCESS DENIED: INVALID KEY';
   }
 }
 
-// Step 2: Check the decoded flag task
-function checkTask2() {
-  const input = document.getElementById('task2Input').value.trim();
-  const status = document.getElementById('task2Status');
-  
-  // Decoded answer for "VFVOTk9XTiBNQU5ETyBMQUI=" is "UNKNOWN MANDO LAB"
-  if (input.toUpperCase() === 'UNKNOWN MANDO LAB') {
-    status.style.color = '#2ecc71';
-    status.textContent = 'SUCCESS! UNLOCKING REWARD...';
-    // Trigger final reward (e.g. redirect to secret file, video, or audio stream)
+// Render Current Task
+function renderTask() {
+  const t = TASKS_DATA[currentTaskIndex];
+  document.getElementById('taskProgress').textContent = `TASK ${currentTaskIndex + 1} OF ${TASKS_DATA.length}`;
+  document.getElementById('taskCategory').textContent = `CATEGORY: ${t.category}`;
+  document.getElementById('taskQuestion').textContent = t.question;
+  document.getElementById('taskFeedback').textContent = '';
+
+  const optionsBox = document.getElementById('taskOptions');
+  const inputArea = document.getElementById('taskInputArea');
+
+  if (t.type === 'choice') {
+    optionsBox.style.display = 'grid';
+    inputArea.style.display = 'none';
+    optionsBox.innerHTML = '';
+
+    t.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'action-btn';
+      btn.style.cssText = 'padding:12px 16px; text-align:left; font-size:0.7rem; text-transform:none; letter-spacing:1px; border-color:rgba(240,160,20,0.25);';
+      btn.textContent = opt.text;
+      btn.onclick = () => handleChoice(opt);
+      optionsBox.appendChild(btn);
+    });
   } else {
-    status.style.color = '#e74c3c';
-    status.textContent = 'INCORRECT FLAG. TRY AGAIN.';
+    optionsBox.style.display = 'none';
+    inputArea.style.display = 'flex';
+    document.getElementById('taskTextInput').value = '';
+    document.getElementById('taskTextInput').focus();
   }
+}
+
+// Handle Choice Answers
+function handleChoice(opt) {
+  const fb = document.getElementById('taskFeedback');
+  if (opt.correct) {
+    fb.style.color = '#2ecc71';
+    fb.textContent = opt.remark || 'CORRECT! Moving to next task...';
+    setTimeout(nextTask, 1200);
+  } else {
+    fb.style.color = '#e74c3c';
+    fb.textContent = opt.remark || 'WRONG ANSWER! Try again.';
+  }
+}
+
+// Handle Text Inputs
+function submitTextAnswer() {
+  const t = TASKS_DATA[currentTaskIndex];
+  const val = document.getElementById('taskTextInput').value.trim().toLowerCase();
+  const fb = document.getElementById('taskFeedback');
+
+  if (val === t.answer.toLowerCase()) {
+    fb.style.color = '#2ecc71';
+    fb.textContent = 'CORRECT! Moving to next task...';
+    setTimeout(nextTask, 1200);
+  } else {
+    fb.style.color = '#e74c3c';
+    fb.textContent = `INCORRECT! Hint: ${t.hint}`;
+  }
+}
+
+// Progress to Next Task or Finish
+function nextTask() {
+  currentTaskIndex++;
+  if (currentTaskIndex < TASKS_DATA.length) {
+    renderTask();
+  } else {
+    showFinalVictoryScreen();
+  }
+}
+
+// Final Victory Screen (Tells them to Mail You!)
+function showFinalVictoryScreen() {
+  const container = document.getElementById('secretStage2');
+  const userFlag = "FLAG{MANDO_GENIUS_TASK10_CLEAR}";
+  
+  container.innerHTML = `
+    <div style="background:#040404; border:1px solid #2ecc71; border-radius:8px; padding:36px; text-align:center; font-family:'Space Mono', monospace; box-shadow:0 0 30px rgba(46,204,113,0.2);">
+      <div style="font-size:2.5rem; margin-bottom:12px;">🎉🧠⚡</div>
+      
+      <div style="font-size:1.4rem; color:#2ecc71; letter-spacing:4px; font-weight:bold; margin-bottom:8px;">
+        10/10 TASKS COMPLETED!
+      </div>
+      
+      <p style="color:#f0ece0; font-size:0.75rem; line-height:1.8; margin:16px 0 24px;">
+        You outsmarted all 10 mind challenges in the MANDOLAB Vault!
+      </p>
+
+      <div style="background:#080808; border:1px dashed #f0a014; padding:16px; border-radius:6px; margin-bottom:24px;">
+        <div style="font-size:0.55rem; color:rgba(240,160,20,0.6); letter-spacing:2px; margin-bottom:6px;">YOUR SECRET FLAG:</div>
+        <div style="font-size:0.9rem; color:#f0a014; letter-spacing:3px; font-weight:bold;">${userFlag}</div>
+      </div>
+
+      <div style="font-size:0.7rem; color:#f0ece0; line-height:1.8; background:rgba(240,160,20,0.08); padding:16px; border-radius:6px; border:1px solid rgba(240,160,20,0.2);">
+        <strong>📬 WHAT TO DO NOW:</strong><br>
+        Send an email directly to <strong>Mando</strong> with your flag to claim your spot on the Vault Wall of Fame!
+      </div>
+
+      <a href="mailto:your-email@domain.com?subject=I%20GOT%20THE%20FLAG!&body=Bruh%20I%20got%20the%20flag%20in%20my%20personal%20mail:%20${userFlag}" class="action-btn" style="display:inline-block; margin-top:24px; text-decoration:none; padding:12px 24px;">
+        MAIL HIM BRUH ✉️
+      </a>
+    </div>
+  `;
 }
 </script>
 
