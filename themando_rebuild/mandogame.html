@@ -167,6 +167,7 @@ cat > /mnt/user-data/outputs/mandogame.html << 'ENDHTML'
 const canvas = document.getElementById('gameCanvas');
 const ctx    = canvas.getContext('2d');
 
+<<<<<<< HEAD
 // ══════════════════════════════════════════════════════════
 // PEOPLE — add your friends here!
 // face: path to image in game/faces/ folder (or null)
@@ -180,6 +181,23 @@ const PEOPLE_DATA = [
   { name:'BOSS',    emoji:'😤', color:'#ff9800', face:null },
   { name:'NAOMI',   emoji:'🤖', color:'#00bcd4', face:null },
   // ADD MORE ↓
+=======
+// ══════════════════════════════════════════════
+// PEOPLE — add your friends/family here!
+// name: their name shown above their head
+// emoji: their face (use any emoji or letter)
+// color: their body color
+// ══════════════════════════════════════════════
+const PEOPLE = [
+  { name: 'MINHAJ',   emoji: '😎', color: '#e74c3c', face: 'game/faces/minhaj.png' },
+  { name: 'IRAPPI',   emoji: '🤪', color: '#9b59b6', face: 'game/faces/irappi.png' },
+  { name: 'MOM',      emoji: '👩', color: '#e91e63', face: null },
+  { name: 'DAD',      emoji: '👨', color: '#2196f3', face: null },
+  { name: 'BRO',      emoji: '🤙', color: '#4caf50', face: null },
+  { name: 'BOSS',     emoji: '😤', color: '#ff9800', face: null },
+  { name: 'ummi',   emoji: '🙂', color: '#607d8b', face: null },
+  // ADD MORE: { name: 'FRIEND', emoji: '😂', color: '#hex', face: 'game/faces/friend.png' },
+>>>>>>> c74515990f21ef71013689faeecfa9d7fbbc2b43
 ];
 
 // ── DIFFICULTY CONFIG ─────────────────────────────────────
