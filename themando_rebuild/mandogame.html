@@ -24,7 +24,6 @@
     .game-sub   { font-size:0.55rem; letter-spacing:5px; color:rgba(240,160,20,0.5); text-transform:uppercase; }
     .game-desc  { font-size:0.65rem; letter-spacing:2px; color:rgba(240,236,224,0.25); text-align:center; line-height:2.2; text-transform:uppercase; }
 
-    /* difficulty buttons */
     .diff-row { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:8px; }
 
     .diff-btn {
@@ -70,7 +69,6 @@
     .hud-val   { font-size:1.2rem; letter-spacing:2px; color:#f0a014; }
     .hud-wave  { font-size:0.8rem; letter-spacing:2px; color:rgba(240,236,224,0.4); }
 
-    /* danger flash */
     #dangerFlash {
       position:fixed; inset:0; z-index:15;
       background:rgba(220,50,50,0);
@@ -79,7 +77,6 @@
     }
     #dangerFlash.flash { background:rgba(220,50,50,0.25); }
 
-    /* ── GAME OVER ── */
     #gameOverScreen { background:rgba(6,6,6,0.97); }
     .go-title  { font-size:clamp(2rem,6vw,4rem); letter-spacing:6px; color:#f0ece0; }
     .go-score  { font-size:0.6rem; letter-spacing:4px; color:rgba(240,160,20,0.5); text-transform:uppercase; }
@@ -87,7 +84,6 @@
     .go-eaten  { font-size:0.5rem; letter-spacing:2px; color:rgba(240,236,224,0.2); text-align:center; line-height:2.5; text-transform:uppercase; max-width:400px; }
     .go-wave   { font-size:0.55rem; letter-spacing:3px; color:rgba(240,160,20,0.4); text-transform:uppercase; }
 
-    /* wave announce */
     #waveAnnounce {
       position:fixed; top:50%; left:50%;
       transform:translate(-50%,-50%);
@@ -128,8 +124,8 @@
   <div class="game-title">MANDO<br>EATS</div>
   <div class="game-sub">a mandolab production</div>
   <div class="game-desc">
-    eat the people. avoid the red ones.<br>
-    survive as long as you can.
+    eat the people. avoid red enemies.<br>
+    touch the skeleton exit to advance!
   </div>
 
   <div style="text-align:center;">
@@ -189,9 +185,7 @@ let waveTimer, waveSpawning, peopleThisWave, peopleSpawned;
 let eatenNames = [], keys = {}, touchTarget = null;
 let particles = [];
 
-// WAVE ENEMY TRACKERS
-let hasSpawnedRedThisWave = false;
-let waveRedHit = false;
+let levelExit = null; // Skeleton Exit portal
 
 const faceImgs = {};
 PEOPLE_DATA.forEach(p => {
@@ -238,7 +232,14 @@ function spawnPerson(isRed) {
     legAnim: Math.random()*Math.PI*2,
     isRed,
     aliveTime: 0,
-    scared: false,
+  };
+}
+
+function spawnSkeletonExit() {
+  levelExit = {
+    x: 100 + Math.random()*(W-200),
+    y: 100 + Math.random()*(H-200),
+    size: 24
   };
 }
 
@@ -282,6 +283,18 @@ function drawPlayer(p) {
   ctx.restore();
 }
 
+function drawSkeletonExit(e) {
+  ctx.save();
+  ctx.translate(e.x, e.y);
+  ctx.font = '28px serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('💀', 0, 10);
+  ctx.font = 'bold 9px Space Mono';
+  ctx.fillStyle = '#2ecc71';
+  ctx.fillText('NEXT LEVEL', 0, -20);
+  ctx.restore();
+}
+
 function drawPerson(p) {
   ctx.save();
   ctx.translate(p.x, p.y);
@@ -310,7 +323,7 @@ function drawPerson(p) {
   } else {
     ctx.font = `${p.size*1.1}px serif`;
     ctx.textAlign='center';
-    if (p.isRed) ctx.fillText('💀',0,p.size*0.4);
+    if (p.isRed) ctx.fillText('👹',0,p.size*0.4);
     else ctx.fillText(p.emoji,0,p.size*0.4);
   }
 
@@ -345,23 +358,19 @@ function drawParticles(){
   });
 }
 
-// ── WAVE SYSTEM ───────────────────────────────────────────
 function startWave() {
   waveSpawning   = true;
   peopleThisWave = cfg.wavePeople + (wave-1)*2;
   peopleSpawned  = 0;
   waveTimer      = 0;
-  
-  hasSpawnedRedThisWave = false;
-  waveRedHit = false;
+  levelExit      = null;
 
   showWaveAnnounce();
 }
 
 function showWaveAnnounce() {
   const el = document.getElementById('waveAnnounce');
-  el.innerHTML = wave===1 ? 'WAVE 1<br><span style="font-size:0.5em;letter-spacing:4px;color:rgba(240,160,20,0.5)">EAT THE PEOPLE</span>'
-    : `WAVE ${wave}<br><span style="font-size:0.5em;letter-spacing:4px;color:rgba(240,160,20,0.5)">${wave>3?'THEY\'RE ANGRY':'KEEP EATING'}</span>`;
+  el.innerHTML = `WAVE ${wave}<br><span style="font-size:0.5em;letter-spacing:4px;color:rgba(240,160,20,0.5)">EAT ALL & FIND EXIT</span>`;
   el.classList.add('show');
   setTimeout(()=>el.classList.remove('show'), 2000);
   document.getElementById('waveDisplay').textContent = wave;
@@ -373,12 +382,8 @@ function update() {
   if (touchTarget) {
     const dx=touchTarget.x-player.x, dy=touchTarget.y-player.y;
     const d=Math.hypot(dx,dy);
-    if(d>6){ 
-      player.x+=dx/d*player.speed; 
-      player.y+=dy/d*player.speed; 
-    } else {
-      touchTarget = null;
-    }
+    if(d>6){ player.x+=dx/d*player.speed; player.y+=dy/d*player.speed; }
+    else touchTarget = null;
   } else {
     if(keys['ArrowLeft'] ||keys['a']||keys['A']) player.x-=player.speed;
     if(keys['ArrowRight']||keys['d']||keys['D']) player.x+=player.speed;
@@ -392,14 +397,7 @@ function update() {
   if (waveSpawning) {
     waveTimer++;
     if (waveTimer % cfg.waveGap === 0 && peopleSpawned < peopleThisWave) {
-      let isRed = Math.random() < cfg.redChance;
-
-      if (!hasSpawnedRedThisWave && peopleSpawned === peopleThisWave - 1) {
-        isRed = true;
-      }
-
-      if (isRed) hasSpawnedRedThisWave = true;
-
+      const isRed = Math.random() < cfg.redChance;
       people.push(spawnPerson(isRed));
       peopleSpawned++;
       if (peopleSpawned >= peopleThisWave) waveSpawning = false;
@@ -410,15 +408,10 @@ function update() {
   people.forEach(p => {
     const dx=p.x-player.x, dy=p.y-player.y;
     const dist=Math.hypot(dx,dy);
-    p.aliveTime++;
-
-    const chases = p.isRed;
-
-    if (chases) {
+    if (p.isRed) {
       p.x -= (dx/dist)*p.speed*1.8;
       p.y -= (dy/dist)*p.speed*1.8;
     } else if (dist < cfg.detectRange) {
-      p.scared = true;
       p.x += (dx/dist)*p.speed*1.5;
       p.y += (dy/dist)*p.speed*1.5;
     } else {
@@ -434,7 +427,6 @@ function update() {
     if (dist < player.size + p.size + 8) {
       if (p.isRed) {
         lives--;
-        waveRedHit = true;
         updateLives();
         burst(player.x, player.y, '#e74c3c', 'OUCH!');
         document.getElementById('dangerFlash').classList.add('flash');
@@ -452,24 +444,17 @@ function update() {
   }
   people = survived;
 
-  // REMOVE ESCAPED PEOPLE
-  const before = people.length;
-  people = people.filter(p => p.x>-100&&p.x<W+100&&p.y>-100&&p.y<H+100);
-  const escaped = before - people.length;
-  if (escaped > 0) {
-    lives -= escaped;
-    updateLives();
-    if (lives<=0) { gameOver(); return; }
+  // EXIT LEVEL CHECK (Skeleton Gate)
+  if (!waveSpawning && people.length === 0 && !levelExit) {
+    spawnSkeletonExit();
   }
 
-  // LEVEL FINISH CHECK
-  if (!waveSpawning && people.length === 0) {
-    if (waveRedHit) {
+  if (levelExit) {
+    const exitDist = Math.hypot(levelExit.x - player.x, levelExit.y - player.y);
+    if (exitDist < player.size + levelExit.size) {
+      burst(player.x, player.y, '#2ecc71', 'NEXT LEVEL!');
       wave++;
       startWave();
-    } else {
-      people.push(spawnPerson(true));
-      hasSpawnedRedThisWave = true;
     }
   }
 }
@@ -477,6 +462,7 @@ function update() {
 function draw() {
   ctx.clearRect(0,0,W,H);
   drawBg();
+  if (levelExit) drawSkeletonExit(levelExit);
   people.forEach(drawPerson);
   drawPlayer(player);
   drawParticles();
@@ -498,7 +484,7 @@ function startGame() {
   document.getElementById('hud').classList.add('show');
 
   player=createPlayer(); people=[]; score=0; lives=3;
-  wave=1; eatenNames=[]; particles=[];
+  wave=1; eatenNames=[]; particles=[]; levelExit=null;
   gameActive=true;
 
   document.getElementById('scoreDisplay').textContent='0';
