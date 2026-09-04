@@ -1,697 +1,559 @@
+cat > /mnt/user-data/outputs/mandogame.html << 'ENDHTML'
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MANDOLAB GAME</title>
+  <title>MANDO EATS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:#060606; font-family:'Space Mono',monospace; overflow:hidden; user-select:none; }
+    #gameCanvas { display:block; }
 
-    body {
-      background: #060606;
-      font-family: 'Space Mono', monospace;
-      overflow: hidden;
-      user-select: none;
+    /* ── SCREENS ── */
+    .screen {
+      position:fixed; inset:0;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      gap:20px; z-index:20;
+      background:#060606;
     }
+    .screen.hidden { display:none; }
 
-    #gameCanvas {
-      display: block;
-      background: #060606;
-    }
+    .game-title { font-size:clamp(2.5rem,8vw,5rem); letter-spacing:10px; color:#f0ece0; line-height:1; }
+    .game-sub   { font-size:0.55rem; letter-spacing:5px; color:rgba(240,160,20,0.5); text-transform:uppercase; }
+    .game-desc  { font-size:0.65rem; letter-spacing:2px; color:rgba(240,236,224,0.25); text-align:center; line-height:2.2; text-transform:uppercase; }
 
-    /* UI overlay */
-    #ui {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      padding: 16px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 10;
-      pointer-events: none;
-    }
+    /* difficulty buttons */
+    .diff-row { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:8px; }
 
-    .ui-label {
-      font-size: 0.55rem;
-      letter-spacing: 4px;
-      color: rgba(240,160,20,0.5);
-      text-transform: uppercase;
+    .diff-btn {
+      padding:10px 22px;
+      background:none;
+      border:1px solid rgba(255,255,255,0.1);
+      color:rgba(240,236,224,0.35);
+      font-family:'Space Mono',monospace;
+      font-size:0.58rem; letter-spacing:3px; text-transform:uppercase;
+      cursor:pointer; transition:all 0.2s; border-radius:3px;
     }
+    .diff-btn:hover { border-color:rgba(240,160,20,0.4); color:rgba(240,160,20,0.7); }
+    .diff-btn.selected { background:rgba(240,160,20,0.1); border-color:#f0a014; color:#f0a014; }
 
-    .ui-score {
-      font-size: 1.4rem;
-      letter-spacing: 3px;
-      color: #f0a014;
-    }
-
-    .ui-lives {
-      font-size: 1rem;
-      letter-spacing: 2px;
-      color: rgba(240,160,20,0.6);
-    }
-
-    /* Start screen */
-    #startScreen {
-      position: fixed;
-      inset: 0;
-      background: #060606;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 24px;
-      z-index: 20;
-    }
-
-    .game-title {
-      font-size: clamp(2rem, 6vw, 4rem);
-      letter-spacing: 8px;
-      color: #f0ece0;
-      text-transform: uppercase;
-      line-height: 1;
-    }
-
-    .game-sub {
-      font-size: 0.6rem;
-      letter-spacing: 4px;
-      color: rgba(240,160,20,0.5);
-      text-transform: uppercase;
-    }
-
-    .game-desc {
-      font-size: 0.7rem;
-      letter-spacing: 2px;
-      color: rgba(240,236,224,0.3);
-      text-align: center;
-      line-height: 2;
-    }
+    .diff-btn[data-diff="easy"]       { }
+    .diff-btn[data-diff="medium"]     { }
+    .diff-btn[data-diff="hard"]       { border-color:rgba(220,120,0,0.3); }
+    .diff-btn[data-diff="impossible"] { border-color:rgba(220,50,50,0.3); color:rgba(220,50,50,0.4); }
+    .diff-btn[data-diff="impossible"]:hover { border-color:rgba(220,50,50,0.8); color:rgba(220,50,50,0.9); }
+    .diff-btn[data-diff="impossible"].selected { background:rgba(220,50,50,0.1); border-color:#e74c3c; color:#e74c3c; }
 
     .start-btn {
-      margin-top: 10px;
-      padding: 12px 36px;
-      background: none;
-      border: 1px solid rgba(240,160,20,0.4);
-      color: #f0a014;
-      font-family: 'Space Mono', monospace;
-      font-size: 0.65rem;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.2s;
+      padding:12px 40px; background:none;
+      border:1px solid rgba(240,160,20,0.4); color:#f0a014;
+      font-family:'Space Mono',monospace; font-size:0.65rem;
+      letter-spacing:4px; text-transform:uppercase;
+      cursor:pointer; transition:all 0.2s;
     }
+    .start-btn:hover { background:rgba(240,160,20,0.08); border-color:#f0a014; }
 
-    .start-btn:hover {
-      background: rgba(240,160,20,0.08);
-      border-color: #f0a014;
+    .controls-hint { font-size:0.45rem; letter-spacing:3px; color:rgba(240,236,224,0.12); text-transform:uppercase; text-align:center; line-height:2.5; }
+
+    /* ── HUD ── */
+    #hud {
+      position:fixed; top:0; left:0; right:0;
+      padding:14px 20px;
+      display:none;
+      justify-content:space-between;
+      align-items:flex-start;
+      z-index:10; pointer-events:none;
     }
+    #hud.show { display:flex; }
 
-    .controls-hint {
-      font-size: 0.5rem;
-      letter-spacing: 3px;
-      color: rgba(240,236,224,0.15);
-      text-transform: uppercase;
-      text-align: center;
-      line-height: 2.2;
+    .hud-label { font-size:0.45rem; letter-spacing:4px; color:rgba(240,160,20,0.4); text-transform:uppercase; margin-bottom:4px; }
+    .hud-val   { font-size:1.2rem; letter-spacing:2px; color:#f0a014; }
+    .hud-wave  { font-size:0.8rem; letter-spacing:2px; color:rgba(240,236,224,0.4); }
+
+    /* danger flash */
+    #dangerFlash {
+      position:fixed; inset:0; z-index:15;
+      background:rgba(220,50,50,0);
+      pointer-events:none;
+      transition:background 0.1s;
     }
+    #dangerFlash.flash { background:rgba(220,50,50,0.25); }
 
-    /* Game over screen */
-    #gameOverScreen {
-      position: fixed;
-      inset: 0;
-      background: rgba(6,6,6,0.95);
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      z-index: 20;
+    /* ── GAME OVER ── */
+    #gameOverScreen { background:rgba(6,6,6,0.97); }
+    .go-title  { font-size:clamp(2rem,6vw,4rem); letter-spacing:6px; color:#f0ece0; }
+    .go-score  { font-size:0.6rem; letter-spacing:4px; color:rgba(240,160,20,0.5); text-transform:uppercase; }
+    .go-score span { color:#f0a014; font-size:1.1rem; }
+    .go-eaten  { font-size:0.5rem; letter-spacing:2px; color:rgba(240,236,224,0.2); text-align:center; line-height:2.5; text-transform:uppercase; max-width:400px; }
+    .go-wave   { font-size:0.55rem; letter-spacing:3px; color:rgba(240,160,20,0.4); text-transform:uppercase; }
+
+    /* wave announce */
+    #waveAnnounce {
+      position:fixed; top:50%; left:50%;
+      transform:translate(-50%,-50%);
+      font-size:clamp(1.5rem,5vw,3rem);
+      letter-spacing:8px; color:#f0ece0;
+      text-transform:uppercase;
+      opacity:0; z-index:18; pointer-events:none;
+      transition:opacity 0.3s;
+      text-align:center;
     }
-
-    #gameOverScreen.show { display: flex; }
-
-    .gameover-title {
-      font-size: clamp(2rem, 6vw, 3.5rem);
-      letter-spacing: 6px;
-      color: #f0ece0;
-    }
-
-    .final-score {
-      font-size: 0.65rem;
-      letter-spacing: 4px;
-      color: rgba(240,160,20,0.6);
-      text-transform: uppercase;
-    }
-
-    .final-score span {
-      color: #f0a014;
-      font-size: 1.2rem;
-    }
-
-    .eaten-list {
-      font-size: 0.55rem;
-      letter-spacing: 2px;
-      color: rgba(240,236,224,0.25);
-      text-align: center;
-      line-height: 2.2;
-      text-transform: uppercase;
-    }
+    #waveAnnounce.show { opacity:1; }
   </style>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
 <canvas id="gameCanvas"></canvas>
+<div id="dangerFlash"></div>
+<div id="waveAnnounce"></div>
 
-<!-- UI -->
-<div id="ui">
+<!-- HUD -->
+<div id="hud">
   <div>
-    <div class="ui-label">score</div>
-    <div class="ui-score" id="scoreDisplay">0</div>
+    <div class="hud-label">score</div>
+    <div class="hud-val" id="scoreDisplay">0</div>
   </div>
   <div style="text-align:center;">
-    <div class="ui-label">mandolab</div>
-    <div style="font-size:0.55rem;letter-spacing:3px;color:rgba(240,236,224,0.2);margin-top:4px;">EAT THEM ALL</div>
+    <div class="hud-label">wave</div>
+    <div class="hud-wave" id="waveDisplay">1</div>
   </div>
   <div style="text-align:right;">
-    <div class="ui-label">lives</div>
-    <div class="ui-lives" id="livesDisplay">💀💀💀</div>
+    <div class="hud-label">lives</div>
+    <div class="hud-val" id="livesDisplay">💀💀💀</div>
   </div>
 </div>
 
 <!-- START SCREEN -->
-<div id="startScreen">
+<div class="screen" id="startScreen">
   <div class="game-title">MANDO<br>EATS</div>
   <div class="game-sub">a mandolab production</div>
   <div class="game-desc">
-    You are the skeleton.<br>
-    Chase and eat everyone.<br>
-    Don't let them escape.
+    eat the people. avoid the red ones.<br>
+    survive as long as you can.
   </div>
+
+  <div style="text-align:center;">
+    <div class="hud-label" style="margin-bottom:10px;">select difficulty</div>
+    <div class="diff-row">
+      <button class="diff-btn selected" data-diff="easy"       onclick="selectDiff(this)">Easy</button>
+      <button class="diff-btn"          data-diff="medium"     onclick="selectDiff(this)">Medium</button>
+      <button class="diff-btn"          data-diff="hard"       onclick="selectDiff(this)">Hard</button>
+      <button class="diff-btn"          data-diff="impossible" onclick="selectDiff(this)">Impossible</button>
+    </div>
+  </div>
+
   <button class="start-btn" onclick="startGame()">START EATING →</button>
+
   <div class="controls-hint">
-    DESKTOP: arrow keys or WASD to move<br>
-    MOBILE: tap where you want to go
+    desktop: arrow keys / wasd · mouse click to move<br>
+    mobile: tap where you want to go
   </div>
 </div>
 
 <!-- GAME OVER -->
-<div id="gameOverScreen">
-  <div class="gameover-title">GAME OVER</div>
-  <div class="final-score">you ate <span id="finalScore">0</span> people</div>
-  <div class="eaten-list" id="eatenList"></div>
-  <button class="start-btn" onclick="restartGame()" style="margin-top:10px;">EAT AGAIN →</button>
+<div class="screen hidden" id="gameOverScreen">
+  <div class="go-title">GAME OVER</div>
+  <div class="go-wave">reached wave <span id="finalWave">1</span></div>
+  <div class="go-score">you ate <span id="finalScore">0</span> people</div>
+  <div class="go-eaten" id="eatenList"></div>
+  <button class="start-btn" onclick="restartGame()">EAT AGAIN →</button>
+  <button class="start-btn" style="border-color:rgba(255,255,255,0.1);color:rgba(240,236,224,0.3);margin-top:-10px;" onclick="goMenu()">CHANGE DIFFICULTY</button>
 </div>
 
 <script>
 const canvas = document.getElementById('gameCanvas');
 const ctx    = canvas.getContext('2d');
 
-// ══════════════════════════════════════════════
-// PEOPLE — add your friends/family here!
-// name: their name shown above their head
-// emoji: their face (use any emoji or letter)
-// color: their body color
-// ══════════════════════════════════════════════
-const PEOPLE = [
-  { name: 'MINHAJ',   emoji: '😎', color: '#e74c3c', face: 'game/faces/minhaj.png' },
-  { name: 'IRAPPI',   emoji: '🤪', color: '#9b59b6', face: 'game/faces/irappi.png' },
-  { name: 'MOM',      emoji: '👩', color: '#e91e63', face: null },
-  { name: 'DAD',      emoji: '👨', color: '#2196f3', face: null },
-  { name: 'BRO',      emoji: '🤙', color: '#4caf50', face: null },
-  { name: 'BOSS',     emoji: '😤', color: '#ff9800', face: null },
-  { name: 'RANDOM',   emoji: '🙂', color: '#607d8b', face: null },
-  // ADD MORE: { name: 'FRIEND', emoji: '😂', color: '#hex', face: 'game/faces/friend.png' },
+// ══════════════════════════════════════════════════════════
+// PEOPLE — add your friends here!
+// face: path to image in game/faces/ folder (or null)
+// ══════════════════════════════════════════════════════════
+const PEOPLE_DATA = [
+  { name:'MINHAJ',  emoji:'😎', color:'#3498db', face:'game/faces/minhaj.png' },
+  { name:'IRAPPI',  emoji:'🤪', color:'#9b59b6', face:'game/faces/irappi.png' },
+  { name:'MOM',     emoji:'👩', color:'#e91e63', face:null },
+  { name:'DAD',     emoji:'👨', color:'#2196f3', face:null },
+  { name:'BRO',     emoji:'🤙', color:'#4caf50', face:null },
+  { name:'BOSS',    emoji:'😤', color:'#ff9800', face:null },
+  { name:'NAOMI',   emoji:'🤖', color:'#00bcd4', face:null },
+  // ADD MORE ↓
 ];
 
-// Preload face images
-const faceImages = {};
-PEOPLE.forEach(p => {
+// ── DIFFICULTY CONFIG ─────────────────────────────────────
+const DIFF = {
+  easy:       { playerSpeed:7,  runSpeed:0.8,  detectRange:60,  redChance:0.1, wavePeople:4, waveGap:180, label:'EASY' },
+  medium:     { playerSpeed:6,  runSpeed:1.4,  detectRange:90,  redChance:0.2, wavePeople:5, waveGap:140, label:'MEDIUM' },
+  hard:       { playerSpeed:5,  runSpeed:2.0,  detectRange:110, redChance:0.3, wavePeople:6, waveGap:100, label:'HARD' },
+  impossible: { playerSpeed:4,  runSpeed:3.0,  detectRange:150, redChance:0.4, wavePeople:8, waveGap:70,  label:'IMPOSSIBLE' },
+};
+
+let selectedDiff = 'easy';
+let cfg = DIFF[selectedDiff];
+
+// ── STATE ─────────────────────────────────────────────────
+let W, H, player, people, score, lives, wave, gameActive;
+let waveTimer, waveSpawning, peopleThisWave, peopleSpawned;
+let eatenNames = [], keys = {}, touchTarget = null;
+let particles = [];
+
+// ── FACE IMAGES ───────────────────────────────────────────
+const faceImgs = {};
+PEOPLE_DATA.forEach(p => {
   if (p.face) {
     const img = new Image();
     img.src = p.face;
-    faceImages[p.name] = img;
+    faceImgs[p.name] = img;
   }
 });
 
-// ── GAME STATE ────────────────────────────────
-let W, H, player, people, score, lives, gameLoop, gameActive, eatenNames;
-let keys = {};
-let touchTarget = null;
-
-// ── RESIZE ────────────────────────────────────
-function resize() {
-  W = canvas.width  = window.innerWidth;
-  H = canvas.height = window.innerHeight;
-}
-
+// ── RESIZE ────────────────────────────────────────────────
+function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
 window.addEventListener('resize', resize);
 resize();
 
-// ── PLAYER (Skeleton Mandooh) ─────────────────
-function createPlayer() {
-  return {
-    x: W / 2,
-    y: H / 2,
-    size: 28,
-    speed: 6,
-    vx: 0,
-    vy: 0,
-    mouthOpen: 0,
-    mouthDir: 1,
-    legAnim: 0,
-  };
+// ── DIFFICULTY SELECT ─────────────────────────────────────
+function selectDiff(btn) {
+  document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedDiff = btn.dataset.diff;
+  cfg = DIFF[selectedDiff];
 }
 
-// ── SPAWN A PERSON ────────────────────────────
-function spawnPerson() {
-  // Spawn anywhere on screen except near the player
-  let x, y, attempts = 0;
-  do {
-    x = 80 + Math.random() * (W - 160);
-    y = 80 + Math.random() * (H - 160);
-    attempts++;
-  } while (Math.sqrt((x-player.x)**2 + (y-player.y)**2) < 150 && attempts < 20);
+// ── PLAYER ────────────────────────────────────────────────
+function createPlayer() {
+  return { x:W/2, y:H/2, size:26, speed:cfg.playerSpeed, vx:0, vy:0, mouthOpen:0, mouthDir:1, legAnim:0 };
+}
 
-  const template = PEOPLE[Math.floor(Math.random() * PEOPLE.length)];
+// ── PERSON ────────────────────────────────────────────────
+function spawnPerson(isRed) {
+  let x, y, tries=0;
+  do {
+    x = 80 + Math.random()*(W-160);
+    y = 80 + Math.random()*(H-160);
+    tries++;
+  } while (Math.hypot(x-player.x, y-player.y) < 180 && tries < 20);
+
+  const t = PEOPLE_DATA[Math.floor(Math.random()*PEOPLE_DATA.length)];
   return {
     x, y,
-    name:    template.name,
-    emoji:   template.emoji,
-    color:   template.color,
-    speed:   1.2 + Math.random() * 1,
-    size:    22,
-    legAnim: Math.random() * Math.PI * 2,
-    scared:  false,
-    scaredTimer: 0,
+    name:    isRed ? '⚠ '+t.name : t.name,
+    rawName: t.name,
+    emoji:   t.emoji,
+    color:   isRed ? '#e74c3c' : t.color,
+    face:    isRed ? null : t.face,
+    speed:   cfg.runSpeed + Math.random()*0.5,
+    size:    20,
+    legAnim: Math.random()*Math.PI*2,
+    isRed,
+    aliveTime: 0,
+    scared: false,
   };
 }
 
-// ── DRAW SKELETON PLAYER ──────────────────────
+// ── DRAW GRID BG ──────────────────────────────────────────
+function drawBg() {
+  ctx.strokeStyle = 'rgba(240,160,20,0.04)';
+  ctx.lineWidth = 0.5;
+  for (let x=0; x<W; x+=60) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for (let y=0; y<H; y+=60) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+}
+
+// ── DRAW PLAYER (skeleton) ────────────────────────────────
 function drawPlayer(p) {
   ctx.save();
   ctx.translate(p.x, p.y);
+  p.mouthOpen += 0.15*p.mouthDir;
+  if (p.mouthOpen>0.4||p.mouthOpen<0) p.mouthDir*=-1;
 
-  // Mouth animation
-  p.mouthOpen += 0.15 * p.mouthDir;
-  if (p.mouthOpen > 0.4 || p.mouthOpen < 0) p.mouthDir *= -1;
-
-  // Head (skull)
+  // Skull
   ctx.fillStyle = '#f0ece0';
-  ctx.beginPath();
-  ctx.arc(0, 0, p.size * 0.6, 0, Math.PI * 2);
-  ctx.fill();
-
+  ctx.beginPath(); ctx.arc(0,0,p.size*0.6,0,Math.PI*2); ctx.fill();
   // Eye sockets
   ctx.fillStyle = '#060606';
-  ctx.beginPath();
-  ctx.arc(-8, -4, 6, 0, Math.PI * 2);
-  ctx.arc(8, -4, 6, 0, Math.PI * 2);
-  ctx.fill();
-
+  ctx.beginPath(); ctx.arc(-8,-4,5,0,Math.PI*2); ctx.arc(8,-4,5,0,Math.PI*2); ctx.fill();
   // Eye glow
   ctx.fillStyle = '#f0a014';
-  ctx.beginPath();
-  ctx.arc(-8, -4, 3, 0, Math.PI * 2);
-  ctx.arc(8, -4, 3, 0, Math.PI * 2);
-  ctx.fill();
-
+  ctx.beginPath(); ctx.arc(-8,-4,2.5,0,Math.PI*2); ctx.arc(8,-4,2.5,0,Math.PI*2); ctx.fill();
   // Mouth
-  ctx.strokeStyle = '#060606';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(0, 6, 8, p.mouthOpen, Math.PI - p.mouthOpen);
-  ctx.stroke();
-
-  // Spine
-  ctx.strokeStyle = '#f0ece0';
-  ctx.lineWidth = 2.5;
-  ctx.beginPath();
-  ctx.moveTo(0, p.size * 0.6);
-  ctx.lineTo(0, p.size * 1.8);
-  ctx.stroke();
-
+  ctx.strokeStyle = '#060606'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.arc(0,6,7,p.mouthOpen,Math.PI-p.mouthOpen); ctx.stroke();
+  // Body
+  p.legAnim+=0.12;
+  ctx.strokeStyle='#f0ece0'; ctx.lineWidth=2.5;
+  ctx.beginPath(); ctx.moveTo(0,p.size*0.6); ctx.lineTo(0,p.size*1.8); ctx.stroke();
   // Ribs
-  for (let i = 0; i < 3; i++) {
-    const ry = p.size * 0.75 + i * 9;
+  for(let i=0;i<3;i++){
+    const ry=p.size*0.75+i*8;
     ctx.beginPath();
-    ctx.moveTo(0, ry);
-    ctx.bezierCurveTo(-16, ry - 3, -18, ry + 6, -8, ry + 8);
-    ctx.moveTo(0, ry);
-    ctx.bezierCurveTo(16, ry - 3, 18, ry + 6, 8, ry + 8);
+    ctx.moveTo(0,ry); ctx.bezierCurveTo(-14,ry-3,-16,ry+5,-7,ry+7);
+    ctx.moveTo(0,ry); ctx.bezierCurveTo(14,ry-3,16,ry+5,7,ry+7);
     ctx.stroke();
   }
-
-  // Arms
-  p.legAnim += 0.12;
-  ctx.lineWidth = 2.5;
+  // Arms & legs
   ctx.beginPath();
-  ctx.moveTo(0, p.size * 0.8);
-  ctx.lineTo(-20 + Math.sin(p.legAnim) * 8, p.size * 1.4 + Math.cos(p.legAnim) * 6);
-  ctx.moveTo(0, p.size * 0.8);
-  ctx.lineTo(20 + Math.sin(p.legAnim + Math.PI) * 8, p.size * 1.4 + Math.cos(p.legAnim + Math.PI) * 6);
+  ctx.moveTo(0,p.size*0.8); ctx.lineTo(-18+Math.sin(p.legAnim)*7,p.size*1.3+Math.cos(p.legAnim)*5);
+  ctx.moveTo(0,p.size*0.8); ctx.lineTo(18+Math.sin(p.legAnim+Math.PI)*7,p.size*1.3+Math.cos(p.legAnim+Math.PI)*5);
+  ctx.moveTo(0,p.size*1.8); ctx.lineTo(-11+Math.sin(p.legAnim+1)*9,p.size*2.6);
+  ctx.moveTo(0,p.size*1.8); ctx.lineTo(11+Math.sin(p.legAnim+Math.PI+1)*9,p.size*2.6);
   ctx.stroke();
-
-  // Legs
-  ctx.beginPath();
-  ctx.moveTo(0, p.size * 1.8);
-  ctx.lineTo(-12 + Math.sin(p.legAnim + 1) * 10, p.size * 2.6);
-  ctx.moveTo(0, p.size * 1.8);
-  ctx.lineTo(12 + Math.sin(p.legAnim + Math.PI + 1) * 10, p.size * 2.6);
-  ctx.stroke();
-
   ctx.restore();
 }
 
-// ── DRAW A PERSON ─────────────────────────────
-function drawPerson(person) {
+// ── DRAW PERSON ───────────────────────────────────────────
+function drawPerson(p) {
   ctx.save();
-  ctx.translate(person.x, person.y);
+  ctx.translate(p.x, p.y);
+  p.legAnim += 0.15;
 
-  person.legAnim += 0.15;
-
-  // Scared shake
-  let sx = 0;
-  if (person.scared) {
-    person.scaredTimer--;
-    sx = (Math.random() - 0.5) * 4;
-    if (person.scaredTimer <= 0) person.scared = false;
+  // Red glow for dangerous ones
+  if (p.isRed) {
+    ctx.shadowColor = '#e74c3c';
+    ctx.shadowBlur  = 18 + Math.sin(Date.now()*0.008)*8;
   }
-
-  ctx.translate(sx, 0);
 
   // Name tag
-  ctx.font = 'bold 9px Space Mono';
-  ctx.fillStyle = person.angry ? 'rgba(220,50,50,0.9)' : 'rgba(240,160,20,0.7)';
+  ctx.shadowBlur = p.isRed ? 10 : 0;
+  ctx.font = 'bold 8px Space Mono';
+  ctx.fillStyle = p.isRed ? 'rgba(220,50,50,0.9)' : 'rgba(240,160,20,0.7)';
   ctx.textAlign = 'center';
-  ctx.fillText(person.angry ? '😡 ' + person.name : person.name, 0, -person.size - 8);
+  ctx.fillText(p.name, 0, -p.size-10);
 
-  // Angry glow
-  if (person.angry) {
-    ctx.shadowColor = '#e74c3c';
-    ctx.shadowBlur = 15;
-  }
-
-  // Head — face image or emoji fallback
-  const faceImg = faceImages[person.name];
-  const headSize = person.size * 1.3;
-  if (faceImg && faceImg.complete && faceImg.naturalWidth > 0) {
-    // Draw circular face image
+  // Head
+  const faceImg = faceImgs[p.rawName];
+  if (!p.isRed && faceImg && faceImg.complete && faceImg.naturalWidth>0) {
+    const r = p.size*0.7;
     ctx.save();
-    ctx.beginPath();
-    ctx.arc(0, -headSize * 0.1, headSize * 0.65, 0, Math.PI * 2);
-    ctx.clip();
-    ctx.drawImage(faceImg, -headSize * 0.65, -headSize * 0.75, headSize * 1.3, headSize * 1.3);
+    ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.clip();
+    ctx.drawImage(faceImg,-r,-r,r*2,r*2);
     ctx.restore();
-    // Circle border
-    ctx.strokeStyle = person.angry ? '#e74c3c' : person.color;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(0, -headSize * 0.1, headSize * 0.65, 0, Math.PI * 2);
-    ctx.stroke();
+    ctx.strokeStyle = p.color; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.stroke();
   } else {
-    // Emoji fallback
-    ctx.font = `${person.size * 1.2}px serif`;
-    ctx.textAlign = 'center';
-    ctx.fillText(person.emoji, 0, 0);
+    ctx.font = `${p.size*1.1}px serif`;
+    ctx.textAlign='center';
+    if (p.isRed) ctx.fillText('💀',0,p.size*0.4);
+    else ctx.fillText(p.emoji,0,p.size*0.4);
   }
 
   // Stick body
-  ctx.strokeStyle = person.color;
-  ctx.lineWidth = 2.5;
-
-  // Body
+  ctx.strokeStyle = p.color; ctx.lineWidth=2.5; ctx.shadowBlur=0;
   ctx.beginPath();
-  ctx.moveTo(0, person.size * 0.5);
-  ctx.lineTo(0, person.size * 1.6);
+  ctx.moveTo(0,p.size*0.6); ctx.lineTo(0,p.size*1.6);
+  ctx.moveTo(0,p.size*0.9); ctx.lineTo(-13+Math.sin(p.legAnim)*5,p.size*1.3);
+  ctx.moveTo(0,p.size*0.9); ctx.lineTo(13+Math.sin(p.legAnim+Math.PI)*5,p.size*1.3);
+  ctx.moveTo(0,p.size*1.6); ctx.lineTo(-9+Math.sin(p.legAnim+1)*7,p.size*2.3);
+  ctx.moveTo(0,p.size*1.6); ctx.lineTo(9+Math.sin(p.legAnim+Math.PI+1)*7,p.size*2.3);
   ctx.stroke();
 
-  // Arms
-  ctx.beginPath();
-  ctx.moveTo(0, person.size * 0.8);
-  ctx.lineTo(-15 + Math.sin(person.legAnim) * 6, person.size * 1.3);
-  ctx.moveTo(0, person.size * 0.8);
-  ctx.lineTo(15 + Math.sin(person.legAnim + Math.PI) * 6, person.size * 1.3);
-  ctx.stroke();
-
-  // Legs
-  ctx.beginPath();
-  ctx.moveTo(0, person.size * 1.6);
-  ctx.lineTo(-10 + Math.sin(person.legAnim + 1) * 8, person.size * 2.4);
-  ctx.moveTo(0, person.size * 1.6);
-  ctx.lineTo(10 + Math.sin(person.legAnim + Math.PI + 1) * 8, person.size * 2.4);
-  ctx.stroke();
-
-  ctx.shadowBlur = 0;
   ctx.restore();
 }
 
-// ── DRAW BACKGROUND GRID ──────────────────────
-function drawBackground() {
-  ctx.strokeStyle = 'rgba(240,160,20,0.04)';
-  ctx.lineWidth = 0.5;
-  const gridSize = 60;
-  for (let x = 0; x < W; x += gridSize) {
-    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+// ── PARTICLES ─────────────────────────────────────────────
+function burst(x, y, color, text) {
+  for(let i=0;i<10;i++){
+    const a=(Math.PI*2/10)*i;
+    particles.push({x,y,vx:Math.cos(a)*(2+Math.random()*4),vy:Math.sin(a)*(2+Math.random()*4),life:40,maxLife:40,color,size:3+Math.random()*3});
   }
-  for (let y = 0; y < H; y += gridSize) {
-    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
-  }
+  particles.push({x,y:y-20,vx:0,vy:-1.5,life:55,maxLife:55,text,color:'#f0a014',size:14,isText:true});
 }
 
-// ── EAT EFFECT ────────────────────────────────
-let particles = [];
-
-function eatEffect(x, y, color, name) {
-  for (let i = 0; i < 12; i++) {
-    const angle = (Math.PI * 2 / 12) * i;
-    particles.push({
-      x, y,
-      vx: Math.cos(angle) * (3 + Math.random() * 4),
-      vy: Math.sin(angle) * (3 + Math.random() * 4),
-      life: 40,
-      maxLife: 40,
-      color,
-      size: 3 + Math.random() * 4,
-    });
-  }
-  // Eat text
-  particles.push({
-    x, y: y - 20,
-    vx: 0, vy: -1.5,
-    life: 60, maxLife: 60,
-    text: 'NOM!',
-    color: '#f0a014',
-    size: 16,
-    isText: true,
+function drawParticles(){
+  particles = particles.filter(p=>p.life>0);
+  particles.forEach(p=>{
+    p.x+=p.vx; p.y+=p.vy; p.life--;
+    ctx.globalAlpha=p.life/p.maxLife;
+    if(p.isText){ ctx.font=`bold ${p.size}px Space Mono`; ctx.fillStyle=p.color; ctx.textAlign='center'; ctx.fillText(p.text,p.x,p.y); }
+    else{ ctx.fillStyle=p.color; ctx.beginPath(); ctx.arc(p.x,p.y,p.size*(p.life/p.maxLife),0,Math.PI*2); ctx.fill(); }
+    ctx.globalAlpha=1;
   });
 }
 
-function updateParticles() {
-  particles = particles.filter(p => p.life > 0);
-  particles.forEach(p => {
-    p.x += p.vx;
-    p.y += p.vy;
-    p.life--;
-    ctx.globalAlpha = p.life / p.maxLife;
-    if (p.isText) {
-      ctx.font = `bold ${p.size}px Space Mono`;
-      ctx.fillStyle = p.color;
-      ctx.textAlign = 'center';
-      ctx.fillText(p.text, p.x, p.y);
-    } else {
-      ctx.fillStyle = p.color;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size * (p.life / p.maxLife), 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.globalAlpha = 1;
-  });
+// ── WAVE SYSTEM ───────────────────────────────────────────
+function startWave() {
+  waveSpawning   = true;
+  peopleThisWave = cfg.wavePeople + (wave-1)*2;
+  peopleSpawned  = 0;
+  waveTimer      = 0;
+  showWaveAnnounce();
 }
 
-// ── GAME LOOP ─────────────────────────────────
-let spawnTimer = 0;
-let spawnInterval = 120;
+function showWaveAnnounce() {
+  const el = document.getElementById('waveAnnounce');
+  el.innerHTML = wave===1 ? 'WAVE 1<br><span style="font-size:0.5em;letter-spacing:4px;color:rgba(240,160,20,0.5)">EAT THE PEOPLE</span>'
+    : `WAVE ${wave}<br><span style="font-size:0.5em;letter-spacing:4px;color:rgba(240,160,20,0.5)">${wave>3?'THEY\'RE ANGRY':'KEEP EATING'}</span>`;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), 2000);
+  document.getElementById('waveDisplay').textContent = wave;
+}
 
+// ── UPDATE ────────────────────────────────────────────────
 function update() {
   if (!gameActive) return;
 
   // Player movement
   if (touchTarget) {
-    const dx = touchTarget.x - player.x;
-    const dy = touchTarget.y - player.y;
-    const dist = Math.sqrt(dx*dx + dy*dy);
-    if (dist > 5) {
-      player.x += (dx / dist) * player.speed;
-      player.y += (dy / dist) * player.speed;
-    }
+    const dx=touchTarget.x-player.x, dy=touchTarget.y-player.y;
+    const d=Math.hypot(dx,dy);
+    if(d>6){ player.x+=dx/d*player.speed; player.y+=dy/d*player.speed; }
   } else {
-    if (keys['ArrowLeft']  || keys['a'] || keys['A']) player.x -= player.speed;
-    if (keys['ArrowRight'] || keys['d'] || keys['D']) player.x += player.speed;
-    if (keys['ArrowUp']    || keys['w'] || keys['W']) player.y -= player.speed;
-    if (keys['ArrowDown']  || keys['s'] || keys['S']) player.y += player.speed;
+    if(keys['ArrowLeft'] ||keys['a']||keys['A']) player.x-=player.speed;
+    if(keys['ArrowRight']||keys['d']||keys['D']) player.x+=player.speed;
+    if(keys['ArrowUp']   ||keys['w']||keys['W']) player.y-=player.speed;
+    if(keys['ArrowDown'] ||keys['s']||keys['S']) player.y+=player.speed;
+  }
+  player.x=Math.max(25,Math.min(W-25,player.x));
+  player.y=Math.max(25,Math.min(H-25,player.y));
+
+  // Spawn wave people
+  if (waveSpawning) {
+    waveTimer++;
+    if (waveTimer % cfg.waveGap === 0 && peopleSpawned < peopleThisWave) {
+      const isRed = Math.random() < cfg.redChance;
+      people.push(spawnPerson(isRed));
+      peopleSpawned++;
+      if (peopleSpawned >= peopleThisWave) waveSpawning = false;
+    }
   }
 
-  // Keep player on screen
-  player.x = Math.max(20, Math.min(W - 20, player.x));
-  player.y = Math.max(20, Math.min(H - 20, player.y));
+  // Move people
+  people.forEach(p => {
+    const dx=p.x-player.x, dy=p.y-player.y;
+    const dist=Math.hypot(dx,dy);
+    p.aliveTime++;
 
-  // Spawn people
-  spawnTimer++;
-  if (spawnTimer >= spawnInterval) {
-    people.push(spawnPerson());
-    spawnTimer = 0;
-    spawnInterval = Math.max(40, spawnInterval - 2); // gets harder
-  }
+    // On hard/impossible waves, red people chase after a while
+    const chases = p.isRed && wave >= 2 && p.aliveTime > 300;
 
-  // Move people — NIGHTMARE MODE
-  // They start scared but then hunt you back
-  people.forEach(person => {
-    const dx = person.x - player.x;
-    const dy = person.y - player.y;
-    const dist = Math.sqrt(dx*dx + dy*dy);
-
-    // After being alive 8 seconds they get angry and chase
-    person.aliveTime = (person.aliveTime || 0) + 1;
-    const isAngry = person.aliveTime > 480; // 8 seconds at 60fps
-
-    if (isAngry) {
-      // HUNT THE PLAYER
-      person.angry = true;
-      person.x -= (dx / dist) * person.speed * 1.6;
-      person.y -= (dy / dist) * person.speed * 1.6;
-    } else if (dist < 100) {
-      // Run away when close
-      person.scared = true;
-      person.scaredTimer = 20;
-      person.x += (dx / dist) * person.speed * 1.5;
-      person.y += (dy / dist) * person.speed * 1.5;
+    if (chases) {
+      p.x -= (dx/dist)*p.speed*1.8;
+      p.y -= (dy/dist)*p.speed*1.8;
+    } else if (dist < cfg.detectRange) {
+      p.scared = true;
+      p.x += (dx/dist)*p.speed*1.5;
+      p.y += (dy/dist)*p.speed*1.5;
     } else {
-      // Wander
-      person.x += (Math.random() - 0.5) * 1.2;
-      person.y += (Math.random() - 0.5) * 1.2;
+      p.x += (Math.random()-0.5)*1;
+      p.y += (Math.random()-0.5)*1;
     }
   });
 
-  // NIGHTMARE — if angry person touches player, lose a life
-  people = people.filter(person => {
-    if (!person.angry) return true;
-    const dx = person.x - player.x;
-    const dy = person.y - player.y;
-    const dist = Math.sqrt(dx*dx + dy*dy);
-    if (dist < player.size + person.size + 5) {
-      // They got YOU
-      lives--;
-      updateLives();
-      eatEffect(player.x, player.y, '#e74c3c', 'CAUGHT!');
-      if (lives <= 0) { gameOver(); return false; }
-      return false; // remove them after hitting you
+  // Check collisions
+  const survived = [];
+  for (const p of people) {
+    const dist = Math.hypot(p.x-player.x, p.y-player.y);
+    if (dist < player.size + p.size + 8) {
+      if (p.isRed) {
+        // BAD — lose a life
+        lives--;
+        updateLives();
+        burst(player.x, player.y, '#e74c3c', 'OUCH!');
+        document.getElementById('dangerFlash').classList.add('flash');
+        setTimeout(()=>document.getElementById('dangerFlash').classList.remove('flash'),150);
+        if (lives<=0) { gameOver(); return; }
+      } else {
+        // GOOD — eat them
+        score += wave*10;
+        eatenNames.push(p.rawName);
+        burst(p.x, p.y, p.color, 'NOM!');
+        document.getElementById('scoreDisplay').textContent = score;
+      }
+    } else {
+      survived.push(p);
     }
-    return true;
-  });
+  }
+  people = survived;
 
-  // Check if people escaped (off screen)
+  // Remove escaped people (off screen) — lose a life for each
   const before = people.length;
-  people = people.filter(p => p.x > -80 && p.x < W+80 && p.y > -80 && p.y < H+80);
+  people = people.filter(p => p.x>-100&&p.x<W+100&&p.y>-100&&p.y<H+100);
   const escaped = before - people.length;
   if (escaped > 0) {
     lives -= escaped;
     updateLives();
-    if (lives <= 0) { gameOver(); return; }
+    if (lives<=0) { gameOver(); return; }
   }
 
-  // Check eat collision
-  people = people.filter(person => {
-    const dx = person.x - player.x;
-    const dy = person.y - player.y;
-    const dist = Math.sqrt(dx*dx + dy*dy);
-    if (dist < player.size + person.size + 10) {
-      // EATEN!
-      score += 10;
-      eatenNames.push(person.name);
-      eatEffect(person.x, person.y, person.color, person.name);
-      document.getElementById('scoreDisplay').textContent = score;
-      return false;
-    }
-    return true;
-  });
+  // Next wave when all people eaten/gone
+  if (!waveSpawning && people.length === 0) {
+    wave++;
+    startWave();
+  }
 }
 
+// ── DRAW ──────────────────────────────────────────────────
 function draw() {
-  ctx.clearRect(0, 0, W, H);
-  drawBackground();
+  ctx.clearRect(0,0,W,H);
+  drawBg();
   people.forEach(drawPerson);
   drawPlayer(player);
-  updateParticles();
+  drawParticles();
 }
 
 function tick() {
-  update();
-  draw();
+  update(); draw();
   if (gameActive) requestAnimationFrame(tick);
 }
 
-// ── LIVES DISPLAY ─────────────────────────────
+// ── LIVES ─────────────────────────────────────────────────
 function updateLives() {
-  document.getElementById('livesDisplay').textContent = '💀'.repeat(Math.max(0, lives));
+  document.getElementById('livesDisplay').textContent = '💀'.repeat(Math.max(0,lives));
 }
 
-// ── START / RESTART ───────────────────────────
+// ── START ─────────────────────────────────────────────────
 function startGame() {
-  document.getElementById('startScreen').style.display = 'none';
-  document.getElementById('gameOverScreen').classList.remove('show');
-  player        = createPlayer();
-  people        = [];
-  score         = 0;
-  lives         = 3;
-  eatenNames    = [];
-  spawnTimer    = 0;
-  spawnInterval = 120;
-  particles     = [];
-  gameActive    = true;
-  document.getElementById('scoreDisplay').textContent = '0';
+  cfg = DIFF[selectedDiff];
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('gameOverScreen').classList.add('hidden');
+  document.getElementById('hud').classList.add('show');
+
+  player=createPlayer(); people=[]; score=0; lives=3;
+  wave=1; eatenNames=[]; particles=[];
+  gameActive=true;
+
+  document.getElementById('scoreDisplay').textContent='0';
   updateLives();
-  // Spawn a few people immediately
-  for (let i = 0; i < 3; i++) people.push(spawnPerson());
+  startWave();
   requestAnimationFrame(tick);
 }
 
 function restartGame() {
+  document.getElementById('gameOverScreen').classList.add('hidden');
   startGame();
 }
 
-// ── GAME OVER ─────────────────────────────────
-function gameOver() {
-  gameActive = false;
-  document.getElementById('finalScore').textContent = score;
-  const unique = [...new Set(eatenNames)];
-  document.getElementById('eatenList').textContent =
-    unique.length ? 'you ate: ' + unique.join(', ') : 'you ate nobody 💀';
-  document.getElementById('gameOverScreen').classList.add('show');
+function goMenu() {
+  gameActive=false;
+  document.getElementById('gameOverScreen').classList.add('hidden');
+  document.getElementById('hud').classList.remove('show');
+  document.getElementById('startScreen').classList.remove('hidden');
 }
 
-// ── CONTROLS ──────────────────────────────────
-window.addEventListener('keydown', e => { keys[e.key] = true; });
-window.addEventListener('keyup',   e => { keys[e.key] = false; });
+// ── GAME OVER ─────────────────────────────────────────────
+function gameOver() {
+  gameActive=false;
+  document.getElementById('hud').classList.remove('show');
+  document.getElementById('finalScore').textContent=score;
+  document.getElementById('finalWave').textContent=wave;
+  const unique=[...new Set(eatenNames)];
+  document.getElementById('eatenList').textContent = unique.length
+    ? 'eaten: '+unique.join(', ')
+    : 'you ate nobody...';
+  document.getElementById('gameOverScreen').classList.remove('hidden');
+}
 
-canvas.addEventListener('touchstart', e => {
-  e.preventDefault();
-  const t = e.touches[0];
-  touchTarget = { x: t.clientX, y: t.clientY };
-}, { passive: false });
+// ── CONTROLS ──────────────────────────────────────────────
+window.addEventListener('keydown',e=>{keys[e.key]=true;});
+window.addEventListener('keyup',  e=>{keys[e.key]=false;});
 
-canvas.addEventListener('touchmove', e => {
-  e.preventDefault();
-  const t = e.touches[0];
-  touchTarget = { x: t.clientX, y: t.clientY };
-}, { passive: false });
-
-canvas.addEventListener('touchend', () => { touchTarget = null; });
-
-canvas.addEventListener('click', e => {
-  if (gameActive) touchTarget = { x: e.clientX, y: e.clientY };
-  setTimeout(() => { touchTarget = null; }, 100);
-});
+canvas.addEventListener('touchstart',e=>{e.preventDefault();const t=e.touches[0];touchTarget={x:t.clientX,y:t.clientY};},{passive:false});
+canvas.addEventListener('touchmove', e=>{e.preventDefault();const t=e.touches[0];touchTarget={x:t.clientX,y:t.clientY};},{passive:false});
+canvas.addEventListener('touchend', ()=>{touchTarget=null;});
+canvas.addEventListener('click',e=>{if(gameActive){touchTarget={x:e.clientX,y:e.clientY};setTimeout(()=>{touchTarget=null;},80);}});
 </script>
 </body>
 </html>
+ENDHTML
+echo "done"
