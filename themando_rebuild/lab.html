@@ -3,523 +3,288 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MANDO EATS</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { background:#060606; font-family:'Space Mono',monospace; overflow:hidden; user-select:none; }
-    #gameCanvas { display:block; }
-
-    /* ── SCREENS ── */
-    .screen {
-      position:fixed; inset:0;
-      display:flex; flex-direction:column;
-      align-items:center; justify-content:center;
-      gap:20px; z-index:20;
-      background:#060606;
-    }
-    .screen.hidden { display:none; }
-
-    .game-title { font-size:clamp(2.5rem,8vw,5rem); letter-spacing:10px; color:#f0ece0; line-height:1; }
-    .game-sub   { font-size:0.55rem; letter-spacing:5px; color:rgba(240,160,20,0.5); text-transform:uppercase; }
-    .game-desc  { font-size:0.65rem; letter-spacing:2px; color:rgba(240,236,224,0.25); text-align:center; line-height:2.2; text-transform:uppercase; }
-
-    .diff-row { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:8px; }
-
-    .diff-btn {
-      padding:10px 22px;
-      background:none;
-      border:1px solid rgba(255,255,255,0.1);
-      color:rgba(240,236,224,0.35);
-      font-family:'Space Mono',monospace;
-      font-size:0.58rem; letter-spacing:3px; text-transform:uppercase;
-      cursor:pointer; transition:all 0.2s; border-radius:3px;
-    }
-    .diff-btn:hover { border-color:rgba(240,160,20,0.4); color:rgba(240,160,20,0.7); }
-    .diff-btn.selected { background:rgba(240,160,20,0.1); border-color:#f0a014; color:#f0a014; }
-
-    .diff-btn[data-diff="hard"]       { border-color:rgba(220,120,0,0.3); }
-    .diff-btn[data-diff="impossible"] { border-color:rgba(220,50,50,0.3); color:rgba(220,50,50,0.4); }
-    .diff-btn[data-diff="impossible"]:hover { border-color:rgba(220,50,50,0.8); color:rgba(220,50,50,0.9); }
-    .diff-btn[data-diff="impossible"].selected { background:rgba(220,50,50,0.1); border-color:#e74c3c; color:#e74c3c; }
-
-    .start-btn {
-      padding:12px 40px; background:none;
-      border:1px solid rgba(240,160,20,0.4); color:#f0a014;
-      font-family:'Space Mono',monospace; font-size:0.65rem;
-      letter-spacing:4px; text-transform:uppercase;
-      cursor:pointer; transition:all 0.2s;
-    }
-    .start-btn:hover { background:rgba(240,160,20,0.08); border-color:#f0a014; }
-
-    .controls-hint { font-size:0.45rem; letter-spacing:3px; color:rgba(240,236,224,0.12); text-transform:uppercase; text-align:center; line-height:2.5; }
-
-    /* ── HUD ── */
-    #hud {
-      position:fixed; top:0; left:0; right:0;
-      padding:14px 20px;
-      display:none;
-      justify-content:space-between;
-      align-items:flex-start;
-      z-index:10; pointer-events:none;
-    }
-    #hud.show { display:flex; }
-
-    .hud-label { font-size:0.45rem; letter-spacing:4px; color:rgba(240,160,20,0.4); text-transform:uppercase; margin-bottom:4px; }
-    .hud-val   { font-size:1.2rem; letter-spacing:2px; color:#f0a014; }
-    .hud-wave  { font-size:0.8rem; letter-spacing:2px; color:rgba(240,236,224,0.4); }
-
-    #dangerFlash {
-      position:fixed; inset:0; z-index:15;
-      background:rgba(220,50,50,0);
-      pointer-events:none;
-      transition:background 0.1s;
-    }
-    #dangerFlash.flash { background:rgba(220,50,50,0.25); }
-
-    #gameOverScreen { background:rgba(6,6,6,0.97); }
-    .go-title  { font-size:clamp(2rem,6vw,4rem); letter-spacing:6px; color:#f0ece0; }
-    .go-score  { font-size:0.6rem; letter-spacing:4px; color:rgba(240,160,20,0.5); text-transform:uppercase; }
-    .go-score span { color:#f0a014; font-size:1.1rem; }
-    .go-eaten  { font-size:0.5rem; letter-spacing:2px; color:rgba(240,236,224,0.2); text-align:center; line-height:2.5; text-transform:uppercase; max-width:400px; }
-    .go-wave   { font-size:0.55rem; letter-spacing:3px; color:rgba(240,160,20,0.4); text-transform:uppercase; }
-
-    #waveAnnounce {
-      position:fixed; top:50%; left:50%;
-      transform:translate(-50%,-50%);
-      font-size:clamp(1.5rem,5vw,3rem);
-      letter-spacing:8px; color:#f0ece0;
-      text-transform:uppercase;
-      opacity:0; z-index:18; pointer-events:none;
-      transition:opacity 0.3s;
-      text-align:center;
-    }
-    #waveAnnounce.show { opacity:1; }
-  </style>
+  <title>MANDOLAB // THE.MAN.DO</title>
+  <link rel="stylesheet" href="universe.css">
 </head>
 <body>
 
-<canvas id="gameCanvas"></canvas>
-<div id="dangerFlash"></div>
-<div id="waveAnnounce"></div>
+  <nav class="universe-nav">
+    <a href="index.html">Index</a>
+    <a href="shits.html">Shits</a>
+    <a href="writings.html">Writings</a>
+    <a href="lab.html" class="active">Lab</a>
+    <a href="products.html">Products</a>
+    <a href="gives.html">Gives</a>
+  </nav>
 
-<!-- HUD -->
-<div id="hud">
-  <div>
-    <div class="hud-label">score</div>
-    <div class="hud-val" id="scoreDisplay">0</div>
-  </div>
-  <div style="text-align:center;">
-    <div class="hud-label">wave</div>
-    <div class="hud-wave" id="waveDisplay">1</div>
-  </div>
-  <div style="text-align:right;">
-    <div class="hud-label">lives</div>
-    <div class="hud-val" id="livesDisplay">💀💀💀</div>
-  </div>
-</div>
+  <header class="page-header">
+      <img src="photos/logo/logo.png" class="logo" alt="THE.MAN.DO">
+    <h1 class="page-title">MANDOLAB</h1>
+    <p class="page-sub">ethical hacking · networking · ctf</p>
+  </header>
 
-<!-- START SCREEN -->
-<div class="screen" id="startScreen">
-  <div class="game-title">MANDO<br>EATS</div>
-  <div class="game-sub">a mandolab production</div>
-  <div class="game-desc">
-    eat the people. avoid red enemies.<br>
-    touch the skeleton exit to advance!
+  <!-- TABS -->
+  <div class="dept-tabs">
+    <button class="dept-tab" onclick="switchTab('concepts', this)">Concepts</button>
+    <button class="dept-tab active" onclick="switchTab('hacking', this)">to do lisi</button>
+    <button class="dept-tab" onclick="switchTab('dj', this)">DJ</button>
+    <button class="dept-tab" onclick="switchTab('secret', this)">Secret</button>
   </div>
 
-  <div style="text-align:center;">
-    <div class="hud-label" style="margin-bottom:10px;">select difficulty</div>
-    <div class="diff-row">
-      <button class="diff-btn selected" data-diff="easy"       onclick="selectDiff(this)">Easy</button>
-      <button class="diff-btn"          data-diff="medium"     onclick="selectDiff(this)">Medium</button>
-      <button class="diff-btn"          data-diff="hard"       onclick="selectDiff(this)">Hard</button>
-      <button class="diff-btn"          data-diff="impossible" onclick="selectDiff(this)">Impossible</button>
+  <!-- ═══════════════ HACKING ═══════════════ -->
+  <div class="dept-panel active" id="panel-hacking">
+    <div class="lab-grid" style="padding:40px 0 0;">
+
+      <div class="lab-card active-project">
+        <div class="lab-status">STATUS: LIVE</div>
+        <h2 class="lab-title">IP_CONFLICT_CASE</h2>
+        <p class="lab-desc">A rogue device pretending to be our gateway router took down an entire office. Found it in under 5 minutes.</p>
+        <div class="lab-tags">#NETWORKING #ARP #REALCASE</div>
+      </div>
+
+      <div class="lab-card active-project">
+        <div class="lab-status">STATUS: LIVE</div>
+        <h2 class="lab-title">PRINTER_DHCP_CASE</h2>
+        <p class="lab-desc">Printer kept losing its IP after every restart. Classic DHCP conflict that drove the whole office crazy.</p>
+        <div class="lab-tags">#DHCP #PRINTING #REALCASE</div>
+      </div>
+
+      <div class="lab-card">
+        <div class="lab-status">STATUS: COMING</div>
+        <h2 class="lab-title">CTF_CHALLENGE_01</h2>
+        <p class="lab-desc">First capture the flag challenge walkthrough. Beginner friendly. Tools: Kali Linux, Wireshark.</p>
+        <div class="lab-tags">#CTF #KALI #ETHICALHACKING</div>
+      </div>
+
+      <div class="lab-card">
+        <div class="lab-status">STATUS: COMING</div>
+        <h2 class="lab-title">NMAP_FIELD_NOTES</h2>
+        <p class="lab-desc">Real commands I use daily for network scanning. Not a tutorial — actual field notes from the job.</p>
+        <div class="lab-tags">#NMAP #NETWORKING #TOOLS</div>
+      </div>
+
+      <div class="lab-card">
+        <div class="lab-status">STATUS: COMING</div>
+        <h2 class="lab-title">WIRESHARK_101</h2>
+        <p class="lab-desc">How to read packet captures like a network engineer. Starting from zero, ending at useful.</p>
+        <div class="lab-tags">#WIRESHARK #PACKETS #ANALYSIS</div>
+      </div>
+
+    </div>
+
+    <!-- CASE 01 FULL WRITEUP -->
+    <div class="lab-grid" style="padding:20px 0 0;">
+      <div class="lab-card active-project" style="grid-column:1/-1; border-left:2px solid #f0a014;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px; margin-bottom:20px;">
+          <div>
+            <div class="lab-status">STATUS: LIVE — REAL CASE</div>
+            <h2 class="lab-title" style="font-size:1.3rem; margin-top:6px;">CASE_01 — THE GHOST IN THE GATEWAY</h2>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <span style="font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:2px;padding:4px 10px;border:1px solid rgba(240,160,20,0.25);border-radius:100px;color:#f0a014;text-transform:uppercase;">Networking</span>
+            <span style="font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:2px;padding:4px 10px;border:1px solid rgba(255,255,255,0.1);border-radius:100px;color:rgba(240,236,224,0.4);text-transform:uppercase;">IP Conflict</span>
+            <span style="font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:2px;padding:4px 10px;border:1px solid rgba(255,255,255,0.1);border-radius:100px;color:rgba(240,236,224,0.4);text-transform:uppercase;">ARP</span>
+          </div>
+        </div>
+        <div style="width:100%;height:1px;background:rgba(240,160,20,0.08);margin-bottom:24px;"></div>
+        <div style="margin-bottom:22px;">
+          <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:#f0a014;opacity:0.6;text-transform:uppercase;margin-bottom:10px;">01 — THE SYMPTOM</div>
+          <p class="lab-desc" style="margin:0;">Half the office lost their network randomly. Emails wouldn't sync. Sessions kept dropping. It wasn't completely dead — it was <strong style="color:#f0ece0;">erratic</strong>. That pattern matters.</p>
+        </div>
+        <div style="margin-bottom:22px;">
+          <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:#f0a014;opacity:0.6;text-transform:uppercase;margin-bottom:10px;">02 — THE HUNT</div>
+          <p class="lab-desc" style="margin:0 0 12px 0;">Continuous ping to the default gateway. Clean for a few rows, then timeout spikes to 1500ms.</p>
+          <div style="background:#000;border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:14px 18px;font-family:'Space Mono',monospace;font-size:0.7rem;color:#f0a014;letter-spacing:1px;margin-bottom:12px;">ping -t 192.168.1.1</div>
+          <p class="lab-desc" style="margin:0;">First guess was a failing switch or loop. Checked everything physically — all fine. Time to go deeper.</p>
+        </div>
+        <div style="margin-bottom:22px;">
+          <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:#f0a014;opacity:0.6;text-transform:uppercase;margin-bottom:10px;">03 — THE BREAKTHROUGH</div>
+          <div style="background:#000;border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:14px 18px;font-family:'Space Mono',monospace;font-size:0.68rem;letter-spacing:1px;margin-bottom:12px;line-height:2.2;">
+            <span style="color:rgba(240,236,224,0.4);">C:\&gt;</span> <span style="color:#f0a014;">arp -a</span><br>
+            <span style="color:rgba(240,236,224,0.6);">192.168.1.1</span>&nbsp;&nbsp;<span style="color:#f0a014;">aa-bb-cc-dd-ee-ff</span>&nbsp;&nbsp;<span style="color:rgba(240,236,224,0.3);">dynamic</span><br>
+            <span style="color:rgba(240,160,20,0.35);font-size:0.6rem;">← 10 seconds later, same IP, different MAC:</span><br>
+            <span style="color:rgba(240,236,224,0.6);">192.168.1.1</span>&nbsp;&nbsp;<span style="color:#f0a014;">11-22-33-44-55-66</span>&nbsp;&nbsp;<span style="color:rgba(240,236,224,0.3);">dynamic</span>
+          </div>
+          <p class="lab-desc" style="margin:0;">Two MACs fighting over the same IP — <strong style="color:#f0ece0;">IP address conflict.</strong> A rogue device had been manually assigned the exact same IP as the gateway router.</p>
+        </div>
+        <div style="margin-bottom:22px;">
+          <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:rgba(80,200,100,0.7);text-transform:uppercase;margin-bottom:10px;">04 — THE FIX</div>
+          <div style="background:#000;border:1px solid rgba(80,200,100,0.1);border-radius:6px;padding:14px 18px;font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(80,200,100,0.7);letter-spacing:1px;line-height:2;">
+            Switch(config)# interface FastEthernet0/[PORT]<br>
+            Switch(config-if)# shutdown<br>
+            <span style="color:rgba(240,236,224,0.3);">→ Network stabilized immediately</span>
+          </div>
+        </div>
+        <div style="padding:16px 20px;background:rgba(240,160,20,0.04);border:1px solid rgba(240,160,20,0.12);border-radius:6px;">
+          <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:#f0a014;opacity:0.6;text-transform:uppercase;margin-bottom:10px;">TAKEAWAY</div>
+          <p class="lab-desc" style="margin:0;color:rgba(240,236,224,0.5);line-height:2;">
+            1. Erratic network = suspect IP conflict before hardware failure.<br>
+            2. <code style="background:#000;padding:1px 6px;border-radius:3px;color:#f0a014;">arp -a</code> is one of the fastest diagnostic commands — use it early.<br>
+            3. Never let users manually assign static IPs without checking your DHCP range.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CASE 02 FULL WRITEUP -->
+    <div class="lab-grid" style="padding:20px 0 0;">
+      <div class="lab-card" style="grid-column:1/-1; border-left:2px solid rgba(240,160,20,0.4);">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px; margin-bottom:20px;">
+          <div>
+            <div class="lab-status">STATUS: LIVE — REAL CASE</div>
+            <h2 class="lab-title" style="font-size:1.3rem; margin-top:6px;">CASE_02 — THE PRINTER THAT FORGOT ITS NAME</h2>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <span style="font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:2px;padding:4px 10px;border:1px solid rgba(240,160,20,0.25);border-radius:100px;color:#f0a014;text-transform:uppercase;">DHCP</span>
+            <span style="font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:2px;padding:4px 10px;border:1px solid rgba(255,255,255,0.1);border-radius:100px;color:rgba(240,236,224,0.4);text-transform:uppercase;">Printing</span>
+          </div>
+        </div>
+        <div style="width:100%;height:1px;background:rgba(240,160,20,0.08);margin-bottom:24px;"></div>
+        <div style="margin-bottom:22px;">
+          <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:#f0a014;opacity:0.6;text-transform:uppercase;margin-bottom:10px;">01 — THE SYMPTOM</div>
+          <p class="lab-desc" style="margin:0;">Every time the office printer restarted, nobody could print. The printer was on and showing online — but jobs just sat in the queue going nowhere.</p>
+        </div>
+        <div style="margin-bottom:22px;">
+          <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:#f0a014;opacity:0.6;text-transform:uppercase;margin-bottom:10px;">02 — THE CAUSE</div>
+          <div style="background:#000;border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:14px 18px;font-family:'Space Mono',monospace;font-size:0.68rem;letter-spacing:1px;line-height:2.2;margin-bottom:12px;">
+            <span style="color:rgba(240,236,224,0.4);">Before restart:</span><br>
+            <span style="color:rgba(240,236,224,0.6);">Printer IP →</span> <span style="color:#f0a014;">192.168.1.45</span> <span style="color:rgba(80,200,100,0.6);">← all computers pointed here</span><br><br>
+            <span style="color:rgba(240,236,224,0.4);">After restart:</span><br>
+            <span style="color:rgba(240,236,224,0.6);">Printer IP →</span> <span style="color:#f0a014;">192.168.1.78</span> <span style="color:rgba(220,80,60,0.7);">← printer moved, nobody knows</span>
+          </div>
+          <p class="lab-desc" style="margin:0;">Printer was on DHCP — every restart gave it a new IP. But every computer still had the old IP saved. Print jobs flying to an address that no longer existed.</p>
+        </div>
+        <div style="margin-bottom:22px;">
+          <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:rgba(80,200,100,0.7);text-transform:uppercase;margin-bottom:10px;">03 — THE FIX</div>
+          <div style="background:#000;border:1px solid rgba(80,200,100,0.1);border-radius:6px;padding:14px 18px;font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(80,200,100,0.7);letter-spacing:1px;line-height:2;">
+            Router DHCP Reservation:<br>
+            MAC: aa:bb:cc:dd:ee:ff → Always gets 192.168.1.45<br>
+            <span style="color:rgba(240,236,224,0.3);">→ Printer always gets same IP, forever</span>
+          </div>
+        </div>
+        <div style="padding:16px 20px;background:rgba(240,160,20,0.04);border:1px solid rgba(240,160,20,0.12);border-radius:6px;">
+          <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:#f0a014;opacity:0.6;text-transform:uppercase;margin-bottom:10px;">TAKEAWAY</div>
+          <p class="lab-desc" style="margin:0;color:rgba(240,236,224,0.5);line-height:2;">
+            1. Shared devices — printers, scanners — should never have random DHCP addresses.<br>
+            2. When a shared device stops working after restart, check its IP first.<br>
+            3. DHCP reservation is cleaner than static — same result, less risk.
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 
-  <button class="start-btn" onclick="startGame()">START EATING →</button>
+  <!-- ═══════════════ CONCEPTS ═══════════════ -->
+  <div class="dept-panel" id="panel-concepts">
+    <div style="padding:40px 0 0;">
 
-  <div class="controls-hint">
-    desktop: arrow keys / wasd · mouse click to move<br>
-    mobile: tap where you want to go
+      <!-- CONCEPT 01 — MANDO EATS -->
+      <div class="lab-card active-project">
+        <div class="lab-status">[ CONCEPT 01 ] ACTIVE</div>
+        <h2 class="lab-title">MANDO EATS</h2>
+        <p class="lab-desc">An interactive survival arcade experiment. You are the skeleton. Eat the people. Avoid the red ones. Survive.</p>
+        <div class="lab-tags">#GAME #EXPERIMENT #CHAOTIC</div>
+        <a href="mandogame.html"
+           style="display:inline-block;margin-top:16px;font-family:var(--font-mono);font-size:0.55rem;letter-spacing:3px;padding:9px 20px;border:1px solid rgba(240,160,20,0.3);color:#f0a014;text-transform:uppercase;transition:all 0.2s;text-decoration:none;border-radius:3px;"
+           onmouseover="this.style.background='rgba(240,160,20,0.08)'"
+           onmouseout="this.style.background='none'">
+          PLAY NOW →
+        </a>
+      </div>
+
+      <!-- PASTE MORE CONCEPT CARDS HERE -->
+
+    </div>
   </div>
-</div>
 
-<!-- GAME OVER -->
-<div class="screen hidden" id="gameOverScreen">
-  <div class="go-title">GAME OVER</div>
-  <div class="go-wave">reached wave <span id="finalWave">1</span></div>
-  <div class="go-score">you ate <span id="finalScore">0</span> people</div>
-  <div class="go-eaten" id="eatenList"></div>
-  <button class="start-btn" onclick="restartGame()">EAT AGAIN →</button>
-  <button class="start-btn" style="border-color:rgba(255,255,255,0.1);color:rgba(240,236,224,0.3);margin-top:-10px;" onclick="goMenu()">CHANGE DIFFICULTY</button>
-</div>
+  <!-- ═══════════════ DJ ═══════════════ -->
+  <div class="dept-panel" id="panel-dj">
+    <div class="dj-hero" style="min-height:auto; padding:40px 0 60px;">
+
+      <div style="text-align:center;">
+        <h2 style="font-family:var(--font-display);font-size:clamp(2rem,6vw,4rem);letter-spacing:6px;color:var(--text);margin-bottom:8px;">SOUND CORE</h2>
+        <p style="font-family:var(--font-mono);font-size:0.58rem;color:var(--accent);letter-spacing:5px;text-transform:uppercase;">If you found this — you were meant to hear it</p>
+      </div>
+
+      <div class="dj-console">
+        <div class="mix-module">
+          <div class="mix-info">
+            <span class="mix-number">01</span>
+            <span class="mix-name">RAW_SESSIONS_001</span>
+          </div>
+          <div class="audio-player">
+            <audio controls>
+              <source src="YOUR_AUDIO_LINK_HERE.mp3" type="audio/mpeg">
+            </audio>
+          </div>
+        </div>
+        <div class="mix-module">
+          <div class="mix-info">
+            <span class="mix-number">02</span>
+            <span class="mix-name">MIDNIGHT_CORE</span>
+          </div>
+          <div class="audio-player">
+            <audio controls>
+              <source src="YOUR_AUDIO_LINK_HERE_2.mp3" type="audio/mpeg">
+            </audio>
+          </div>
+        </div>
+        <div class="mix-module">
+          <div class="mix-info">
+            <span class="mix-number">03</span>
+            <span class="mix-name">DESERT_FREQUENCY</span>
+          </div>
+          <div class="audio-player">
+            <audio controls>
+              <source src="YOUR_AUDIO_LINK_HERE_3.mp3" type="audio/mpeg">
+            </audio>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════ SECRET ═══════════════ -->
+  <div class="dept-panel" id="panel-secret">
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;gap:24px;padding:60px 5%;text-align:center;">
+      <div style="font-family:var(--font-mono);font-size:0.52rem;letter-spacing:5px;color:rgba(240,160,20,0.25);text-transform:uppercase;">ACCESS RESTRICTED</div>
+      <div style="font-family:var(--font-display);font-size:clamp(2.5rem,7vw,5rem);letter-spacing:8px;color:var(--text);line-height:1;">YOU<br>FOUND IT</div>
+      <div style="width:60px;height:1px;background:rgba(240,160,20,0.2);"></div>
+      <div style="font-family:var(--font-mono);font-size:0.58rem;letter-spacing:3px;color:rgba(240,236,224,0.18);text-transform:uppercase;line-height:2.5;">
+        there's nothing here.<br>
+        or maybe there is.<br>
+        keep looking.
+      </div>
+      <!-- ADD YOUR SECRET CONTENT HERE — only real ones get to see it -->
+    </div>
+  </div>
+
+  <div class="chat-trigger" onclick="toggleChat()" id="chatBtn">MSG</div>
+  <div class="chat-dock" id="chatBox">
+    <div class="chat-header">
+      <span>COMM_LINK_V1</span>
+      <span class="chat-close" onclick="toggleChat()">[ CLOSE ]</span>
+    </div>
+    <iframe src="https://www5.cbox.ws/box/?boxid=962257&boxtag=nzOFGW" width="100%" height="400" allowtransparency="yes" frameborder="0" style="display:block;"></iframe>
+  </div>
 
 <script>
-const canvas = document.getElementById('gameCanvas');
-const ctx    = canvas.getContext('2d');
-
-const PEOPLE_DATA = [
-  { name:'Mandooh',  emoji:'😎', color:'#3498db', face:'photos/lab/mandogame/amal.png'},
-  { name:'IRAPPI',   emoji:'🤪', color:'#9b59b6', face:'photos/lab/mandogame/irappi.png' },
-  { name:'ummi',     emoji:'👩', color:'#e91e63', face:'photos/lab/mandogame/ummi.png' },
-  { name:'jaggz',    emoji:'👨', color:'#2196f3', face:'photos/lab/mandogame/jaggz.png' },
-  { name:'arth',     emoji:'🤙', color:'#4caf50', face:'photos/lab/mandogame/arth.png' },
-  { name:'kurus',    emoji:'😤', color:'#ff9800', face:'photos/lab/mandogame/kurus.png' },
-  { name:'NAOMI',    emoji:'🤖', color:'#00bcd4', face:'photos/lab/mandogame/meow.png' },
-];
-
-const DIFF = {
-  easy:       { playerSpeed:7,  runSpeed:0.8,  detectRange:60,  redChance:0.2, wavePeople:4, waveGap:140, label:'EASY' },
-  medium:     { playerSpeed:6,  runSpeed:1.4,  detectRange:90,  redChance:0.3, wavePeople:5, waveGap:110, label:'MEDIUM' },
-  hard:       { playerSpeed:5,  runSpeed:2.0,  detectRange:110, redChance:0.4, wavePeople:6, waveGap:90,  label:'HARD' },
-  impossible: { playerSpeed:4,  runSpeed:3.0,  detectRange:150, redChance:0.5, wavePeople:8, waveGap:60,  label:'IMPOSSIBLE' },
-};
-
-let selectedDiff = 'easy';
-let cfg = DIFF[selectedDiff];
-
-let W, H, player, people, score, lives, wave, gameActive;
-let waveTimer, waveSpawning, peopleThisWave, peopleSpawned;
-let eatenNames = [], keys = {}, touchTarget = null;
-let particles = [];
-
-let levelExit = null;
-
-const faceImgs = {};
-PEOPLE_DATA.forEach(p => {
-  if (p.face) {
-    const img = new Image();
-    img.src = p.face;
-    faceImgs[p.name] = img;
-  }
-});
-
-function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
-window.addEventListener('resize', resize);
-resize();
-
-function selectDiff(btn) {
-  document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-  selectedDiff = btn.dataset.diff;
-  cfg = DIFF[selectedDiff];
+function switchTab(id, btn) {
+  document.querySelectorAll('.dept-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.dept-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + id).classList.add('active');
 }
 
-function createPlayer() {
-  return { x:W/2, y:H/2, size:26, speed:cfg.playerSpeed, mouthOpen:0, mouthDir:1, legAnim:0 };
+function toggleChat() {
+  const box = document.getElementById('chatBox');
+  const btn = document.getElementById('chatBtn');
+  box.classList.toggle('active');
+  btn.textContent = box.classList.contains('active') ? 'CLOSE' : 'MSG';
 }
-
-function spawnPerson(isRed) {
-  let x, y, tries=0;
-  do {
-    x = 80 + Math.random()*(W-160);
-    y = 80 + Math.random()*(H-160);
-    tries++;
-  } while (player && Math.hypot(x-player.x, y-player.y) < 180 && tries < 20);
-
-  const t = PEOPLE_DATA[Math.floor(Math.random()*PEOPLE_DATA.length)];
-  return {
-    x, y,
-    name:    isRed ? '⚠ '+t.name : t.name,
-    rawName: t.name,
-    emoji:   t.emoji,
-    color:   isRed ? '#e74c3c' : t.color,
-    speed:   cfg.runSpeed + Math.random()*0.5,
-    size:    20,
-    legAnim: Math.random()*Math.PI*2,
-    isRed,
-  };
-}
-
-function spawnSkeletonExit() {
-  levelExit = {
-    x: 100 + Math.random()*(W-200),
-    y: 100 + Math.random()*(H-200),
-    size: 24
-  };
-}
-
-function drawBg() {
-  ctx.strokeStyle = 'rgba(240,160,20,0.04)';
-  ctx.lineWidth = 0.5;
-  for (let x=0; x<W; x+=60) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
-  for (let y=0; y<H; y+=60) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
-}
-
-function drawPlayer(p) {
-  ctx.save();
-  ctx.translate(p.x, p.y);
-  p.mouthOpen += 0.15*p.mouthDir;
-  if (p.mouthOpen>0.4||p.mouthOpen<0) p.mouthDir*=-1;
-
-  ctx.fillStyle = '#f0ece0';
-  ctx.beginPath(); ctx.arc(0,0,p.size*0.6,0,Math.PI*2); ctx.fill();
-  ctx.fillStyle = '#060606';
-  ctx.beginPath(); ctx.arc(-8,-4,5,0,Math.PI*2); ctx.arc(8,-4,5,0,Math.PI*2); ctx.fill();
-  ctx.fillStyle = '#f0a014';
-  ctx.beginPath(); ctx.arc(-8,-4,2.5,0,Math.PI*2); ctx.arc(8,-4,2.5,0,Math.PI*2); ctx.fill();
-  ctx.strokeStyle = '#060606'; ctx.lineWidth=2;
-  ctx.beginPath(); ctx.arc(0,6,7,p.mouthOpen,Math.PI-p.mouthOpen); ctx.stroke();
-  p.legAnim+=0.12;
-  ctx.strokeStyle='#f0ece0'; ctx.lineWidth=2.5;
-  ctx.beginPath(); ctx.moveTo(0,p.size*0.6); ctx.lineTo(0,p.size*1.8); ctx.stroke();
-  for(let i=0;i<3;i++){
-    const ry=p.size*0.75+i*8;
-    ctx.beginPath();
-    ctx.moveTo(0,ry); ctx.bezierCurveTo(-14,ry-3,-16,ry+5,-7,ry+7);
-    ctx.moveTo(0,ry); ctx.bezierCurveTo(14,ry-3,16,ry+5,7,ry+7);
-    ctx.stroke();
-  }
-  ctx.beginPath();
-  ctx.moveTo(0,p.size*0.8); ctx.lineTo(-18+Math.sin(p.legAnim)*7,p.size*1.3+Math.cos(p.legAnim)*5);
-  ctx.moveTo(0,p.size*0.8); ctx.lineTo(18+Math.sin(p.legAnim+Math.PI)*7,p.size*1.3+Math.cos(p.legAnim+Math.PI)*5);
-  ctx.moveTo(0,p.size*1.8); ctx.lineTo(-11+Math.sin(p.legAnim+1)*9,p.size*2.6);
-  ctx.moveTo(0,p.size*1.8); ctx.lineTo(11+Math.sin(p.legAnim+Math.PI+1)*9,p.size*2.6);
-  ctx.stroke();
-  ctx.restore();
-}
-
-function drawSkeletonExit(e) {
-  ctx.save();
-  ctx.translate(e.x, e.y);
-  ctx.font = '28px serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('💀', 0, 10);
-  ctx.font = 'bold 9px Space Mono';
-  ctx.fillStyle = '#2ecc71';
-  ctx.fillText('NEXT LEVEL', 0, -20);
-  ctx.restore();
-}
-
-function drawPerson(p) {
-  ctx.save();
-  ctx.translate(p.x, p.y);
-  p.legAnim += 0.15;
-
-  if (p.isRed) {
-    ctx.shadowColor = '#e74c3c';
-    ctx.shadowBlur  = 18 + Math.sin(Date.now()*0.008)*8;
-  }
-
-  ctx.shadowBlur = p.isRed ? 10 : 0;
-  ctx.font = 'bold 8px Space Mono';
-  ctx.fillStyle = p.isRed ? 'rgba(220,50,50,0.9)' : 'rgba(240,160,20,0.7)';
-  ctx.textAlign = 'center';
-  ctx.fillText(p.name, 0, -p.size-10);
-
-  const faceImg = faceImgs[p.rawName];
-  if (!p.isRed && faceImg && faceImg.complete && faceImg.naturalWidth>0) {
-    const r = p.size*0.7;
-    ctx.save();
-    ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.clip();
-    ctx.drawImage(faceImg,-r,-r,r*2,r*2);
-    ctx.restore();
-    ctx.strokeStyle = p.color; ctx.lineWidth=2;
-    ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.stroke();
-  } else {
-    ctx.font = `${p.size*1.1}px serif`;
-    ctx.textAlign='center';
-    if (p.isRed) ctx.fillText('👹',0,p.size*0.4);
-    else ctx.fillText(p.emoji,0,p.size*0.4);
-  }
-
-  ctx.strokeStyle = p.color; ctx.lineWidth=2.5; ctx.shadowBlur=0;
-  ctx.beginPath();
-  ctx.moveTo(0,p.size*0.6); ctx.lineTo(0,p.size*1.6);
-  ctx.moveTo(0,p.size*0.9); ctx.lineTo(-13+Math.sin(p.legAnim)*5,p.size*1.3);
-  ctx.moveTo(0,p.size*0.9); ctx.lineTo(13+Math.sin(p.legAnim+Math.PI)*5,p.size*1.3);
-  ctx.moveTo(0,p.size*1.6); ctx.lineTo(-9+Math.sin(p.legAnim+1)*7,p.size*2.3);
-  ctx.moveTo(0,p.size*1.6); ctx.lineTo(9+Math.sin(p.legAnim+Math.PI+1)*7,p.size*2.3);
-  ctx.stroke();
-
-  ctx.restore();
-}
-
-function burst(x, y, color, text) {
-  for(let i=0;i<10;i++){
-    const a=(Math.PI*2/10)*i;
-    particles.push({x,y,vx:Math.cos(a)*(2+Math.random()*4),vy:Math.sin(a)*(2+Math.random()*4),life:40,maxLife:40,color,size:3+Math.random()*3});
-  }
-  particles.push({x,y:y-20,vx:0,vy:-1.5,life:55,maxLife:55,text,color:'#f0a014',size:14,isText:true});
-}
-
-function drawParticles(){
-  particles = particles.filter(p=>p.life>0);
-  particles.forEach(p=>{
-    p.x+=p.vx; p.y+=p.vy; p.life--;
-    ctx.globalAlpha=p.life/p.maxLife;
-    if(p.isText){ ctx.font=`bold ${p.size}px Space Mono`; ctx.fillStyle=p.color; ctx.textAlign='center'; ctx.fillText(p.text,p.x,p.y); }
-    else{ ctx.fillStyle=p.color; ctx.beginPath(); ctx.arc(p.x,p.y,p.size*(p.life/p.maxLife),0,Math.PI*2); ctx.fill(); }
-    ctx.globalAlpha=1;
-  });
-}
-
-function startWave() {
-  waveSpawning   = true;
-  peopleThisWave = cfg.wavePeople + (wave-1)*2;
-  peopleSpawned  = 0;
-  waveTimer      = 0;
-  
-  // SKELETON EXIT IS CREATED NOW AT THE START OF THE WAVE
-  spawnSkeletonExit();
-  showWaveAnnounce();
-}
-
-function showWaveAnnounce() {
-  const el = document.getElementById('waveAnnounce');
-  el.innerHTML = `WAVE ${wave}<br><span style="font-size:0.5em;letter-spacing:4px;color:rgba(240,160,20,0.5)">EAT ALL & FIND EXIT</span>`;
-  el.classList.add('show');
-  setTimeout(()=>el.classList.remove('show'), 2000);
-  document.getElementById('waveDisplay').textContent = wave;
-}
-
-function update() {
-  if (!gameActive) return;
-
-  if (touchTarget) {
-    const dx=touchTarget.x-player.x, dy=touchTarget.y-player.y;
-    const d=Math.hypot(dx,dy);
-    if(d>6){ player.x+=dx/d*player.speed; player.y+=dy/d*player.speed; }
-    else touchTarget = null;
-  } else {
-    if(keys['ArrowLeft'] ||keys['a']||keys['A']) player.x-=player.speed;
-    if(keys['ArrowRight']||keys['d']||keys['D']) player.x+=player.speed;
-    if(keys['ArrowUp']   ||keys['w']||keys['W']) player.y-=player.speed;
-    if(keys['ArrowDown'] ||keys['s']||keys['S']) player.y+=player.speed;
-  }
-  player.x=Math.max(25,Math.min(W-25,player.x));
-  player.y=Math.max(25,Math.min(H-25,player.y));
-
-  // SPAWN PEOPLE DURING WAVE
-  if (waveSpawning) {
-    waveTimer++;
-    if (waveTimer % cfg.waveGap === 0 && peopleSpawned < peopleThisWave) {
-      const isRed = Math.random() < cfg.redChance;
-      people.push(spawnPerson(isRed));
-      peopleSpawned++;
-      if (peopleSpawned >= peopleThisWave) waveSpawning = false;
-    }
-  }
-
-  // MOVE PEOPLE
-  people.forEach(p => {
-    const dx=p.x-player.x, dy=p.y-player.y;
-    const dist=Math.hypot(dx,dy);
-    if (p.isRed) {
-      p.x -= (dx/dist)*p.speed*1.8;
-      p.y -= (dy/dist)*p.speed*1.8;
-    } else if (dist < cfg.detectRange) {
-      p.x += (dx/dist)*p.speed*1.5;
-      p.y += (dy/dist)*p.speed*1.5;
-    } else {
-      p.x += (Math.random()-0.5)*1;
-      p.y += (Math.random()-0.5)*1;
-    }
-  });
-
-  // CHECK EXIT COLLISION FIRST (Moves to Next Wave without taking damage)
-  if (levelExit) {
-    const exitDist = Math.hypot(levelExit.x - player.x, levelExit.y - player.y);
-    if (exitDist < player.size + levelExit.size) {
-      burst(player.x, player.y, '#2ecc71', 'NEXT LEVEL!');
-      wave++;
-      startWave();
-      return;
-    }
-  }
-
-  // CHECK PERSON/ENEMY COLLISIONS
-  const survived = [];
-  for (const p of people) {
-    const dist = Math.hypot(p.x-player.x, p.y-player.y);
-    if (dist < player.size + p.size + 8) {
-      if (p.isRed) {
-        lives--;
-        updateLives();
-        burst(player.x, player.y, '#e74c3c', 'OUCH!');
-        document.getElementById('dangerFlash').classList.add('flash');
-        setTimeout(()=>document.getElementById('dangerFlash').classList.remove('flash'),150);
-        if (lives<=0) { gameOver(); return; }
-      } else {
-        score += wave*10;
-        eatenNames.push(p.rawName);
-        burst(p.x, p.y, p.color, 'NOM!');
-        document.getElementById('scoreDisplay').textContent = score;
-      }
-    } else {
-      survived.push(p);
-    }
-  }
-  people = survived;
-}
-
-function draw() {
-  ctx.clearRect(0,0,W,H);
-  drawBg();
-  if (levelExit) drawSkeletonExit(levelExit);
-  people.forEach(drawPerson);
-  drawPlayer(player);
-  drawParticles();
-}
-
-function tick() {
-  update(); draw();
-  if (gameActive) requestAnimationFrame(tick);
-}
-
-function updateLives() {
-  document.getElementById('livesDisplay').textContent = '💀'.repeat(Math.max(0,lives));
-}
-
-function startGame() {
-  cfg = DIFF[selectedDiff];
-  document.getElementById('startScreen').classList.add('hidden');
-  document.getElementById('gameOverScreen').classList.add('hidden');
-  document.getElementById('hud').classList.add('show');
-
-  player=createPlayer(); people=[]; score=0; lives=3;
-  wave=1; eatenNames=[]; particles=[]; levelExit=null;
-  gameActive=true;
-
-  document.getElementById('scoreDisplay').textContent='0';
-  updateLives();
-  startWave();
-  requestAnimationFrame(tick);
-}
-
-function restartGame() {
-  document.getElementById('gameOverScreen').classList.add('hidden');
-  startGame();
-}
-
-function goMenu() {
-  gameActive=false;
-  document.getElementById('gameOverScreen').classList.add('hidden');
-  document.getElementById('hud').classList.remove('show');
-  document.getElementById('startScreen').classList.remove('hidden');
-}
-
-function gameOver() {
-  gameActive=false;
-  document.getElementById('hud').classList.remove('show');
-  document.getElementById('finalScore').textContent=score;
-  document.getElementById('finalWave').textContent=wave;
-  const unique=[...new Set(eatenNames)];
-  document.getElementById('eatenList').textContent = unique.length
-    ? 'eaten: '+unique.join(', ')
-    : 'you ate nobody...';
-  document.getElementById('gameOverScreen').classList.remove('hidden');
-}
-
-window.addEventListener('keydown',e=>{keys[e.key]=true;});
-window.addEventListener('keyup',  e=>{keys[e.key]=false;});
-
-canvas.addEventListener('touchstart',e=>{e.preventDefault();const t=e.touches[0];touchTarget={x:t.clientX,y:t.clientY};},{passive:false});
-canvas.addEventListener('touchmove', e=>{e.preventDefault();const t=e.touches[0];touchTarget={x:t.clientX,y:t.clientY};},{passive:false});
-canvas.addEventListener('touchend', ()=>{touchTarget=null;});
-canvas.addEventListener('click',e=>{if(gameActive){touchTarget={x:e.clientX,y:e.clientY};}});
 </script>
+
+  <script src="universe.js"></script>
 </body>
 </html>
