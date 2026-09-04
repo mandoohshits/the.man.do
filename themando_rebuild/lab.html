@@ -5,6 +5,64 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MANDOLAB // THE.MAN.DO</title>
   <link rel="stylesheet" href="universe.css">
+  <style>
+    /* ── SECRET MODAL STYLES ── */
+    .secret-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(6, 6, 6, 0.85);
+      backdrop-filter: blur(5px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .secret-modal.hidden { display: none; }
+    .secret-modal-content {
+      background: #0d0d0d;
+      border: 1px solid rgba(240, 160, 20, 0.4);
+      padding: 30px;
+      border-radius: 6px;
+      text-align: center;
+      width: 90%;
+      max-width: 360px;
+    }
+    .secret-title {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 3px;
+      color: #f0a014;
+      margin-bottom: 15px;
+    }
+    #secretInput {
+      width: 100%;
+      padding: 10px;
+      background: #000;
+      border: 1px solid rgba(240, 236, 224, 0.2);
+      color: #f0ece0;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      text-align: center;
+      letter-spacing: 2px;
+      outline: none;
+      margin-bottom: 15px;
+    }
+    #secretInput:focus { border-color: #f0a014; }
+    .secret-btns { display: flex; gap: 10px; justify-content: center; }
+    .secret-btns button {
+      padding: 8px 16px;
+      background: none;
+      border: 1px solid rgba(240, 160, 20, 0.4);
+      color: #f0a014;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .secret-btns button:hover { background: rgba(240, 160, 20, 0.1); }
+    .secret-msg { font-size: 0.6rem; margin-top: 10px; letter-spacing: 1px; font-family: 'Space Mono', monospace; }
+  </style>
 </head>
 <body>
 
@@ -16,168 +74,44 @@
     <a href="products.html">Products</a>
     <a href="gives.html">Gives</a>
   </nav>
-<header class="page-header">
-  <!-- MANDOLAB LOGO WITH SECRET KEY TRIGGER -->
-  <div onclick="revealMandoKey()" title="Click for a secret..." style="cursor: pointer; display: inline-block;">
-    <div class="logo-icon">
-      <img src="photos/logo/logo.png" class="logo" alt="THE.MAN.DO">
+
+  <header class="page-header">
+    <!-- MANDOLAB LOGO WITH SECRET MODAL TRIGGER -->
+    <div onclick="openSecretModal()" title="Click for a secret..." style="cursor: pointer; display: inline-block;">
+      <div class="logo-icon">
+        <img src="photos/logo/logo.png" class="logo" alt="THE.MAN.DO">
+      </div>
+      <h1 class="logo-title" style="font-family:'Space Mono', monospace; letter-spacing:6px; color:#f0ece0; font-size:2.8rem; margin:0;">
+        MANDOLAB
+      </h1>
+      <div style="font-size:0.55rem; letter-spacing:4px; color:rgba(240,160,20,0.6); text-transform:uppercase; margin-top:4px;">
+        hahhahahah
+      </div>
     </div>
-    <h1 class="logo-title" style="font-family:'Space Mono', monospace; letter-spacing:6px; color:#f0ece0; font-size:2.8rem; margin:0;">
-      MANDOLAB
-    </h1>
-    <div style="font-size:0.55rem; letter-spacing:4px; color:rgba(240,160,20,0.6); text-transform:uppercase; margin-top:4px;">
-      hahhahahah
-    </div>
-  </div>
-</header>
+  </header>
 
   <!-- TABS -->
   <div class="dept-tabs">
     <button class="dept-tab" onclick="switchTab('concepts', this)">Concepts</button>
     <button class="dept-tab active" onclick="switchTab('hacking', this)">Hacking</button>
     <button class="dept-tab" onclick="switchTab('dj', this)">DJ</button>
-    <button class="dept-tab" onclick="switchTab('secret', this)">Secret</button>
+    <button class="dept-tab" onclick="openSecretModal()">Secret</button>
   </div>
 
   <!-- ═══════════════ HACKING ═══════════════ -->
   <div class="dept-panel active" id="panel-hacking">
     <div class="lab-grid" style="padding:40px 0 0;">
-
       <div class="lab-card active-project">
         <div class="lab-status">STATUS: LIVE</div>
         <h2 class="lab-title">IP_CONFLICT_CASE</h2>
         <p class="lab-desc">A rogue device pretending to be our gateway router took down an entire office. Found it in under 5 minutes.</p>
         <div class="lab-tags">#NETWORKING #ARP #REALCASE</div>
       </div>
-
       <div class="lab-card active-project">
         <div class="lab-status">STATUS: LIVE</div>
         <h2 class="lab-title">PRINTER_DHCP_CASE</h2>
         <p class="lab-desc">Printer kept losing its IP after every restart. Classic DHCP conflict that drove the whole office crazy.</p>
         <div class="lab-tags">#DHCP #PRINTING #REALCASE</div>
-      </div>
-
-      <div class="lab-card">
-        <div class="lab-status">STATUS: COMING</div>
-        <h2 class="lab-title">CTF_CHALLENGE_01</h2>
-        <p class="lab-desc">First capture the flag challenge walkthrough. Beginner friendly. Tools: Kali Linux, Wireshark.</p>
-        <div class="lab-tags">#CTF #KALI #ETHICALHACKING</div>
-      </div>
-
-      <div class="lab-card">
-        <div class="lab-status">STATUS: COMING</div>
-        <h2 class="lab-title">NMAP_FIELD_NOTES</h2>
-        <p class="lab-desc">Real commands I use daily for network scanning. Not a tutorial — actual field notes from the job.</p>
-        <div class="lab-tags">#NMAP #NETWORKING #TOOLS</div>
-      </div>
-
-      <div class="lab-card">
-        <div class="lab-status">STATUS: COMING</div>
-        <h2 class="lab-title">WIRESHARK_101</h2>
-        <p class="lab-desc">How to read packet captures like a network engineer. Starting from zero, ending at useful.</p>
-        <div class="lab-tags">#WIRESHARK #PACKETS #ANALYSIS</div>
-      </div>
-
-    </div>
-
-    <!-- CASE 01 FULL WRITEUP -->
-    <div class="lab-grid" style="padding:20px 0 0;">
-      <div class="lab-card active-project" style="grid-column:1/-1; border-left:2px solid #f0a014;">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px; margin-bottom:20px;">
-          <div>
-            <div class="lab-status">STATUS: LIVE — REAL CASE</div>
-            <h2 class="lab-title" style="font-size:1.3rem; margin-top:6px;">CASE_01 — THE GHOST IN THE GATEWAY</h2>
-          </div>
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <span style="font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:2px;padding:4px 10px;border:1px solid rgba(240,160,20,0.25);border-radius:100px;color:#f0a014;text-transform:uppercase;">Networking</span>
-            <span style="font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:2px;padding:4px 10px;border:1px solid rgba(255,255,255,0.1);border-radius:100px;color:rgba(240,236,224,0.4);text-transform:uppercase;">IP Conflict</span>
-            <span style="font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:2px;padding:4px 10px;border:1px solid rgba(255,255,255,0.1);border-radius:100px;color:rgba(240,236,224,0.4);text-transform:uppercase;">ARP</span>
-          </div>
-        </div>
-        <div style="width:100%;height:1px;background:rgba(240,160,20,0.08);margin-bottom:24px;"></div>
-        <div style="margin-bottom:22px;">
-          <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:#f0a014;opacity:0.6;text-transform:uppercase;margin-bottom:10px;">01 — THE SYMPTOM</div>
-          <p class="lab-desc" style="margin:0;">Half the office lost their network randomly. Emails wouldn't sync. Sessions kept dropping. It wasn't completely dead — it was <strong style="color:#f0ece0;">erratic</strong>. That pattern matters.</p>
-        </div>
-        <div style="margin-bottom:22px;">
-          <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:#f0a014;opacity:0.6;text-transform:uppercase;margin-bottom:10px;">02 — THE HUNT</div>
-          <p class="lab-desc" style="margin:0 0 12px 0;">Continuous ping to the default gateway. Clean for a few rows, then timeout spikes to 1500ms.</p>
-          <div style="background:#000;border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:14px 18px;font-family:'Space Mono',monospace;font-size:0.7rem;color:#f0a014;letter-spacing:1px;margin-bottom:12px;">ping -t 192.168.1.1</div>
-          <p class="lab-desc" style="margin:0;">First guess was a failing switch or loop. Checked everything physically — all fine. Time to go deeper.</p>
-        </div>
-        <div style="margin-bottom:22px;">
-          <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:#f0a014;opacity:0.6;text-transform:uppercase;margin-bottom:10px;">03 — THE BREAKTHROUGH</div>
-          <div style="background:#000;border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:14px 18px;font-family:'Space Mono',monospace;font-size:0.68rem;letter-spacing:1px;margin-bottom:12px;line-height:2.2;">
-            <span style="color:rgba(240,236,224,0.4);">C:\&gt;</span> <span style="color:#f0a014;">arp -a</span><br>
-            <span style="color:rgba(240,236,224,0.6);">192.168.1.1</span>&nbsp;&nbsp;<span style="color:#f0a014;">aa-bb-cc-dd-ee-ff</span>&nbsp;&nbsp;<span style="color:rgba(240,236,224,0.3);">dynamic</span><br>
-            <span style="color:rgba(240,160,20,0.35);font-size:0.6rem;">← 10 seconds later, same IP, different MAC:</span><br>
-            <span style="color:rgba(240,236,224,0.6);">192.168.1.1</span>&nbsp;&nbsp;<span style="color:#f0a014;">11-22-33-44-55-66</span>&nbsp;&nbsp;<span style="color:rgba(240,236,224,0.3);">dynamic</span>
-          </div>
-          <p class="lab-desc" style="margin:0;">Two MACs fighting over the same IP — <strong style="color:#f0ece0;">IP address conflict.</strong> A rogue device had been manually assigned the exact same IP as the gateway router.</p>
-        </div>
-        <div style="margin-bottom:22px;">
-          <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:rgba(80,200,100,0.7);text-transform:uppercase;margin-bottom:10px;">04 — THE FIX</div>
-          <div style="background:#000;border:1px solid rgba(80,200,100,0.1);border-radius:6px;padding:14px 18px;font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(80,200,100,0.7);letter-spacing:1px;line-height:2;">
-            Switch(config)# interface FastEthernet0/[PORT]<br>
-            Switch(config-if)# shutdown<br>
-            <span style="color:rgba(240,236,224,0.3);">→ Network stabilized immediately</span>
-          </div>
-        </div>
-        <div style="padding:16px 20px;background:rgba(240,160,20,0.04);border:1px solid rgba(240,160,20,0.12);border-radius:6px;">
-          <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:#f0a014;opacity:0.6;text-transform:uppercase;margin-bottom:10px;">TAKEAWAY</div>
-          <p class="lab-desc" style="margin:0;color:rgba(240,236,224,0.5);line-height:2;">
-            1. Erratic network = suspect IP conflict before hardware failure.<br>
-            2. <code style="background:#000;padding:1px 6px;border-radius:3px;color:#f0a014;">arp -a</code> is one of the fastest diagnostic commands — use it early.<br>
-            3. Never let users manually assign static IPs without checking your DHCP range.
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- CASE 02 FULL WRITEUP -->
-    <div class="lab-grid" style="padding:20px 0 0;">
-      <div class="lab-card" style="grid-column:1/-1; border-left:2px solid rgba(240,160,20,0.4);">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px; margin-bottom:20px;">
-          <div>
-            <div class="lab-status">STATUS: LIVE — REAL CASE</div>
-            <h2 class="lab-title" style="font-size:1.3rem; margin-top:6px;">CASE_02 — THE PRINTER THAT FORGOT ITS NAME</h2>
-          </div>
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <span style="font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:2px;padding:4px 10px;border:1px solid rgba(240,160,20,0.25);border-radius:100px;color:#f0a014;text-transform:uppercase;">DHCP</span>
-            <span style="font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:2px;padding:4px 10px;border:1px solid rgba(255,255,255,0.1);border-radius:100px;color:rgba(240,236,224,0.4);text-transform:uppercase;">Printing</span>
-          </div>
-        </div>
-        <div style="width:100%;height:1px;background:rgba(240,160,20,0.08);margin-bottom:24px;"></div>
-        <div style="margin-bottom:22px;">
-          <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:#f0a014;opacity:0.6;text-transform:uppercase;margin-bottom:10px;">01 — THE SYMPTOM</div>
-          <p class="lab-desc" style="margin:0;">Every time the office printer restarted, nobody could print. The printer was on and showing online — but jobs just sat in the queue going nowhere.</p>
-        </div>
-        <div style="margin-bottom:22px;">
-          <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:#f0a014;opacity:0.6;text-transform:uppercase;margin-bottom:10px;">02 — THE CAUSE</div>
-          <div style="background:#000;border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:14px 18px;font-family:'Space Mono',monospace;font-size:0.68rem;letter-spacing:1px;line-height:2.2;margin-bottom:12px;">
-            <span style="color:rgba(240,236,224,0.4);">Before restart:</span><br>
-            <span style="color:rgba(240,236,224,0.6);">Printer IP →</span> <span style="color:#f0a014;">192.168.1.45</span> <span style="color:rgba(80,200,100,0.6);">← all computers pointed here</span><br><br>
-            <span style="color:rgba(240,236,224,0.4);">After restart:</span><br>
-            <span style="color:rgba(240,236,224,0.6);">Printer IP →</span> <span style="color:#f0a014;">192.168.1.78</span> <span style="color:rgba(220,80,60,0.7);">← printer moved, nobody knows</span>
-          </div>
-          <p class="lab-desc" style="margin:0;">Printer was on DHCP — every restart gave it a new IP. But every computer still had the old IP saved. Print jobs flying to an address that no longer existed.</p>
-        </div>
-        <div style="margin-bottom:22px;">
-          <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:rgba(80,200,100,0.7);text-transform:uppercase;margin-bottom:10px;">03 — THE FIX</div>
-          <div style="background:#000;border:1px solid rgba(80,200,100,0.1);border-radius:6px;padding:14px 18px;font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(80,200,100,0.7);letter-spacing:1px;line-height:2;">
-            Router DHCP Reservation:<br>
-            MAC: aa:bb:cc:dd:ee:ff → Always gets 192.168.1.45<br>
-            <span style="color:rgba(240,236,224,0.3);">→ Printer always gets same IP, forever</span>
-          </div>
-        </div>
-        <div style="padding:16px 20px;background:rgba(240,160,20,0.04);border:1px solid rgba(240,160,20,0.12);border-radius:6px;">
-          <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:#f0a014;opacity:0.6;text-transform:uppercase;margin-bottom:10px;">TAKEAWAY</div>
-          <p class="lab-desc" style="margin:0;color:rgba(240,236,224,0.5);line-height:2;">
-            1. Shared devices — printers, scanners — should never have random DHCP addresses.<br>
-            2. When a shared device stops working after restart, check its IP first.<br>
-            3. DHCP reservation is cleaner than static — same result, less risk.
-          </p>
-        </div>
       </div>
     </div>
   </div>
@@ -185,87 +119,42 @@
   <!-- ═══════════════ CONCEPTS ═══════════════ -->
   <div class="dept-panel" id="panel-concepts">
     <div style="padding:40px 0 0;">
-
-      <!-- CONCEPT 01 — MANDO EATS -->
       <div class="lab-card active-project">
         <div class="lab-status">[ CONCEPT 01 ] ACTIVE</div>
         <h2 class="lab-title">MANDO EATS</h2>
         <p class="lab-desc">An interactive survival arcade experiment. You are the skeleton. Eat the people. Avoid the red ones. Survive.</p>
         <div class="lab-tags">#GAME #EXPERIMENT #CHAOTIC</div>
-        <a href="mandogame.html"
-           style="display:inline-block;margin-top:16px;font-family:var(--font-mono);font-size:0.55rem;letter-spacing:3px;padding:9px 20px;border:1px solid rgba(240,160,20,0.3);color:#f0a014;text-transform:uppercase;transition:all 0.2s;text-decoration:none;border-radius:3px;"
-           onmouseover="this.style.background='rgba(240,160,20,0.08)'"
-           onmouseout="this.style.background='none'">
+        <a href="mandogame.html" style="display:inline-block;margin-top:16px;font-family:var(--font-mono);font-size:0.55rem;letter-spacing:3px;padding:9px 20px;border:1px solid rgba(240,160,20,0.3);color:#f0a014;text-transform:uppercase;transition:all 0.2s;text-decoration:none;border-radius:3px;">
           PLAY NOW →
         </a>
       </div>
-
-      <!-- PASTE MORE CONCEPT CARDS HERE -->
-
     </div>
   </div>
 
   <!-- ═══════════════ DJ ═══════════════ -->
   <div class="dept-panel" id="panel-dj">
     <div class="dj-hero" style="min-height:auto; padding:40px 0 60px;">
-
       <div style="text-align:center;">
         <h2 style="font-family:var(--font-display);font-size:clamp(2rem,6vw,4rem);letter-spacing:6px;color:var(--text);margin-bottom:8px;">SOUND CORE</h2>
         <p style="font-family:var(--font-mono);font-size:0.58rem;color:var(--accent);letter-spacing:5px;text-transform:uppercase;">If you found this — you were meant to hear it</p>
       </div>
-
-      <div class="dj-console">
-        <div class="mix-module">
-          <div class="mix-info">
-            <span class="mix-number">01</span>
-            <span class="mix-name">RAW_SESSIONS_001</span>
-          </div>
-          <div class="audio-player">
-            <audio controls>
-              <source src="YOUR_AUDIO_LINK_HERE.mp3" type="audio/mpeg">
-            </audio>
-          </div>
-        </div>
-        <div class="mix-module">
-          <div class="mix-info">
-            <span class="mix-number">02</span>
-            <span class="mix-name">MIDNIGHT_CORE</span>
-          </div>
-          <div class="audio-player">
-            <audio controls>
-              <source src="YOUR_AUDIO_LINK_HERE_2.mp3" type="audio/mpeg">
-            </audio>
-          </div>
-        </div>
-        <div class="mix-module">
-          <div class="mix-info">
-            <span class="mix-number">03</span>
-            <span class="mix-name">DESERT_FREQUENCY</span>
-          </div>
-          <div class="audio-player">
-            <audio controls>
-              <source src="YOUR_AUDIO_LINK_HERE_3.mp3" type="audio/mpeg">
-            </audio>
-          </div>
-        </div>
-      </div>
-
     </div>
   </div>
 
-  <!-- ═══════════════ SECRET ═══════════════ -->
+  <!-- ═══════════════ SECRET MODAL ═══════════════ -->
   <div id="secretModal" class="secret-modal hidden">
-  <div class="secret-modal-content">
-    <div class="secret-title">ENTER SECRET KEY</div>
-    <input type="password" id="secretInput" placeholder="TYPE KEY HERE..." autocomplete="off" />
-    <div class="secret-btns">
-      <button onclick="submitSecretKey()">SUBMIT</button>
-      <button onclick="closeSecretModal()">CANCEL</button>
+    <div class="secret-modal-content">
+      <div class="secret-title">ENTER SECRET KEY</div>
+      <input type="password" id="secretInput" placeholder="TYPE KEY HERE..." autocomplete="off" />
+      <div class="secret-btns">
+        <button onclick="submitSecretKey()">SUBMIT</button>
+        <button onclick="closeSecretModal()">CANCEL</button>
+      </div>
+      <div id="secretMsg" class="secret-msg"></div>
     </div>
-    <div id="secretMsg" class="secret-msg"></div>
   </div>
-</div>
 
+  <!-- CHAT DOCK -->
   <div class="chat-trigger" onclick="toggleChat()" id="chatBtn">MSG</div>
   <div class="chat-dock" id="chatBox">
     <div class="chat-header">
@@ -280,7 +169,8 @@ function switchTab(id, btn) {
   document.querySelectorAll('.dept-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.dept-panel').forEach(p => p.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('panel-' + id).classList.add('active');
+  const panel = document.getElementById('panel-' + id);
+  if (panel) panel.classList.add('active');
 }
 
 function toggleChat() {
@@ -288,34 +178,6 @@ function toggleChat() {
   const btn = document.getElementById('chatBtn');
   box.classList.toggle('active');
   btn.textContent = box.classList.contains('active') ? 'CLOSE' : 'MSG';
-}
-
-// Function triggered when the MANDOLAB logo is clicked
-function revealMandoKey() {
-  const secretPasskey = "MANDOLAB"; // The key required for Stage 1
-
-  // 1. Show a popup alert with the key
-  alert("🔑 MANDOLAB SYSTEM KEY UNLOCKED: " + secretPasskey);
-
-  // 2. Automatically switch to the SECRET tab if available
-  if (typeof switchTab === 'function') {
-    switchTab('secret');
-  }
-
-  // 3. Pre-fill the passkey input field in Stage 1 automatically
-  const keyInput = document.getElementById('secretKeyInput');
-  if (keyInput) {
-    keyInput.value = secretPasskey;
-    keyInput.focus();
-  }
-}
-
-// Add click listener to the logo element
-const logoElement = document.querySelector('.logo') || document.querySelector('header h1');
-
-if (logoElement) {
-  logoElement.style.cursor = 'pointer';
-  logoElement.addEventListener('click', openSecretModal);
 }
 
 function openSecretModal() {
@@ -337,13 +199,13 @@ function submitSecretKey() {
   const inputVal = document.getElementById('secretInput').value.trim();
   const msg = document.getElementById('secretMsg');
 
-  // Replace 'YOUR_KEY' with your actual secret code
-  if (inputVal === 'YOUR_KEY') {
+  // Change MANDOLAB to your target secret key
+  if (inputVal.toUpperCase() === 'MANDOLAB') {
     msg.style.color = '#2ecc71';
     msg.textContent = 'ACCESS GRANTED';
     setTimeout(() => {
       closeSecretModal();
-      // Code to unlock or redirect to secret content
+      alert('Secret Unlocked!');
     }, 1000);
   } else {
     msg.style.color = '#e74c3c';
@@ -351,7 +213,6 @@ function submitSecretKey() {
   }
 }
 
-// Press Enter inside input to submit
 document.getElementById('secretInput')?.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') submitSecretKey();
 });
