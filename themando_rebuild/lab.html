@@ -62,6 +62,391 @@
     }
     .secret-btns button:hover { background: rgba(240, 160, 20, 0.1); }
     .secret-msg { font-size: 0.6rem; margin-top: 10px; letter-spacing: 1px; font-family: 'Space Mono', monospace; }
+
+    /* ── TASK BOARD INTEGRATION STYLES ── */
+    .tasks-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 20px 0 60px;
+      width: 100%;
+    }
+    #whoScreen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      width: 100%;
+      max-width: 480px;
+      animation: fadeUp 0.5s ease forwards;
+    }
+    .who-title {
+      font-family: var(--font-display, 'Space Mono', monospace);
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      letter-spacing: 6px;
+      color: var(--text, #f0ece0);
+      text-align: center;
+    }
+    .who-sub {
+      font-family: var(--font-mono, 'Space Mono', monospace);
+      font-size: 0.55rem;
+      letter-spacing: 4px;
+      color: rgba(240,160,20,0.4);
+      text-transform: uppercase;
+      text-align: center;
+    }
+    .who-input-wrap {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+    }
+    .who-input {
+      flex: 1;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 6px;
+      padding: 14px 18px;
+      color: var(--text, #f0ece0);
+      font-family: var(--font-mono, 'Space Mono', monospace);
+      font-size: 0.8rem;
+      letter-spacing: 3px;
+      outline: none;
+      transition: border-color 0.2s;
+      text-transform: uppercase;
+    }
+    .who-input:focus { border-color: rgba(240,160,20,0.4); }
+    .who-input::placeholder { color: rgba(240,236,224,0.15); letter-spacing: 2px; text-transform: uppercase; }
+    .who-btn {
+      padding: 14px 22px;
+      background: none;
+      border: 1px solid rgba(240,160,20,0.35);
+      border-radius: 6px;
+      color: var(--accent, #f0a014);
+      font-family: var(--font-mono, 'Space Mono', monospace);
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .who-btn:hover { background: rgba(240,160,20,0.08); border-color: var(--accent, #f0a014); }
+    .who-error {
+      font-family: var(--font-mono, 'Space Mono', monospace);
+      font-size: 0.52rem;
+      letter-spacing: 3px;
+      color: rgba(220,80,60,0.6);
+      text-transform: uppercase;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .who-error.show { opacity: 1; }
+
+    /* Task Board Container */
+    #taskBoard {
+      display: none;
+      flex-direction: column;
+      gap: 24px;
+      width: 100%;
+      max-width: 720px;
+      animation: fadeUp 0.5s ease forwards;
+    }
+    #taskBoard.show { display: flex; }
+
+    .board-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .board-name {
+      font-family: var(--font-display, 'Space Mono', monospace);
+      font-size: 2rem;
+      letter-spacing: 4px;
+      color: var(--text, #f0ece0);
+    }
+    .board-name span { color: var(--accent, #f0a014); }
+    .board-guide {
+      font-family: var(--font-mono, 'Space Mono', monospace);
+      font-size: 0.48rem;
+      letter-spacing: 2px;
+      color: rgba(240,160,20,0.5);
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+    .switch-user {
+      font-family: var(--font-mono, 'Space Mono', monospace);
+      font-size: 0.5rem;
+      letter-spacing: 3px;
+      color: rgba(240,236,224,0.25);
+      text-transform: uppercase;
+      cursor: pointer;
+      background: none;
+      border: none;
+      transition: color 0.2s;
+      padding: 0;
+    }
+    .switch-user:hover { color: var(--accent, #f0a014); }
+
+    .stats-row { 
+      display: flex; 
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .stats-pills { display: flex; gap: 8px; }
+    .stat-pill {
+      font-family: var(--font-mono, 'Space Mono', monospace);
+      font-size: 0.5rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 100px;
+      border: 1px solid rgba(255,255,255,0.07);
+      color: rgba(240,236,224,0.3);
+    }
+    .stat-pill.pending  { border-color: rgba(240,160,20,0.2);  color: rgba(240,160,20,0.6); }
+    .stat-pill.progress { border-color: rgba(60,160,255,0.2);  color: rgba(60,160,255,0.6); }
+    .stat-pill.done     { border-color: rgba(80,200,100,0.2);  color: rgba(80,200,100,0.6); }
+
+    .user-actions { display: flex; gap: 8px; }
+    .user-action-btn {
+      font-family: var(--font-mono, 'Space Mono', monospace);
+      font-size: 0.48rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      background: none;
+      border: 1px solid rgba(220,80,60,0.3);
+      color: rgba(220,80,60,0.7);
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .user-action-btn:hover {
+      background: rgba(220,80,60,0.1);
+      border-color: rgba(220,80,60,0.8);
+      color: rgba(220,80,60,1);
+    }
+
+    .add-task-form {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .add-task-label {
+      font-family: var(--font-mono, 'Space Mono', monospace);
+      font-size: 0.5rem;
+      letter-spacing: 4px;
+      color: rgba(240,160,20,0.4);
+      text-transform: uppercase;
+    }
+    .add-task-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .task-input {
+      flex: 1;
+      min-width: 200px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 5px;
+      padding: 9px 12px;
+      color: var(--text, #f0ece0);
+      font-family: var(--font-mono, 'Space Mono', monospace);
+      font-size: 0.65rem;
+      letter-spacing: 1px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .task-input:focus { border-color: rgba(240,160,20,0.3); }
+    .task-input::placeholder { color: rgba(240,236,224,0.15); }
+    .date-input {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 5px;
+      padding: 9px 12px;
+      color: rgba(240,236,224,0.5);
+      font-family: var(--font-mono, 'Space Mono', monospace);
+      font-size: 0.6rem;
+      outline: none;
+      transition: border-color 0.2s;
+      color-scheme: dark;
+    }
+    .date-input:focus { border-color: rgba(240,160,20,0.3); }
+    .add-btn {
+      padding: 9px 20px;
+      background: none;
+      border: 1px solid rgba(240,160,20,0.3);
+      border-radius: 5px;
+      color: var(--accent, #f0a014);
+      font-family: var(--font-mono, 'Space Mono', monospace);
+      font-size: 0.6rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .add-btn:hover { background: rgba(240,160,20,0.08); border-color: var(--accent, #f0a014); }
+
+    .admin-assign-row { display: none; gap: 8px; align-items: center; }
+    .admin-assign-row.show { display: flex; }
+    .assign-input {
+      flex: 1;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(240,160,20,0.15);
+      border-radius: 5px;
+      padding: 7px 12px;
+      color: var(--text, #f0ece0);
+      font-family: var(--font-mono, 'Space Mono', monospace);
+      font-size: 0.58rem;
+      letter-spacing: 1px;
+      outline: none;
+      text-transform: uppercase;
+    }
+    .assign-input::placeholder { color: rgba(240,160,20,0.2); }
+    .assign-label {
+      font-family: var(--font-mono, 'Space Mono', monospace);
+      font-size: 0.48rem;
+      letter-spacing: 3px;
+      color: rgba(240,160,20,0.4);
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .task-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+    .task-item {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: border-color 0.3s;
+      animation: fadeUp 0.3s ease forwards;
+    }
+    .task-item:hover { border-color: rgba(240,160,20,0.15); }
+    .task-item.done-item { opacity: 0.4; }
+    .task-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.15);
+      transition: all 0.2s;
+    }
+    .task-dot:hover { transform: scale(1.3); }
+    .task-dot.pending  { background: rgba(240,160,20,0.8);  border-color: rgba(240,160,20,0.6); }
+    .task-dot.progress { background: rgba(60,160,255,0.8);  border-color: rgba(60,160,255,0.6); }
+    .task-dot.done     { background: rgba(80,200,100,0.8);  border-color: rgba(80,200,100,0.6); }
+    
+    .task-body { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .task-text {
+      font-family: var(--font-mono, 'Space Mono', monospace);
+      font-size: 0.72rem;
+      letter-spacing: 1px;
+      color: var(--text, #f0ece0);
+    }
+    .task-item.done-item .task-text {
+      text-decoration: line-through;
+      color: rgba(240,236,224,0.3);
+    }
+    .task-meta { display: flex; gap: 12px; align-items: center; margin-top: 4px; }
+    .task-due {
+      font-family: var(--font-mono, 'Space Mono', monospace);
+      font-size: 0.48rem;
+      letter-spacing: 2px;
+      color: rgba(240,236,224,0.25);
+      text-transform: uppercase;
+    }
+    .task-due.overdue { color: rgba(220,80,60,0.6); }
+    .task-assigned {
+      font-family: var(--font-mono, 'Space Mono', monospace);
+      font-size: 0.45rem;
+      letter-spacing: 2px;
+      color: rgba(240,160,20,0.35);
+      text-transform: uppercase;
+    }
+    .task-status-btn {
+      font-family: var(--font-mono, 'Space Mono', monospace);
+      font-size: 0.48rem;
+      letter-spacing: 1px;
+      padding: 4px 10px;
+      border-radius: 100px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.2s;
+      white-space: nowrap;
+      display: inline-block;
+    }
+    .task-status-btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.2);
+    }
+    .task-status-btn.pending  { background: rgba(240,160,20,0.12); color: #f0a014; border-color: rgba(240,160,20,0.25); }
+    .task-status-btn.progress { background: rgba(60,160,255,0.12); color: #3ca0ff; border-color: rgba(60,160,255,0.25); }
+    .task-status-btn.done     { background: rgba(80,200,100,0.12); color: #50c864; border-color: rgba(80,200,100,0.25); }
+    
+    .task-delete {
+      font-family: var(--font-mono, 'Space Mono', monospace);
+      font-size: 0.65rem;
+      color: rgba(220,80,60,0.5);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .task-delete:hover { color: rgba(220,80,60,1); transform: scale(1.15); }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      font-family: var(--font-mono, 'Space Mono', monospace);
+      font-size: 0.55rem;
+      letter-spacing: 3px;
+      color: rgba(240,236,224,0.15);
+      text-transform: uppercase;
+      line-height: 2.5;
+      border: 1px dashed rgba(255,255,255,0.05);
+      border-radius: 10px;
+    }
+    .section-label {
+      font-family: var(--font-mono, 'Space Mono', monospace);
+      font-size: 0.5rem;
+      letter-spacing: 4px;
+      color: rgba(240,160,20,0.35);
+      text-transform: uppercase;
+      margin-top: 12px;
+      margin-bottom: 6px;
+    }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(12px);} to{opacity:1;transform:translateY(0);} }
+
+    .admin-user-tabs { display: none; gap: 8px; flex-wrap: wrap; }
+    .admin-user-tabs.show { display: flex; }
+    .user-tab-btn {
+      font-family: var(--font-mono, 'Space Mono', monospace);
+      font-size: 0.5rem;
+      letter-spacing: 2px;
+      padding: 5px 14px;
+      border-radius: 100px;
+      border: 1px solid rgba(255,255,255,0.08);
+      color: rgba(240,236,224,0.3);
+      background: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+    }
+    .user-tab-btn:hover { border-color: rgba(240,160,20,0.3); color: rgba(240,160,20,0.6); }
+    .user-tab-btn.active { border-color: var(--accent, #f0a014); color: var(--accent, #f0a014); background: rgba(240,160,20,0.06); }
   </style>
 </head>
 <body>
@@ -76,7 +461,6 @@
   </nav>
 
   <header class="page-header">
-    <!-- MANDOLAB LOGO WITH SECRET MODAL TRIGGER -->
     <div onclick="openSecretModal()" title="Click for a secret..." style="cursor: pointer; display: inline-block;">
       <div class="logo-icon">
         <img src="photos/logo/logo.png" class="logo" alt="THE.MAN.DO">
@@ -93,25 +477,70 @@
   <!-- TABS -->
   <div class="dept-tabs">
     <button class="dept-tab" onclick="switchTab('concepts', this)">Concepts</button>
-    <button class="dept-tab active" onclick="switchTab('hacking', this)">Hacking</button>
+    <button class="dept-tab active" onclick="switchTab('tasks', this)">Tasks</button>
     <button class="dept-tab" onclick="switchTab('dj', this)">DJ</button>
     <button class="dept-tab" onclick="openSecretModal()">Secret</button>
   </div>
 
-  <!-- ═══════════════ HACKING ═══════════════ -->
-  <div class="dept-panel active" id="panel-hacking">
-    <div class="lab-grid" style="padding:40px 0 0;">
-      <div class="lab-card active-project">
-        <div class="lab-status">STATUS: LIVE</div>
-        <h2 class="lab-title">IP_CONFLICT_CASE</h2>
-        <p class="lab-desc">A rogue device pretending to be our gateway router took down an entire office. Found it in under 5 minutes.</p>
-        <div class="lab-tags">#NETWORKING #ARP #REALCASE</div>
+  <!-- ═══════════════ TASKS BOARD ═══════════════ -->
+  <div class="dept-panel active" id="panel-tasks">
+    <div class="tasks-wrapper">
+      <!-- WHO ARE YOU SCREEN -->
+      <div id="whoScreen">
+        <div class="who-title">WHO<br>ARE YOU?</div>
+        <div class="who-sub">Enter your name to see your tasks</div>
+        <div class="who-input-wrap">
+          <input class="who-input" id="nameInput" type="text"
+                 placeholder="YOUR NAME..."
+                 autocomplete="off" spellcheck="false"
+                 onkeydown="if(event.key==='Enter') enterTasks()">
+          <button class="who-btn" onclick="enterTasks()">ENTER →</button>
+        </div>
+        <div class="who-error" id="whoError">name not recognised.</div>
       </div>
-      <div class="lab-card active-project">
-        <div class="lab-status">STATUS: LIVE</div>
-        <h2 class="lab-title">PRINTER_DHCP_CASE</h2>
-        <p class="lab-desc">Printer kept losing its IP after every restart. Classic DHCP conflict that drove the whole office crazy.</p>
-        <div class="lab-tags">#DHCP #PRINTING #REALCASE</div>
+
+      <!-- TASK BOARD -->
+      <div id="taskBoard">
+        <!-- Header -->
+        <div class="board-header">
+          <div>
+            <div class="board-name">TASKS — <span id="boardName"></span></div>
+            <div class="board-guide">⚡ Click task status badge or dot to cycle: Pending → In Progress → Done</div>
+          </div>
+          <button class="switch-user" onclick="switchUser()">← SWITCH USER</button>
+        </div>
+        <!-- Admin user tabs (only for mandooh) -->
+        <div class="admin-user-tabs" id="adminTabs"></div>
+        <!-- Stats & Quick Actions -->
+        <div class="stats-row">
+          <div class="stats-pills">
+            <div class="stat-pill pending"  id="statPending">0 Pending</div>
+            <div class="stat-pill progress" id="statProgress">0 In Progress</div>
+            <div class="stat-pill done"     id="statDone">0 Done</div>
+          </div>
+          <div class="user-actions">
+            <button class="user-action-btn" onclick="clearDoneTasks()" title="Clear completed tasks">[ Clear Done ]</button>
+            <button class="user-action-btn" onclick="clearAllTasks()" title="Clear all tasks">[ Clear All ]</button>
+          </div>
+        </div>
+        <!-- Add task -->
+        <div class="add-task-form">
+          <div class="add-task-label">+ New Task</div>
+          <!-- Admin assign to someone else -->
+          <div class="admin-assign-row" id="adminAssignRow">
+            <div class="assign-label">Assign to:</div>
+            <input class="assign-input" id="assignInput" type="text" placeholder="name..." autocomplete="off">
+          </div>
+          <div class="add-task-row">
+            <input class="task-input" id="taskInput" type="text"
+                   placeholder="What needs to be done..."
+                   onkeydown="if(event.key==='Enter') addTask()">
+            <input class="date-input" id="dateInput" type="date">
+            <button class="add-btn" onclick="addTask()">ADD</button>
+          </div>
+        </div>
+        <!-- Task sections -->
+        <div id="taskSections"></div>
       </div>
     </div>
   </div>
@@ -161,10 +590,13 @@
       <span>COMM_LINK_V1</span>
       <span class="chat-close" onclick="toggleChat()">[ CLOSE ]</span>
     </div>
-    <iframe src="https://www5.cbox.ws/box/?boxid=962257&boxtag=nzOFGW" width="100%" height="400" allowtransparency="yes" frameborder="0" style="display:block;"></iframe>
+    <iframe src="https://www5.cbox.ws/box/?boxid=962257&boxtag=nzOFGW"
+            width="100%" height="400" allowtransparency="yes"
+            frameborder="0" style="display:block;"></iframe>
   </div>
 
 <script>
+/* ── TAB SWITCHER ── */
 function switchTab(id, btn) {
   document.querySelectorAll('.dept-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.dept-panel').forEach(p => p.classList.remove('active'));
@@ -180,6 +612,7 @@ function toggleChat() {
   btn.textContent = box.classList.contains('active') ? 'CLOSE' : 'MSG';
 }
 
+/* ── SECRET MODAL ── */
 function openSecretModal() {
   const modal = document.getElementById('secretModal');
   const input = document.getElementById('secretInput');
@@ -199,7 +632,6 @@ function submitSecretKey() {
   const inputVal = document.getElementById('secretInput').value.trim();
   const msg = document.getElementById('secretMsg');
 
-  // Change MANDOLAB to your target secret key
   if (inputVal.toUpperCase() === 'MANDOLAB') {
     msg.style.color = '#2ecc71';
     msg.textContent = 'ACCESS GRANTED';
@@ -216,6 +648,220 @@ function submitSecretKey() {
 document.getElementById('secretInput')?.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') submitSecretKey();
 });
+
+/* ── TASK SYSTEM LOGIC ── */
+const ADMIN_NAME  = 'mandooh';
+const VALID_USERS = [
+  'mandooh',
+  'minhaj',
+  'irappi',
+  'ummi',
+  'jagzzz',
+];
+
+let currentUser  = null;
+let viewingAs    = null;
+let DB           = {};
+
+function dbLoad() {
+  const saved = localStorage.getItem('tmdo_tasks');
+  if (saved) DB = JSON.parse(saved);
+  VALID_USERS.forEach(u => { if (!DB[u]) DB[u] = []; });
+}
+
+function dbSave() {
+  localStorage.setItem('tmdo_tasks', JSON.stringify(DB));
+}
+
+function enterTasks() {
+  const name = document.getElementById('nameInput').value.trim().toLowerCase();
+  const err  = document.getElementById('whoError');
+  if (!VALID_USERS.includes(name)) {
+    err.classList.add('show');
+    setTimeout(() => err.classList.remove('show'), 2000);
+    return;
+  }
+  currentUser = name;
+  viewingAs   = name;
+  document.getElementById('whoScreen').style.display = 'none';
+  document.getElementById('taskBoard').classList.add('show');
+  document.getElementById('boardName').textContent = name.toUpperCase();
+  
+  if (name === ADMIN_NAME) {
+    document.getElementById('adminAssignRow').classList.add('show');
+    buildAdminTabs();
+  }
+  renderTasks();
+}
+
+function buildAdminTabs() {
+  const wrap = document.getElementById('adminTabs');
+  wrap.classList.add('show');
+  wrap.innerHTML = VALID_USERS.map(u => `
+    <button class="user-tab-btn ${u===currentUser?'active':''}"
+            onclick="adminViewUser('${u}', this)">
+      ${u.toUpperCase()}
+    </button>
+  `).join('');
+}
+
+function adminViewUser(name, btn) {
+  document.querySelectorAll('.user-tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  viewingAs = name;
+  document.getElementById('boardName').textContent = name.toUpperCase();
+  renderTasks();
+}
+
+function switchUser() {
+  currentUser = null; 
+  viewingAs = null;
+  document.getElementById('taskBoard').classList.remove('show');
+  document.getElementById('whoScreen').style.display = 'flex';
+  document.getElementById('nameInput').value = '';
+  document.getElementById('adminTabs').classList.remove('show');
+  document.getElementById('adminAssignRow').classList.remove('show');
+}
+
+function addTask() {
+  const text     = document.getElementById('taskInput').value.trim();
+  const date     = document.getElementById('dateInput').value;
+  const assignTo = currentUser === ADMIN_NAME
+    ? (document.getElementById('assignInput').value.trim().toLowerCase() || currentUser)
+    : currentUser;
+  if (!text) return;
+  if (!DB[assignTo]) DB[assignTo] = [];
+  DB[assignTo].push({
+    id:       Date.now().toString(),
+    text,
+    due:      date || null,
+    status:   'pending',
+    addedBy:  currentUser,
+    addedAt:  new Date().toISOString(),
+  });
+  dbSave();
+  document.getElementById('taskInput').value = '';
+  document.getElementById('dateInput').value = '';
+  if (currentUser === ADMIN_NAME) document.getElementById('assignInput').value = '';
+  viewingAs = assignTo;
+  if (currentUser === ADMIN_NAME) {
+    document.querySelectorAll('.user-tab-btn').forEach(b => {
+      b.classList.toggle('active', b.textContent.trim().toLowerCase() === assignTo);
+    });
+  }
+  document.getElementById('boardName').textContent = viewingAs.toUpperCase();
+  renderTasks();
+}
+
+function cycleStatus(taskId) {
+  const tasks = DB[viewingAs];
+  const task  = tasks.find(t => t.id === taskId);
+  if (!task) return;
+  
+  // Cycle order: PENDING -> PROGRESS -> DONE -> PENDING
+  const cycle = { pending:'progress', progress:'done', done:'pending' };
+  task.status = cycle[task.status];
+  
+  dbSave();
+  renderTasks();
+}
+
+function deleteTask(taskId) {
+  DB[viewingAs] = DB[viewingAs].filter(t => t.id !== taskId);
+  dbSave();
+  renderTasks();
+}
+
+function clearDoneTasks() {
+  if (!DB[viewingAs]) return;
+  if (confirm("Delete all completed tasks for " + viewingAs.toUpperCase() + "?")) {
+    DB[viewingAs] = DB[viewingAs].filter(t => t.status !== 'done');
+    dbSave();
+    renderTasks();
+  }
+}
+
+function clearAllTasks() {
+  if (!DB[viewingAs]) return;
+  if (confirm("Delete ALL tasks for " + viewingAs.toUpperCase() + "?")) {
+    DB[viewingAs] = [];
+    dbSave();
+    renderTasks();
+  }
+}
+
+function renderTasks() {
+  const tasks    = DB[viewingAs] || [];
+  const pending  = tasks.filter(t => t.status === 'pending');
+  const progress = tasks.filter(t => t.status === 'progress');
+  const done     = tasks.filter(t => t.status === 'done');
+
+  document.getElementById('statPending').textContent  = pending.length  + ' Pending';
+  document.getElementById('statProgress').textContent = progress.length + ' In Progress';
+  document.getElementById('statDone').textContent     = done.length     + ' Done';
+
+  const wrap = document.getElementById('taskSections');
+  wrap.innerHTML = '';
+  
+  const canEdit = currentUser === ADMIN_NAME || viewingAs === currentUser;
+
+  if (tasks.length === 0) {
+    wrap.innerHTML = `<div class="empty-state">No tasks yet.<br>Add something above.</div>`;
+    return;
+  }
+
+  const sections = [
+    { label:'In Progress', items:progress, key:'progress' },
+    { label:'Pending',     items:pending,  key:'pending'  },
+    { label:'Done',        items:done,     key:'done'     },
+  ];
+
+  sections.forEach(sec => {
+    if (sec.items.length === 0) return;
+    const label = document.createElement('div');
+    label.className = 'section-label';
+    label.textContent = sec.label;
+    wrap.appendChild(label);
+    const list = document.createElement('div');
+    list.className = 'task-list';
+    sec.items.forEach(task => {
+      const isOverdue = task.due && new Date(task.due) < new Date() && task.status !== 'done';
+      const dueText   = task.due ? formatDate(task.due) : '';
+      const addedBy   = task.addedBy && task.addedBy !== viewingAs ? `from ${task.addedBy}` : '';
+      const item = document.createElement('div');
+      item.className = `task-item ${task.status === 'done' ? 'done-item' : ''}`;
+      item.innerHTML = `
+        <div class="task-dot ${task.status}" onclick="${canEdit?`cycleStatus('${task.id}')`:''}" title="Click to advance status"></div>
+        <div class="task-body">
+          <div class="task-text">${escHtml(task.text)}</div>
+          <div class="task-meta">
+            ${dueText ? `<span class="task-due ${isOverdue?'overdue':''}">${isOverdue?'⚠ ':''} ${dueText}</span>` : ''}
+            ${addedBy  ? `<span class="task-assigned">${addedBy}</span>` : ''}
+            ${canEdit  ? `<button class="task-status-btn ${task.status}" onclick="cycleStatus('${task.id}')" title="Click to advance status">${statusLabel(task.status)} ➔</button>` : ''}
+          </div>
+        </div>
+        ${canEdit ? `<button class="task-delete" onclick="deleteTask('${task.id}')" title="Delete Task">✕</button>` : ''}
+      `;
+      list.appendChild(item);
+    });
+    wrap.appendChild(list);
+  });
+}
+
+function statusLabel(s) {
+  return { pending:'Pending', progress:'In Progress', done:'Done' }[s] || s;
+}
+
+function formatDate(d) {
+  const date = new Date(d);
+  return date.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+dbLoad();
 </script>
 
   <script src="universe.js"></script>
