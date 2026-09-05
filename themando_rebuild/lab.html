@@ -3,426 +3,373 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MANDOLAB // THE.MAN.DO</title>
-  <link rel="stylesheet" href="universe.css">
+  <title>MANDOLAB — Lab</title>
   
+  <!-- Main CSS File -->
+  <link rel="stylesheet" href="universe.css">
+
+  <!-- Firebase App & Realtime Database SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
-  <nav class="universe-nav">
-    <a href="index.html">Index</a>
-    <a href="shits.html">Shits</a>
-    <a href="writings.html">Writings</a>
-    <a href="lab.html" class="active">Lab</a>
-    <a href="products.html">Products</a>
-    <a href="gives.html">Gives</a>
+  <!-- HEADER / LOGO -->
+  <header class="header">
+    <div class="header-logo">
+      <svg class="logo-svg" viewBox="0 0 100 100">
+        <path d="M20,20 L80,20 L80,35 L55,35 L55,80 L45,80 L45,35 L20,35 Z" fill="#00ffff" />
+      </header>
+
+  <!-- NAVIGATION TABS -->
+  <nav class="nav-tabs">
+    <button class="nav-btn active" onclick="switchTab('concepts', this)">CONCEPTS</button>
+    <button class="nav-btn" onclick="switchTab('tasks', this)">TASKS</button>
+    <button class="nav-btn" onclick="switchTab('dj', this)">DJ</button>
+    <button class="nav-btn" onclick="switchTab('secret', this)">SECRET</button>
   </nav>
 
-  <header class="page-header">
-    <div onclick="openSecretModal()" title="Click for a secret..." style="cursor: pointer; display: inline-block;">
-      <div class="logo-icon">
-        <img src="photos/logo/logo.png" class="logo" alt="THE.MAN.DO">
-      </div>
-      <h1 class="logo-title" style="font-family:'Space Mono', monospace; letter-spacing:6px; color:#f0ece0; font-size:2.8rem; margin:0;">
-        MANDOLAB
-      </h1>
-      <div style="font-size:0.55rem; letter-spacing:4px; color:rgba(240,160,20,0.6); text-transform:uppercase; margin-top:4px;">
-        hahhahahah
-      </div>
-    </div>
-  </header>
+  <!-- MAIN CONTAINER -->
+  <main class="container">
 
-  <!-- TABS -->
-  <div class="dept-tabs">
-    <button class="dept-tab" onclick="switchTab('concepts', this)">Concepts</button>
-    <button class="dept-tab active" onclick="switchTab('tasks', this)">Tasks</button>
-    <button class="dept-tab" onclick="switchTab('dj', this)">DJ</button>
-    <button class="dept-tab" onclick="openSecretModal()">Secret</button>
-  </div>
+    <!-- CONCEPTS TAB -->
+    <section id="tab-concepts" class="tab-content active">
+      <h2>CONCEPTS</h2>
+      <p>Lab experimental ideas and concept drafts go here.</p>
+    </section>
 
-  <!-- ═══════════════ TASKS BOARD ═══════════════ -->
-  <div class="dept-panel active" id="panel-tasks">
-    <div class="tasks-wrapper">
+    <!-- TASKS TAB -->
+    <section id="tab-tasks" class="tab-content">
+      
       <!-- WHO ARE YOU SCREEN -->
-      <div id="whoScreen">
-        <div class="who-title">WHO<br>ARE YOU?</div>
-        <div class="who-sub">Enter your name to see your tasks</div>
-        <div class="who-input-wrap">
-          <input class="who-input" id="nameInput" type="text"
-                 placeholder="YOUR NAME..."
-                 autocomplete="off" spellcheck="false"
-                 onkeydown="if(event.key==='Enter') enterTasks()">
-          <button class="who-btn" onclick="enterTasks()">ENTER →</button>
-        </div>
-        <div class="who-error" id="whoError">name not recognised.</div>
+      <div id="whoScreen" class="who-screen">
+        <div class="who-title">WHO ARE YOU?</div>
+        <input type="text" id="nameInput" class="who-input" placeholder="enter your name..." onkeypress="if(event.key==='Enter') enterTasks()">
+        <button class="who-btn" onclick="enterTasks()">ENTER</button>
+        <div id="whoError" class="who-error">ACCESS DENIED — UNKNOWN USER</div>
       </div>
 
-      <!-- TASK BOARD -->
-      <div id="taskBoard">
-        <!-- Header -->
+      <!-- MAIN TASK BOARD -->
+      <div id="taskBoard" class="task-board">
+        
+        <!-- TOP BOARD HEADER -->
         <div class="board-header">
-          <div>
-            <div class="board-name">TASKS — <span id="boardName"></span></div>
-            <div class="board-guide">⚡ Click task status badge or dot to cycle: Pending → In Progress → Done</div>
-          </div>
-          <button class="switch-user" onclick="switchUser()">← SWITCH USER</button>
+          <div class="board-title">TASKS — <span id="boardName"></span></div>
+          <button class="switch-user-btn" onclick="switchUser()">← SWITCH USER</button>
         </div>
-        <!-- Admin user tabs (only for mandooh) -->
-        <div class="admin-user-tabs" id="adminTabs"></div>
-        <!-- Stats & Quick Actions -->
-        <div class="stats-row">
-          <div class="stats-pills">
-            <div class="stat-pill pending"  id="statPending">0 Pending</div>
-            <div class="stat-pill progress" id="statProgress">0 In Progress</div>
-            <div class="stat-pill done"     id="statDone">0 Done</div>
-          </div>
-          <div class="user-actions">
-            <button class="user-action-btn" onclick="clearDoneTasks()" title="Clear completed tasks">[ Clear Done ]</button>
-            <button class="user-action-btn" onclick="clearAllTasks()" title="Clear all tasks">[ Clear All ]</button>
-          </div>
+
+        <div class="hint-text">
+          ⚡ CLICK TASK STATUS BADGE OR DOT TO CYCLE: PENDING ➔ IN PROGRESS ➔ DONE
         </div>
-        <!-- Add task -->
-        <div class="add-task-form">
-          <div class="add-task-label">+ New Task</div>
-          <!-- Admin assign to someone else -->
-          <div class="admin-assign-row" id="adminAssignRow">
-            <div class="assign-label">Assign to:</div>
-            <input class="assign-input" id="assignInput" type="text" placeholder="name..." autocomplete="off">
+
+        <!-- ADMIN USER SELECTION TABS -->
+        <div id="adminTabs" class="admin-tabs"></div>
+
+        <!-- STATS & ACTION BUTTONS -->
+        <div class="board-stats-row">
+          <div class="stat-badges">
+            <span class="stat-badge pending" id="statPending">0 Pending</span>
+            <span class="stat-badge progress" id="statProgress">0 In Progress</span>
+            <span class="stat-badge done" id="statDone">0 Done</span>
           </div>
-          <div class="add-task-row">
-            <input class="task-input" id="taskInput" type="text"
-                   placeholder="What needs to be done..."
-                   onkeydown="if(event.key==='Enter') addTask()">
-            <input class="date-input" id="dateInput" type="date">
-            <button class="add-btn" onclick="addTask()">ADD</button>
+          <div class="action-btns">
+            <button class="btn-secondary" onclick="clearDoneTasks()">[ CLEAR DONE ]</button>
+            <button class="btn-secondary danger" onclick="clearAllTasks()">[ CLEAR ALL ]</button>
           </div>
         </div>
-        <!-- Task sections -->
-        <div id="taskSections"></div>
-      </div>
-    </div>
-  </div>
 
-  <!-- ═══════════════ CONCEPTS ═══════════════ -->
-  <div class="dept-panel" id="panel-concepts">
-    <div style="padding:40px 0 0;">
-      <div class="lab-card active-project">
-        <div class="lab-status">[ CONCEPT 01 ] ACTIVE</div>
-        <h2 class="lab-title">MANDO EATS</h2>
-        <p class="lab-desc">An interactive survival arcade experiment. You are the skeleton. Eat the people. Avoid the red ones. Survive.</p>
-        <div class="lab-tags">#GAME #EXPERIMENT #CHAOTIC</div>
-        <a href="mandogame.html" style="display:inline-block;margin-top:16px;font-family:var(--font-mono);font-size:0.55rem;letter-spacing:3px;padding:9px 20px;border:1px solid rgba(240,160,20,0.3);color:#f0a014;text-transform:uppercase;transition:all 0.2s;text-decoration:none;border-radius:3px;">
-          PLAY NOW →
-        </a>
-      </div>
-    </div>
-  </div>
+        <!-- TASK INPUT FORM -->
+        <div class="add-task-card">
+          <div class="add-task-label">+ NEW TASK</div>
+          
+          <!-- ADMIN ASSIGN INPUT (Only visible for Mandooh) -->
+          <div id="adminAssignRow" class="admin-assign-row">
+            <input type="text" id="assignInput" class="task-input-field" placeholder="Assign to user (leave empty for self)...">
+          </div>
 
-  <!-- ═══════════════ DJ ═══════════════ -->
-  <div class="dept-panel" id="panel-dj">
-    <div class="dj-hero" style="min-height:auto; padding:40px 0 60px;">
-      <div style="text-align:center;">
-        <h2 style="font-family:var(--font-display);font-size:clamp(2rem,6vw,4rem);letter-spacing:6px;color:var(--text);margin-bottom:8px;">SOUND CORE</h2>
-        <p style="font-family:var(--font-mono);font-size:0.58rem;color:var(--accent);letter-spacing:5px;text-transform:uppercase;">If you found this — you were meant to hear it</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════════ SECRET MODAL ═══════════════ -->
-  <div id="secretModal" class="secret-modal hidden">
-    <div class="secret-modal-content">
-      <div class="secret-title">ENTER SECRET KEY</div>
-      <input type="password" id="secretInput" placeholder="TYPE KEY HERE..." autocomplete="off" />
-      <div class="secret-btns">
-        <button onclick="submitSecretKey()">SUBMIT</button>
-        <button onclick="closeSecretModal()">CANCEL</button>
-      </div>
-      <div id="secretMsg" class="secret-msg"></div>
-    </div>
-  </div>
-
-  <!-- CHAT DOCK -->
-  <div class="chat-trigger" onclick="toggleChat()" id="chatBtn">MSG</div>
-  <div class="chat-dock" id="chatBox">
-    <div class="chat-header">
-      <span>COMM_LINK_V1</span>
-      <span class="chat-close" onclick="toggleChat()">[ CLOSE ]</span>
-    </div>
-    <iframe src="https://www5.cbox.ws/box/?boxid=962257&boxtag=nzOFGW"
-            width="100%" height="400" allowtransparency="yes"
-            frameborder="0" style="display:block;"></iframe>
-  </div>
-
-<script>
-/* ── TAB SWITCHER ── */
-function switchTab(id, btn) {
-  document.querySelectorAll('.dept-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.dept-panel').forEach(p => p.classList.remove('active'));
-  btn.classList.add('active');
-  const panel = document.getElementById('panel-' + id);
-  if (panel) panel.classList.add('active');
-}
-
-function toggleChat() {
-  const box = document.getElementById('chatBox');
-  const btn = document.getElementById('chatBtn');
-  box.classList.toggle('active');
-  btn.textContent = box.classList.contains('active') ? 'CLOSE' : 'MSG';
-}
-
-/* ── SECRET MODAL ── */
-function openSecretModal() {
-  const modal = document.getElementById('secretModal');
-  const input = document.getElementById('secretInput');
-  const msg = document.getElementById('secretMsg');
-  
-  msg.textContent = '';
-  input.value = '';
-  modal.classList.remove('hidden');
-  input.focus();
-}
-
-function closeSecretModal() {
-  document.getElementById('secretModal').classList.add('hidden');
-}
-
-function submitSecretKey() {
-  const inputVal = document.getElementById('secretInput').value.trim();
-  const msg = document.getElementById('secretMsg');
-
-  if (inputVal.toUpperCase() === 'MANDOLAB') {
-    msg.style.color = '#2ecc71';
-    msg.textContent = 'ACCESS GRANTED';
-    setTimeout(() => {
-      closeSecretModal();
-      alert('Secret Unlocked!');
-    }, 1000);
-  } else {
-    msg.style.color = '#e74c3c';
-    msg.textContent = 'INVALID KEY';
-  }
-}
-
-document.getElementById('secretInput')?.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') submitSecretKey();
-});
-
-/* ── TASK SYSTEM LOGIC ── */
-const ADMIN_NAME  = 'mandooh';
-const VALID_USERS = [
-  'mandooh',
-  'minhaj',
-  'irappi',
-  'ummi',
-  'jagzzz',
-  'mom'
-];
-
-let currentUser  = null;
-let viewingAs    = null;
-let DB           = {};
-
-function dbLoad() {
-  const saved = localStorage.getItem('tmdo_tasks');
-  if (saved) DB = JSON.parse(saved);
-  VALID_USERS.forEach(u => { if (!DB[u]) DB[u] = []; });
-}
-
-function dbSave() {
-  localStorage.setItem('tmdo_tasks', JSON.stringify(DB));
-}
-
-function enterTasks() {
-  const name = document.getElementById('nameInput').value.trim().toLowerCase();
-  const err  = document.getElementById('whoError');
-  if (!VALID_USERS.includes(name)) {
-    err.classList.add('show');
-    setTimeout(() => err.classList.remove('show'), 2000);
-    return;
-  }
-  currentUser = name;
-  viewingAs   = name;
-  document.getElementById('whoScreen').style.display = 'none';
-  document.getElementById('taskBoard').classList.add('show');
-  document.getElementById('boardName').textContent = name.toUpperCase();
-  
-  if (name === ADMIN_NAME) {
-    document.getElementById('adminAssignRow').classList.add('show');
-    buildAdminTabs();
-  }
-  renderTasks();
-}
-
-function buildAdminTabs() {
-  const wrap = document.getElementById('adminTabs');
-  wrap.classList.add('show');
-  wrap.innerHTML = VALID_USERS.map(u => `
-    <button class="user-tab-btn ${u===currentUser?'active':''}"
-            onclick="adminViewUser('${u}', this)">
-      ${u.toUpperCase()}
-    </button>
-  `).join('');
-}
-
-function adminViewUser(name, btn) {
-  document.querySelectorAll('.user-tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  viewingAs = name;
-  document.getElementById('boardName').textContent = name.toUpperCase();
-  renderTasks();
-}
-
-function switchUser() {
-  currentUser = null; 
-  viewingAs = null;
-  document.getElementById('taskBoard').classList.remove('show');
-  document.getElementById('whoScreen').style.display = 'flex';
-  document.getElementById('nameInput').value = '';
-  document.getElementById('adminTabs').classList.remove('show');
-  document.getElementById('adminAssignRow').classList.remove('show');
-}
-
-function addTask() {
-  const text     = document.getElementById('taskInput').value.trim();
-  const date     = document.getElementById('dateInput').value;
-  const assignTo = currentUser === ADMIN_NAME
-    ? (document.getElementById('assignInput').value.trim().toLowerCase() || currentUser)
-    : currentUser;
-  if (!text) return;
-  if (!DB[assignTo]) DB[assignTo] = [];
-  DB[assignTo].push({
-    id:       Date.now().toString(),
-    text,
-    due:      date || null,
-    status:   'pending',
-    addedBy:  currentUser,
-    addedAt:  new Date().toISOString(),
-  });
-  dbSave();
-  document.getElementById('taskInput').value = '';
-  document.getElementById('dateInput').value = '';
-  if (currentUser === ADMIN_NAME) document.getElementById('assignInput').value = '';
-  viewingAs = assignTo;
-  if (currentUser === ADMIN_NAME) {
-    document.querySelectorAll('.user-tab-btn').forEach(b => {
-      b.classList.toggle('active', b.textContent.trim().toLowerCase() === assignTo);
-    });
-  }
-  document.getElementById('boardName').textContent = viewingAs.toUpperCase();
-  renderTasks();
-}
-
-function cycleStatus(taskId) {
-  const tasks = DB[viewingAs];
-  const task  = tasks.find(t => t.id === taskId);
-  if (!task) return;
-  
-  // Cycle order: PENDING -> PROGRESS -> DONE -> PENDING
-  const cycle = { pending:'progress', progress:'done', done:'pending' };
-  task.status = cycle[task.status];
-  
-  dbSave();
-  renderTasks();
-}
-
-function deleteTask(taskId) {
-  DB[viewingAs] = DB[viewingAs].filter(t => t.id !== taskId);
-  dbSave();
-  renderTasks();
-}
-
-function clearDoneTasks() {
-  if (!DB[viewingAs]) return;
-  if (confirm("Delete all completed tasks for " + viewingAs.toUpperCase() + "?")) {
-    DB[viewingAs] = DB[viewingAs].filter(t => t.status !== 'done');
-    dbSave();
-    renderTasks();
-  }
-}
-
-function clearAllTasks() {
-  if (!DB[viewingAs]) return;
-  if (confirm("Delete ALL tasks for " + viewingAs.toUpperCase() + "?")) {
-    DB[viewingAs] = [];
-    dbSave();
-    renderTasks();
-  }
-}
-
-function renderTasks() {
-  const tasks    = DB[viewingAs] || [];
-  const pending  = tasks.filter(t => t.status === 'pending');
-  const progress = tasks.filter(t => t.status === 'progress');
-  const done     = tasks.filter(t => t.status === 'done');
-
-  document.getElementById('statPending').textContent  = pending.length  + ' Pending';
-  document.getElementById('statProgress').textContent = progress.length + ' In Progress';
-  document.getElementById('statDone').textContent     = done.length     + ' Done';
-
-  const wrap = document.getElementById('taskSections');
-  wrap.innerHTML = '';
-  
-  const canEdit = currentUser === ADMIN_NAME || viewingAs === currentUser;
-
-  if (tasks.length === 0) {
-    wrap.innerHTML = `<div class="empty-state">No tasks yet.<br>Add something above.</div>`;
-    return;
-  }
-
-  const sections = [
-    { label:'In Progress', items:progress, key:'progress' },
-    { label:'Pending',     items:pending,  key:'pending'  },
-    { label:'Done',        items:done,     key:'done'     },
-  ];
-
-  sections.forEach(sec => {
-    if (sec.items.length === 0) return;
-    const label = document.createElement('div');
-    label.className = 'section-label';
-    label.textContent = sec.label;
-    wrap.appendChild(label);
-    const list = document.createElement('div');
-    list.className = 'task-list';
-    sec.items.forEach(task => {
-      const isOverdue = task.due && new Date(task.due) < new Date() && task.status !== 'done';
-      const dueText   = task.due ? formatDate(task.due) : '';
-      const addedBy   = task.addedBy && task.addedBy !== viewingAs ? `from ${task.addedBy}` : '';
-      const item = document.createElement('div');
-      item.className = `task-item ${task.status === 'done' ? 'done-item' : ''}`;
-      item.innerHTML = `
-        <div class="task-dot ${task.status}" onclick="${canEdit?`cycleStatus('${task.id}')`:''}" title="Click to advance status"></div>
-        <div class="task-body">
-          <div class="task-text">${escHtml(task.text)}</div>
-          <div class="task-meta">
-            ${dueText ? `<span class="task-due ${isOverdue?'overdue':''}">${isOverdue?'⚠ ':''} ${dueText}</span>` : ''}
-            ${addedBy  ? `<span class="task-assigned">${addedBy}</span>` : ''}
-            ${canEdit  ? `<button class="task-status-btn ${task.status}" onclick="cycleStatus('${task.id}')" title="Click to advance status">${statusLabel(task.status)} ➔</button>` : ''}
+          <div class="add-task-inputs">
+            <input type="text" id="taskInput" class="task-input-field" placeholder="What needs to be done..." onkeypress="if(event.key==='Enter') addTask()">
+            <input type="date" id="dateInput" class="task-date-field">
+            <button class="add-task-btn" onclick="addTask()">ADD</button>
           </div>
         </div>
-        ${canEdit ? `<button class="task-delete" onclick="deleteTask('${task.id}')" title="Delete Task">✕</button>` : ''}
-      `;
-      list.appendChild(item);
-    });
-    wrap.appendChild(list);
-  });
-}
 
-function statusLabel(s) {
-  return { pending:'Pending', progress:'In Progress', done:'Done' }[s] || s;
-}
+        <!-- TASK SECTIONS LIST -->
+        <div id="taskSections" class="task-sections"></div>
 
-function formatDate(d) {
-  const date = new Date(d);
-  return date.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
-}
+      </div>
+    </section>
 
-function escHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
+    <!-- DJ TAB -->
+    <section id="tab-dj" class="tab-content">
+      <h2>DJ</h2>
+      <p>Audio controls and playlist lab environment.</p>
+    </section>
 
-dbLoad();
-</script>
+    <!-- SECRET TAB -->
+    <section id="tab-secret" class="tab-content">
+      <h2>SECRET</h2>
+      <p>Restricted access area.</p>
+    </section>
 
-  <script src="universe.js"></script>
+  </main>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    /* ── TAB NAVIGATION LOGIC ── */
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      
+      document.getElementById('tab-' + tabId).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    /* ── TASK SYSTEM LOGIC ── */
+    const ADMIN_NAME  = 'mandooh';
+    const VALID_USERS = [
+      'mandooh',
+      'minhaj',
+      'irappi',
+      'ummi',
+      'jagzzz',
+    ];
+
+    let currentUser  = null;
+    let viewingAs    = null;
+    let DB           = {};
+
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDu8b0WNWBmwc6KF-5CWZi_kJNEf9JQVos",
+      authDomain: "themando-31bb4.firebaseapp.com",
+      databaseURL: "https://themando-31bb4-default-rtdb.firebaseio.com",
+      projectId: "themando-31bb4",
+      storageBucket: "themando-31bb4.firebasestorage.app",
+      messagingSenderId: "1053943854976",
+      appId: "1:1053943854976:web:fd26ae659ee4f43e37f365",
+      measurementId: "G-E75G63N8SB"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // Listen for live updates across ALL devices
+    function listenToTasks() {
+      db.ref('tasks').on('value', (snapshot) => {
+        DB = snapshot.val() || {};
+        VALID_USERS.forEach(u => { if (!DB[u]) DB[u] = []; });
+        if (viewingAs) {
+          renderTasks();
+        }
+      });
+    }
+
+    // Save updates directly to Firebase Cloud
+    function dbSave() {
+      db.ref('tasks').set(DB);
+    }
+
+    function enterTasks() {
+      const name = document.getElementById('nameInput').value.trim().toLowerCase();
+      const err  = document.getElementById('whoError');
+      if (!VALID_USERS.includes(name)) {
+        err.classList.add('show');
+        setTimeout(() => err.classList.remove('show'), 2000);
+        return;
+      }
+      currentUser = name;
+      viewingAs   = name;
+      document.getElementById('whoScreen').style.display = 'none';
+      document.getElementById('taskBoard').classList.add('show');
+      document.getElementById('boardName').textContent = name.toUpperCase();
+      
+      if (name === ADMIN_NAME) {
+        document.getElementById('adminAssignRow').classList.add('show');
+        buildAdminTabs();
+      }
+      renderTasks();
+    }
+
+    function buildAdminTabs() {
+      const wrap = document.getElementById('adminTabs');
+      wrap.classList.add('show');
+      wrap.innerHTML = VALID_USERS.map(u => `
+        <button class="user-tab-btn ${u === currentUser ? 'active' : ''}"
+                onclick="adminViewUser('${u}', this)">
+          ${u.toUpperCase()}
+        </button>
+      `).join('');
+    }
+
+    function adminViewUser(name, btn) {
+      document.querySelectorAll('.user-tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      viewingAs = name;
+      document.getElementById('boardName').textContent = name.toUpperCase();
+      renderTasks();
+    }
+
+    function switchUser() {
+      currentUser = null; 
+      viewingAs = null;
+      document.getElementById('taskBoard').classList.remove('show');
+      document.getElementById('whoScreen').style.display = 'flex';
+      document.getElementById('nameInput').value = '';
+      document.getElementById('adminTabs').classList.remove('show');
+      document.getElementById('adminAssignRow').classList.remove('show');
+    }
+
+    function addTask() {
+      const text     = document.getElementById('taskInput').value.trim();
+      const date     = document.getElementById('dateInput').value;
+      const assignTo = currentUser === ADMIN_NAME
+        ? (document.getElementById('assignInput').value.trim().toLowerCase() || currentUser)
+        : currentUser;
+      
+      if (!text) return;
+      if (!DB[assignTo]) DB[assignTo] = [];
+
+      DB[assignTo].push({
+        id:       Date.now().toString(),
+        text,
+        due:      date || null,
+        status:   'pending',
+        addedBy:  currentUser,
+        addedAt:  new Date().toISOString(),
+      });
+
+      dbSave();
+      
+      document.getElementById('taskInput').value = '';
+      document.getElementById('dateInput').value = '';
+      if (currentUser === ADMIN_NAME) document.getElementById('assignInput').value = '';
+      
+      viewingAs = assignTo;
+      if (currentUser === ADMIN_NAME) {
+        document.querySelectorAll('.user-tab-btn').forEach(b => {
+          b.classList.toggle('active', b.textContent.trim().toLowerCase() === assignTo);
+        });
+      }
+      document.getElementById('boardName').textContent = viewingAs.toUpperCase();
+      renderTasks();
+    }
+
+    function cycleStatus(taskId) {
+      const tasks = DB[viewingAs];
+      const task  = tasks.find(t => t.id === taskId);
+      if (!task) return;
+      
+      const cycle = { pending: 'progress', progress: 'done', done: 'pending' };
+      task.status = cycle[task.status];
+      
+      dbSave();
+      renderTasks();
+    }
+
+    function deleteTask(taskId) {
+      DB[viewingAs] = DB[viewingAs].filter(t => t.id !== taskId);
+      dbSave();
+      renderTasks();
+    }
+
+    function clearDoneTasks() {
+      if (!DB[viewingAs]) return;
+      if (confirm("Delete all completed tasks for " + viewingAs.toUpperCase() + "?")) {
+        DB[viewingAs] = DB[viewingAs].filter(t => t.status !== 'done');
+        dbSave();
+        renderTasks();
+      }
+    }
+
+    function clearAllTasks() {
+      if (!DB[viewingAs]) return;
+      if (confirm("Delete ALL tasks for " + viewingAs.toUpperCase() + "?")) {
+        DB[viewingAs] = [];
+        dbSave();
+        renderTasks();
+      }
+    }
+
+    function renderTasks() {
+      const tasks    = DB[viewingAs] || [];
+      const pending  = tasks.filter(t => t.status === 'pending');
+      const progress = tasks.filter(t => t.status === 'progress');
+      const done     = tasks.filter(t => t.status === 'done');
+
+      document.getElementById('statPending').textContent  = pending.length  + ' Pending';
+      document.getElementById('statProgress').textContent = progress.length + ' In Progress';
+      document.getElementById('statDone').textContent     = done.length     + ' Done';
+
+      const wrap = document.getElementById('taskSections');
+      wrap.innerHTML = '';
+      
+      const canEdit = currentUser === ADMIN_NAME || viewingAs === currentUser;
+
+      if (tasks.length === 0) {
+        wrap.innerHTML = `<div class="empty-state">NO TASKS YET.<br>ADD SOMETHING ABOVE.</div>`;
+        return;
+      }
+
+      const sections = [
+        { label: 'IN PROGRESS', items: progress, key: 'progress' },
+        { label: 'PENDING',     items: pending,  key: 'pending'  },
+        { label: 'DONE',        items: done,     key: 'done'     },
+      ];
+
+      sections.forEach(sec => {
+        if (sec.items.length === 0) return;
+        
+        const label = document.createElement('div');
+        label.className = 'section-label';
+        label.textContent = sec.label;
+        wrap.appendChild(label);
+
+        const list = document.createElement('div');
+        list.className = 'task-list';
+
+        sec.items.forEach(task => {
+          const isOverdue = task.due && new Date(task.due) < new Date() && task.status !== 'done';
+          const dueText   = task.due ? formatDate(task.due) : '';
+          const addedBy   = task.addedBy && task.addedBy !== viewingAs ? `from ${task.addedBy}` : '';
+          
+          const item = document.createElement('div');
+          item.className = `task-item ${task.status === 'done' ? 'done-item' : ''}`;
+          item.innerHTML = `
+            <div class="task-dot ${task.status}" onclick="${canEdit ? `cycleStatus('${task.id}')` : ''}" title="Click to advance status"></div>
+            <div class="task-body">
+              <div class="task-text">${escHtml(task.text)}</div>
+              <div class="task-meta">
+                ${dueText ? `<span class="task-due ${isOverdue ? 'overdue' : ''}">${isOverdue ? '⚠ ' : ''} ${dueText}</span>` : ''}
+                ${addedBy  ? `<span class="task-assigned">${addedBy}</span>` : ''}
+                ${canEdit  ? `<button class="task-status-btn ${task.status}" onclick="cycleStatus('${task.id}')" title="Click to advance status">${statusLabel(task.status)} ➔</button>` : ''}
+              </div>
+            </div>
+            ${canEdit ? `<button class="task-delete" onclick="deleteTask('${task.id}')" title="Delete Task">✕</button>` : ''}
+          `;
+          list.appendChild(item);
+        });
+        
+        wrap.appendChild(list);
+      });
+    }
+
+    function statusLabel(s) {
+      return { pending: 'Pending', progress: 'In Progress', done: 'Done' }[s] || s;
+    }
+
+    function formatDate(d) {
+      const date = new Date(d);
+      return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    function escHtml(str) {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // Start listening to cloud database immediately
+    listenToTasks();
+  </script>
 </body>
 </html>
