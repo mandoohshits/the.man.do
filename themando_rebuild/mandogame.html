@@ -95,6 +95,35 @@
       text-align:center;
     }
     #waveAnnounce.show { opacity:1; }
+
+    /* ── MOBILE JOYSTICK ── */
+    #joystick {
+      display: none;
+      position: fixed;
+      bottom: 60px;
+      left: 40px;
+      width: 120px;
+      height: 120px;
+      z-index: 30;
+    }
+    #joystickBase {
+      position: absolute; inset: 0; border-radius: 50%;
+      background: rgba(240,160,20,0.06);
+      border: 1px solid rgba(240,160,20,0.2);
+    }
+    #joystickStick {
+      position: absolute;
+      width: 46px; height: 46px; border-radius: 50%;
+      background: rgba(240,160,20,0.3);
+      border: 1px solid rgba(240,160,20,0.6);
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+    }
+    /* Show joystick only on touch devices */
+    @media (pointer: coarse) {
+      #joystick { display: block; }
+    }
+
   </style>
 </head>
 <body>
@@ -117,6 +146,12 @@
     <div class="hud-label">lives</div>
     <div class="hud-val" id="livesDisplay">💀💀💀</div>
   </div>
+</div>
+
+<!-- MOBILE JOYSTICK -->
+<div id="joystick">
+  <div id="joystickBase"></div>
+  <div id="joystickStick"></div>
 </div>
 
 <!-- START SCREEN -->
@@ -516,9 +551,50 @@ function gameOver() {
 window.addEventListener('keydown',e=>{keys[e.key]=true;});
 window.addEventListener('keyup',  e=>{keys[e.key]=false;});
 
-canvas.addEventListener('touchstart',e=>{e.preventDefault();const t=e.touches[0];touchTarget={x:t.clientX,y:t.clientY};},{passive:false});
-canvas.addEventListener('touchmove', e=>{e.preventDefault();const t=e.touches[0];touchTarget={x:t.clientX,y:t.clientY};},{passive:false});
-canvas.addEventListener('touchend', ()=>{touchTarget=null;});
+// ── JOYSTICK ──────────────────────────────────────────
+const joystick     = document.getElementById('joystick');
+const jStick       = document.getElementById('joystickStick');
+let joystickActive = false;
+let joystickVx     = 0;
+let joystickVy     = 0;
+const JOY_RADIUS   = 40;
+
+joystick.addEventListener('touchstart', e => {
+  e.preventDefault();
+  joystickActive = true;
+}, { passive: false });
+
+joystick.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (!joystickActive) return;
+  const rect  = joystick.getBoundingClientRect();
+  const cx    = rect.left + rect.width / 2;
+  const cy    = rect.top  + rect.height / 2;
+  const t     = e.touches[0];
+  let dx      = t.clientX - cx;
+  let dy      = t.clientY - cy;
+  const dist  = Math.hypot(dx, dy);
+
+  if (dist > JOY_RADIUS) {
+    dx = (dx / dist) * JOY_RADIUS;
+    dy = (dy / dist) * JOY_RADIUS;
+  }
+
+  jStick.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+  joystickVx = dx / JOY_RADIUS;
+  joystickVy = dy / JOY_RADIUS;
+}, { passive: false });
+
+joystick.addEventListener('touchend', e => {
+  e.preventDefault();
+  joystickActive = false;
+  joystickVx = 0; joystickVy = 0;
+  jStick.style.transform = 'translate(-50%,-50%)';
+}, { passive: false });
+
+// Prevent canvas tap-scroll on mobile
+canvas.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
+canvas.addEventListener('touchmove',  e => e.preventDefault(), { passive: false });
 canvas.addEventListener('click',e=>{if(gameActive){touchTarget={x:e.clientX,y:e.clientY};}});
 </script>
 </body>
