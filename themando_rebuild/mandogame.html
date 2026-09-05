@@ -95,6 +95,49 @@
       text-align:center;
     }
     #waveAnnounce.show { opacity:1; }
+
+    /* ── JOYSTICK ── */
+    #joystick {
+      position: fixed;
+      bottom: 50px; left: 30px;
+      width: 120px; height: 120px;
+      z-index: 30; display: none;
+      touch-action: none;
+    }
+    #jBase {
+      position: absolute; inset: 0; border-radius: 50%;
+      background: rgba(240,160,20,0.05);
+      border: 1px solid rgba(240,160,20,0.2);
+    }
+    #jStick {
+      position: absolute;
+      width: 48px; height: 48px; border-radius: 50%;
+      background: rgba(240,160,20,0.25);
+      border: 1px solid rgba(240,160,20,0.5);
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+    }
+
+    /* ── BACK BUTTON (mobile) ── */
+    #backBtn {
+      position: fixed; top: 16px; left: 16px;
+      z-index: 30; display: none;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.5rem; letter-spacing: 3px;
+      padding: 8px 14px; text-transform: uppercase;
+      background: rgba(6,6,6,0.8);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(240,236,224,0.4);
+      border-radius: 100px; cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    #backBtn:hover { border-color: rgba(240,160,20,0.3); color: var(--accent); }
+
+    @media (pointer: coarse) {
+      #joystick  { display: block; }
+      #backBtn   { display: block; }
+    }
   </style>
 </head>
 <body>
@@ -102,6 +145,15 @@
 <canvas id="gameCanvas"></canvas>
 <div id="dangerFlash"></div>
 <div id="waveAnnounce"></div>
+
+<!-- BACK BUTTON -->
+<a id="backBtn" href="lab.html">← LAB</a>
+
+<!-- JOYSTICK -->
+<div id="joystick">
+  <div id="jBase"></div>
+  <div id="jStick"></div>
+</div>
 
 <!-- HUD -->
 <div id="hud">
@@ -507,29 +559,57 @@ function gameOver() {
   document.getElementById('gameOverScreen').classList.remove('hidden');
 }
 
-// Input Handlers
-window.addEventListener('keydown', e => { keys[e.key] = true; });
-window.addEventListener('keyup',   e => { keys[e.key] = false; });
+// ── JOYSTICK ──────────────────────────────────────────
+const joy     = document.getElementById('joystick');
+const jStick  = document.getElementById('jStick');
+let jActive   = false;
+let jVx = 0, jVy = 0;
+const JR = 38; // max radius
 
+joy.addEventListener('touchstart', e => {
+  e.preventDefault();
+  jActive = true;
+  updateJoy(e.touches[0]);
+}, { passive: false });
+
+joy.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (jActive) updateJoy(e.touches[0]);
+}, { passive: false });
+
+joy.addEventListener('touchend', e => {
+  e.preventDefault();
+  jActive = false; jVx = 0; jVy = 0;
+  jStick.style.transform = 'translate(-50%,-50%)';
+}, { passive: false });
+
+function updateJoy(touch) {
+  const r   = joy.getBoundingClientRect();
+  const cx  = r.left + r.width / 2;
+  const cy  = r.top  + r.height / 2;
+  let dx    = touch.clientX - cx;
+  let dy    = touch.clientY - cy;
+  const d   = Math.hypot(dx, dy);
+  if (d > JR) { dx = dx/d*JR; dy = dy/d*JR; }
+  jStick.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+  jVx = dx / JR;
+  jVy = dy / JR;
+}
+
+// Prevent scroll on canvas touch
+canvas.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
+canvas.addEventListener('touchmove',  e => e.preventDefault(), { passive: false });
+
+// Mouse click fallback for desktop
 canvas.addEventListener('click', e => {
   if (gameActive) {
     touchTarget = { x: e.clientX, y: e.clientY };
   }
 });
 
-canvas.addEventListener('touchstart', e => {
-  e.preventDefault();
-  if (!gameActive) return;
-  const t = e.touches[0];
-  touchTarget = { x: t.clientX, y: t.clientY };
-}, { passive: false });
-
-canvas.addEventListener('touchmove', e => {
-  e.preventDefault();
-  if (!gameActive) return;
-  const t = e.touches[0];
-  touchTarget = { x: t.clientX, y: t.clientY };
-}, { passive: false });
+// ── KEYBOARD ──────────────────────────────────────────
+window.addEventListener('keydown', e => { keys[e.key] = true; });
+window.addEventListener('keyup',   e => { keys[e.key] = false; });
 </script>
 </body>
 </html>
