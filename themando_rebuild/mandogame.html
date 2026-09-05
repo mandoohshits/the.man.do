@@ -95,9 +95,6 @@
       text-align:center;
     }
     #waveAnnounce.show { opacity:1; }
-
-
-
   </style>
 </head>
 <body>
@@ -121,8 +118,6 @@
     <div class="hud-val" id="livesDisplay">💀💀💀</div>
   </div>
 </div>
-
-
 
 <!-- START SCREEN -->
 <div class="screen" id="startScreen">
@@ -189,7 +184,6 @@ let W, H, player, people, score, lives, wave, gameActive;
 let waveTimer, waveSpawning, peopleThisWave, peopleSpawned;
 let eatenNames = [], keys = {}, touchTarget = null;
 let particles = [];
-
 let levelExit = null;
 
 const faceImgs = {};
@@ -366,8 +360,6 @@ function startWave() {
   peopleThisWave = cfg.wavePeople + (wave-1)*2;
   peopleSpawned  = 0;
   waveTimer      = 0;
-  
-  // SKELETON EXIT IS CREATED NOW AT THE START OF THE WAVE
   spawnSkeletonExit();
   showWaveAnnounce();
 }
@@ -397,7 +389,6 @@ function update() {
   player.x=Math.max(25,Math.min(W-25,player.x));
   player.y=Math.max(25,Math.min(H-25,player.y));
 
-  // SPAWN PEOPLE DURING WAVE
   if (waveSpawning) {
     waveTimer++;
     if (waveTimer % cfg.waveGap === 0 && peopleSpawned < peopleThisWave) {
@@ -408,7 +399,6 @@ function update() {
     }
   }
 
-  // MOVE PEOPLE
   people.forEach(p => {
     const dx=p.x-player.x, dy=p.y-player.y;
     const dist=Math.hypot(dx,dy);
@@ -424,7 +414,7 @@ function update() {
     }
   });
 
-  // CHECK EXIT COLLISION FIRST (Moves to Next Wave without taking damage)
+  // CHECK EXIT COLLISION FIRST
   if (levelExit) {
     const exitDist = Math.hypot(levelExit.x - player.x, levelExit.y - player.y);
     if (exitDist < player.size + levelExit.size) {
@@ -435,7 +425,6 @@ function update() {
     }
   }
 
-  // CHECK PERSON/ENEMY COLLISIONS
   const survived = [];
   for (const p of people) {
     const dist = Math.hypot(p.x-player.x, p.y-player.y);
@@ -518,17 +507,16 @@ function gameOver() {
   document.getElementById('gameOverScreen').classList.remove('hidden');
 }
 
-// ── UNIFIED MOBILE & DESKTOP INPUT FIX ──────────────────
-let touchTarget = null;
+// Input Handlers
+window.addEventListener('keydown', e => { keys[e.key] = true; });
+window.addEventListener('keyup',   e => { keys[e.key] = false; });
 
-// Handle mouse clicks on desktop
 canvas.addEventListener('click', e => {
   if (gameActive) {
     touchTarget = { x: e.clientX, y: e.clientY };
   }
 });
 
-// Handle touch movement seamlessly on mobile devices without layout bugs
 canvas.addEventListener('touchstart', e => {
   e.preventDefault();
   if (!gameActive) return;
@@ -542,10 +530,6 @@ canvas.addEventListener('touchmove', e => {
   const t = e.touches[0];
   touchTarget = { x: t.clientX, y: t.clientY };
 }, { passive: false });
-window.addEventListener('keydown',e=>{keys[e.key]=true;});
-window.addEventListener('keyup',  e=>{keys[e.key]=false;});
-
-
 </script>
 </body>
 </html>
