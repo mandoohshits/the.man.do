@@ -99,22 +99,763 @@
   </div>
 
   <!-- ═══════════════ HACKING ═══════════════ -->
-  <div class="dept-panel active" id="panel-hacking">
-    <div class="lab-grid" style="padding:40px 0 0;">
-      <div class="lab-card active-project">
-        <div class="lab-status">STATUS: LIVE</div>
-        <h2 class="lab-title">IP_CONFLICT_CASE</h2>
-        <p class="lab-desc">A rogue device pretending to be our gateway router took down an entire office. Found it in under 5 minutes.</p>
-        <div class="lab-tags">#NETWORKING #ARP #REALCASE</div>
+  cat > /mnt/user-data/outputs/tasks.html << 'ENDHTML'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TASKS // THE.MAN.DO</title>
+  <link rel="stylesheet" href="universe.css">
+  <style>
+    .tasks-wrapper {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 120px 5% 100px;
+    }
+
+    /* ── WHO ARE YOU SCREEN ── */
+    #whoScreen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      width: 100%;
+      max-width: 480px;
+      animation: fadeUp 0.5s ease forwards;
+    }
+
+    .who-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      letter-spacing: 6px;
+      color: var(--text);
+      text-align: center;
+    }
+
+    .who-sub {
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+      letter-spacing: 4px;
+      color: rgba(240,160,20,0.4);
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .who-input-wrap {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .who-input {
+      flex: 1;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 6px;
+      padding: 14px 18px;
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      letter-spacing: 3px;
+      outline: none;
+      transition: border-color 0.2s;
+      text-transform: uppercase;
+    }
+
+    .who-input:focus { border-color: rgba(240,160,20,0.4); }
+    .who-input::placeholder { color: rgba(240,236,224,0.15); letter-spacing: 2px; text-transform: uppercase; }
+
+    .who-btn {
+      padding: 14px 22px;
+      background: none;
+      border: 1px solid rgba(240,160,20,0.35);
+      border-radius: 6px;
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .who-btn:hover { background: rgba(240,160,20,0.08); border-color: var(--accent); }
+
+    .who-error {
+      font-family: var(--font-mono);
+      font-size: 0.52rem;
+      letter-spacing: 3px;
+      color: rgba(220,80,60,0.6);
+      text-transform: uppercase;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .who-error.show { opacity: 1; }
+
+    /* ── TASK BOARD ── */
+    #taskBoard {
+      display: none;
+      flex-direction: column;
+      gap: 28px;
+      width: 100%;
+      max-width: 720px;
+      animation: fadeUp 0.5s ease forwards;
+    }
+
+    #taskBoard.show { display: flex; }
+
+    /* Board header */
+    .board-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .board-name {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      letter-spacing: 4px;
+      color: var(--text);
+    }
+
+    .board-name span {
+      color: var(--accent);
+    }
+
+    .switch-user {
+      font-family: var(--font-mono);
+      font-size: 0.5rem;
+      letter-spacing: 3px;
+      color: rgba(240,236,224,0.25);
+      text-transform: uppercase;
+      cursor: pointer;
+      background: none;
+      border: none;
+      transition: color 0.2s;
+      padding: 0;
+    }
+
+    .switch-user:hover { color: var(--accent); }
+
+    /* Stats row */
+    .stats-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .stat-pill {
+      font-family: var(--font-mono);
+      font-size: 0.5rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 100px;
+      border: 1px solid rgba(255,255,255,0.07);
+      color: rgba(240,236,224,0.3);
+    }
+
+    .stat-pill.pending  { border-color: rgba(240,160,20,0.2);  color: rgba(240,160,20,0.6); }
+    .stat-pill.progress { border-color: rgba(60,160,255,0.2);  color: rgba(60,160,255,0.6); }
+    .stat-pill.done     { border-color: rgba(80,200,100,0.2);  color: rgba(80,200,100,0.6); }
+
+    /* Add task form */
+    .add-task-form {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .add-task-label {
+      font-family: var(--font-mono);
+      font-size: 0.5rem;
+      letter-spacing: 4px;
+      color: rgba(240,160,20,0.4);
+      text-transform: uppercase;
+    }
+
+    .add-task-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .task-input {
+      flex: 1;
+      min-width: 200px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 5px;
+      padding: 9px 12px;
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 1px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .task-input:focus { border-color: rgba(240,160,20,0.3); }
+    .task-input::placeholder { color: rgba(240,236,224,0.15); }
+
+    .date-input {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 5px;
+      padding: 9px 12px;
+      color: rgba(240,236,224,0.5);
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      outline: none;
+      transition: border-color 0.2s;
+      color-scheme: dark;
+    }
+
+    .date-input:focus { border-color: rgba(240,160,20,0.3); }
+
+    .add-btn {
+      padding: 9px 20px;
+      background: none;
+      border: 1px solid rgba(240,160,20,0.3);
+      border-radius: 5px;
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .add-btn:hover { background: rgba(240,160,20,0.08); border-color: var(--accent); }
+
+    /* Admin panel - only shows for mandooh */
+    .admin-assign-row {
+      display: none;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .admin-assign-row.show { display: flex; }
+
+    .assign-input {
+      flex: 1;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(240,160,20,0.15);
+      border-radius: 5px;
+      padding: 7px 12px;
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      letter-spacing: 1px;
+      outline: none;
+      text-transform: uppercase;
+    }
+
+    .assign-input::placeholder { color: rgba(240,160,20,0.2); }
+    .assign-label {
+      font-family: var(--font-mono);
+      font-size: 0.48rem;
+      letter-spacing: 3px;
+      color: rgba(240,160,20,0.4);
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    /* Task list */
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .task-item {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: border-color 0.3s;
+      animation: fadeUp 0.3s ease forwards;
+    }
+
+    .task-item:hover { border-color: rgba(240,160,20,0.15); }
+    .task-item.done-item { opacity: 0.4; }
+
+    /* Status dot */
+    .task-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.15);
+      transition: all 0.2s;
+    }
+
+    .task-dot.pending  { background: rgba(240,160,20,0.4);  border-color: rgba(240,160,20,0.4); }
+    .task-dot.progress { background: rgba(60,160,255,0.6);  border-color: rgba(60,160,255,0.4); }
+    .task-dot.done     { background: rgba(80,200,100,0.6);  border-color: rgba(80,200,100,0.4); }
+
+    .task-body { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+
+    .task-text {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 1px;
+      color: var(--text);
+    }
+
+    .task-item.done-item .task-text {
+      text-decoration: line-through;
+      color: rgba(240,236,224,0.3);
+    }
+
+    .task-meta {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .task-due {
+      font-family: var(--font-mono);
+      font-size: 0.48rem;
+      letter-spacing: 2px;
+      color: rgba(240,236,224,0.25);
+      text-transform: uppercase;
+    }
+
+    .task-due.overdue { color: rgba(220,80,60,0.6); }
+
+    .task-assigned {
+      font-family: var(--font-mono);
+      font-size: 0.45rem;
+      letter-spacing: 2px;
+      color: rgba(240,160,20,0.35);
+      text-transform: uppercase;
+    }
+
+    .task-status-btn {
+      font-family: var(--font-mono);
+      font-size: 0.45rem;
+      letter-spacing: 2px;
+      padding: 3px 8px;
+      border-radius: 100px;
+      border: none;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.2s;
+    }
+
+    .task-status-btn.pending  { background: rgba(240,160,20,0.1);  color: rgba(240,160,20,0.7); }
+    .task-status-btn.progress { background: rgba(60,160,255,0.1);  color: rgba(60,160,255,0.7); }
+    .task-status-btn.done     { background: rgba(80,200,100,0.1);  color: rgba(80,200,100,0.7); }
+
+    .task-delete {
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+      color: rgba(220,80,60,0.3);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      transition: color 0.2s;
+      flex-shrink: 0;
+    }
+
+    .task-delete:hover { color: rgba(220,80,60,0.7); }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+      letter-spacing: 3px;
+      color: rgba(240,236,224,0.15);
+      text-transform: uppercase;
+      line-height: 2.5;
+      border: 1px dashed rgba(255,255,255,0.05);
+      border-radius: 10px;
+    }
+
+    /* Section headers */
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 0.5rem;
+      letter-spacing: 4px;
+      color: rgba(240,160,20,0.35);
+      text-transform: uppercase;
+      margin-top: 8px;
+      margin-bottom: 4px;
+    }
+
+    @keyframes fadeUp { from{opacity:0;transform:translateY(12px);} to{opacity:1;transform:translateY(0);} }
+
+    /* Admin sees all users */
+    .admin-user-tabs {
+      display: none;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .admin-user-tabs.show { display: flex; }
+
+    .user-tab-btn {
+      font-family: var(--font-mono);
+      font-size: 0.5rem;
+      letter-spacing: 2px;
+      padding: 5px 14px;
+      border-radius: 100px;
+      border: 1px solid rgba(255,255,255,0.08);
+      color: rgba(240,236,224,0.3);
+      background: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+    }
+
+    .user-tab-btn:hover { border-color: rgba(240,160,20,0.3); color: rgba(240,160,20,0.6); }
+    .user-tab-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(240,160,20,0.06); }
+  </style>
+</head>
+<body>
+
+  <nav class="universe-nav">
+    <a href="index.html">Index</a>
+    <a href="shits.html">Shits</a>
+    <a href="writings.html">Writings</a>
+    <a href="lab.html" class="active">Lab</a>
+    <a href="products.html">Products</a>
+    <a href="gives.html">Gives</a>
+  </nav>
+
+  <div class="tasks-wrapper">
+
+    <!-- WHO ARE YOU -->
+    <div id="whoScreen">
+      <div class="who-title">WHO<br>ARE YOU?</div>
+      <div class="who-sub">Enter your name to see your tasks</div>
+      <div class="who-input-wrap">
+        <input class="who-input" id="nameInput" type="text"
+               placeholder="YOUR NAME..."
+               autocomplete="off" spellcheck="false"
+               onkeydown="if(event.key==='Enter') enterTasks()">
+        <button class="who-btn" onclick="enterTasks()">ENTER →</button>
       </div>
-      <div class="lab-card active-project">
-        <div class="lab-status">STATUS: LIVE</div>
-        <h2 class="lab-title">PRINTER_DHCP_CASE</h2>
-        <p class="lab-desc">Printer kept losing its IP after every restart. Classic DHCP conflict that drove the whole office crazy.</p>
-        <div class="lab-tags">#DHCP #PRINTING #REALCASE</div>
-      </div>
+      <div class="who-error" id="whoError">name not recognised.</div>
     </div>
+
+    <!-- TASK BOARD -->
+    <div id="taskBoard">
+
+      <!-- Header -->
+      <div class="board-header">
+        <div>
+          <div class="board-name">TASKS — <span id="boardName"></span></div>
+        </div>
+        <button class="switch-user" onclick="switchUser()">← SWITCH USER</button>
+      </div>
+
+      <!-- Admin user tabs (only for mandooh) -->
+      <div class="admin-user-tabs" id="adminTabs"></div>
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-pill pending"  id="statPending">0 Pending</div>
+        <div class="stat-pill progress" id="statProgress">0 In Progress</div>
+        <div class="stat-pill done"     id="statDone">0 Done</div>
+      </div>
+
+      <!-- Add task -->
+      <div class="add-task-form">
+        <div class="add-task-label">+ New Task</div>
+        <!-- Admin assign to someone else -->
+        <div class="admin-assign-row" id="adminAssignRow">
+          <div class="assign-label">Assign to:</div>
+          <input class="assign-input" id="assignInput" type="text" placeholder="name..." autocomplete="off">
+        </div>
+        <div class="add-task-row">
+          <input class="task-input" id="taskInput" type="text"
+                 placeholder="What needs to be done..."
+                 onkeydown="if(event.key==='Enter') addTask()">
+          <input class="date-input" id="dateInput" type="date">
+          <button class="add-btn" onclick="addTask()">ADD</button>
+        </div>
+      </div>
+
+      <!-- Task sections -->
+      <div id="taskSections"></div>
+
+    </div>
+
   </div>
+
+  <div class="chat-trigger" onclick="toggleChat()" id="chatBtn">MSG</div>
+  <div class="chat-dock" id="chatBox">
+    <div class="chat-header">
+      <span>COMM_LINK_V1</span>
+      <span class="chat-close" onclick="toggleChat()">[ CLOSE ]</span>
+    </div>
+    <iframe src="https://www5.cbox.ws/box/?boxid=962257&boxtag=nzOFGW"
+            width="100%" height="400" allowtransparency="yes"
+            frameborder="0" style="display:block;"></iframe>
+  </div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// CONFIG — add names of people who can use this
+// admin: can see everyone's tasks and assign to others
+// ══════════════════════════════════════════════════════
+const ADMIN_NAME  = 'mandooh'; // your name — sees everything
+const VALID_USERS = [
+  'mandooh',
+  'minhaj',
+  'irappi',
+  'ummi',
+  'jagzzz',
+  // ADD MORE NAMES HERE (lowercase)
+];
+
+// ── STATE ─────────────────────────────────────────────
+let currentUser  = null;
+let viewingAs    = null; // admin can view other users
+let DB           = {}; // { username: [tasks] }
+
+// ── LOAD / SAVE (localStorage — simple for now) ──────
+function dbLoad() {
+  const saved = localStorage.getItem('tmdo_tasks');
+  if (saved) DB = JSON.parse(saved);
+  VALID_USERS.forEach(u => { if (!DB[u]) DB[u] = []; });
+}
+
+function dbSave() {
+  localStorage.setItem('tmdo_tasks', JSON.stringify(DB));
+}
+
+// ── ENTER ─────────────────────────────────────────────
+function enterTasks() {
+  const name = document.getElementById('nameInput').value.trim().toLowerCase();
+  const err  = document.getElementById('whoError');
+
+  if (!VALID_USERS.includes(name)) {
+    err.classList.add('show');
+    setTimeout(() => err.classList.remove('show'), 2000);
+    return;
+  }
+
+  currentUser = name;
+  viewingAs   = name;
+  document.getElementById('whoScreen').style.display = 'none';
+  document.getElementById('taskBoard').classList.add('show');
+  document.getElementById('boardName').textContent = name.toUpperCase();
+
+  // Admin setup
+  if (name === ADMIN_NAME) {
+    document.getElementById('adminAssignRow').classList.add('show');
+    buildAdminTabs();
+  }
+
+  renderTasks();
+}
+
+// ── ADMIN TABS ────────────────────────────────────────
+function buildAdminTabs() {
+  const wrap = document.getElementById('adminTabs');
+  wrap.classList.add('show');
+  wrap.innerHTML = VALID_USERS.map(u => `
+    <button class="user-tab-btn ${u===currentUser?'active':''}"
+            onclick="adminViewUser('${u}', this)">
+      ${u.toUpperCase()}
+    </button>
+  `).join('');
+}
+
+function adminViewUser(name, btn) {
+  document.querySelectorAll('.user-tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  viewingAs = name;
+  document.getElementById('boardName').textContent = name.toUpperCase();
+  renderTasks();
+}
+
+// ── SWITCH USER ───────────────────────────────────────
+function switchUser() {
+  currentUser = null; viewingAs = null;
+  document.getElementById('taskBoard').classList.remove('show');
+  document.getElementById('whoScreen').style.display = 'flex';
+  document.getElementById('nameInput').value = '';
+  document.getElementById('adminTabs').classList.remove('show');
+  document.getElementById('adminAssignRow').classList.remove('show');
+}
+
+// ── ADD TASK ──────────────────────────────────────────
+function addTask() {
+  const text    = document.getElementById('taskInput').value.trim();
+  const date    = document.getElementById('dateInput').value;
+  const assignTo = currentUser === ADMIN_NAME
+    ? (document.getElementById('assignInput').value.trim().toLowerCase() || currentUser)
+    : currentUser;
+
+  if (!text) return;
+  if (!DB[assignTo]) DB[assignTo] = [];
+
+  DB[assignTo].push({
+    id:       Date.now().toString(),
+    text,
+    due:      date || null,
+    status:   'pending',
+    addedBy:  currentUser,
+    addedAt:  new Date().toISOString(),
+  });
+
+  dbSave();
+
+  // Clear inputs
+  document.getElementById('taskInput').value = '';
+  document.getElementById('dateInput').value = '';
+  if (currentUser === ADMIN_NAME) document.getElementById('assignInput').value = '';
+
+  // Refresh view
+  viewingAs = assignTo;
+  if (currentUser === ADMIN_NAME) {
+    document.querySelectorAll('.user-tab-btn').forEach(b => {
+      b.classList.toggle('active', b.textContent.trim().toLowerCase() === assignTo);
+    });
+  }
+  document.getElementById('boardName').textContent = viewingAs.toUpperCase();
+  renderTasks();
+}
+
+// ── CYCLE STATUS ──────────────────────────────────────
+function cycleStatus(taskId) {
+  const tasks = DB[viewingAs];
+  const task  = tasks.find(t => t.id === taskId);
+  if (!task) return;
+  const cycle = { pending:'progress', progress:'done', done:'pending' };
+  task.status = cycle[task.status];
+  dbSave();
+  renderTasks();
+}
+
+// ── DELETE TASK ───────────────────────────────────────
+function deleteTask(taskId) {
+  DB[viewingAs] = DB[viewingAs].filter(t => t.id !== taskId);
+  dbSave();
+  renderTasks();
+}
+
+// ── RENDER ────────────────────────────────────────────
+function renderTasks() {
+  const tasks    = DB[viewingAs] || [];
+  const pending  = tasks.filter(t => t.status === 'pending');
+  const progress = tasks.filter(t => t.status === 'progress');
+  const done     = tasks.filter(t => t.status === 'done');
+
+  // Stats
+  document.getElementById('statPending').textContent  = pending.length  + ' Pending';
+  document.getElementById('statProgress').textContent = progress.length + ' In Progress';
+  document.getElementById('statDone').textContent     = done.length     + ' Done';
+
+  // Sections
+  const wrap = document.getElementById('taskSections');
+  wrap.innerHTML = '';
+
+  const canEdit = currentUser === ADMIN_NAME || viewingAs === currentUser;
+
+  if (tasks.length === 0) {
+    wrap.innerHTML = `<div class="empty-state">No tasks yet.<br>Add something above.</div>`;
+    return;
+  }
+
+  const sections = [
+    { label:'In Progress', items:progress, key:'progress' },
+    { label:'Pending',     items:pending,  key:'pending'  },
+    { label:'Done',        items:done,     key:'done'     },
+  ];
+
+  sections.forEach(sec => {
+    if (sec.items.length === 0) return;
+    const label = document.createElement('div');
+    label.className = 'section-label';
+    label.textContent = sec.label;
+    wrap.appendChild(label);
+
+    const list = document.createElement('div');
+    list.className = 'task-list';
+
+    sec.items.forEach(task => {
+      const isOverdue = task.due && new Date(task.due) < new Date() && task.status !== 'done';
+      const dueText   = task.due ? formatDate(task.due) : '';
+      const addedBy   = task.addedBy && task.addedBy !== viewingAs ? `from ${task.addedBy}` : '';
+
+      const item = document.createElement('div');
+      item.className = `task-item ${task.status === 'done' ? 'done-item' : ''}`;
+      item.innerHTML = `
+        <div class="task-dot ${task.status}" onclick="${canEdit?`cycleStatus('${task.id}')`:''}" title="Click to change status"></div>
+        <div class="task-body">
+          <div class="task-text">${escHtml(task.text)}</div>
+          <div class="task-meta">
+            ${dueText ? `<span class="task-due ${isOverdue?'overdue':''}">${isOverdue?'⚠ ':''} ${dueText}</span>` : ''}
+            ${addedBy  ? `<span class="task-assigned">${addedBy}</span>` : ''}
+            ${canEdit  ? `<button class="task-status-btn ${task.status}" onclick="cycleStatus('${task.id}')">${statusLabel(task.status)}</button>` : ''}
+          </div>
+        </div>
+        ${canEdit ? `<button class="task-delete" onclick="deleteTask('${task.id}')" title="Delete">✕</button>` : ''}
+      `;
+      list.appendChild(item);
+    });
+
+    wrap.appendChild(list);
+  });
+}
+
+// ── HELPERS ───────────────────────────────────────────
+function statusLabel(s) {
+  return { pending:'Pending', progress:'In Progress', done:'Done' }[s] || s;
+}
+
+function formatDate(d) {
+  const date = new Date(d);
+  return date.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function toggleChat() {
+  const box = document.getElementById('chatBox');
+  const btn = document.getElementById('chatBtn');
+  box.classList.toggle('active');
+  btn.textContent = box.classList.contains('active') ? 'CLOSE' : 'MSG';
+}
+
+// ── BOOT ──────────────────────────────────────────────
+dbLoad();
+</script>
+
+  <script src="universe.js"></script>
+</body>
+</html>
+ENDHTML
+echo "done"
+Output
+
+done
 
   <!-- ═══════════════ CONCEPTS ═══════════════ -->
   <div class="dept-panel" id="panel-concepts">
