@@ -26,9 +26,9 @@
 
   <!-- HEADER -->
   <header class="page-header">
-    <img src="photos/logo/logo.png" class="logo" alt="THE.MAN.DO">
+    <img src="photos/logo/logo.png" class="page-logo" alt="THE.MAN.DO">
     <h1 class="page-title">MANDOLAB</h1>
-    <p class="page-sub">ethical hacking · networking · ctf</p>
+    <p class="page-sub">ethical hacking · concepts · ctf</p>
   </header>
 
   <!-- TABS -->
@@ -189,6 +189,16 @@ function switchTab(id, btn) {
   document.getElementById('panel-' + id).classList.add('active');
 }
 
+// Set concepts as default active tab on load
+window.addEventListener('DOMContentLoaded', () => {
+  const firstTab   = document.querySelector('.dept-tab');
+  const firstPanel = document.getElementById('panel-concepts');
+  if (firstTab && firstPanel) {
+    firstTab.classList.add('active');
+    firstPanel.classList.add('active');
+  }
+});
+
 function toggleChat() {
   const box = document.getElementById('chatBox');
   const btn = document.getElementById('chatBtn');
@@ -256,27 +266,16 @@ function populateAssignDropdown() {
   const select = document.getElementById('assignSelect');
   select.innerHTML = '';
 
-  if (currentUser === ADMIN_NAME) {
-    // Admin can assign tasks to anyone
-    VALID_USERS.forEach(u => {
-      const opt = document.createElement('option');
-      opt.value = u;
-      opt.textContent = `Assign to: ${u.toUpperCase()}`;
-      if (u === viewingAs) opt.selected = true;
-      select.appendChild(opt);
-    });
-  } else {
-    // Regular users can assign tasks to themselves or to mandooh
-    const selfOpt = document.createElement('option');
-    selfOpt.value = currentUser;
-    selfOpt.textContent = `For Myself (${currentUser.toUpperCase()})`;
-    select.appendChild(selfOpt);
-
-    const mandoOpt = document.createElement('option');
-    mandoOpt.value = ADMIN_NAME;
-    mandoOpt.textContent = `Assign to: ${ADMIN_NAME.toUpperCase()}`;
-    select.appendChild(mandoOpt);
-  }
+  // Everyone can assign to themselves or anyone else
+  VALID_USERS.forEach(u => {
+    const opt = document.createElement('option');
+    opt.value = u;
+    opt.textContent = u === currentUser
+      ? `For Myself (${u.toUpperCase()})`
+      : `Assign to: ${u.toUpperCase()}`;
+    if (u === currentUser) opt.selected = true;
+    select.appendChild(opt);
+  });
 }
 
 function buildAdminTabs() {
@@ -352,65 +351,76 @@ function deleteTask(owner, taskId) {
 }
 
 function renderTasks() {
-  const userTasks = DB[viewingAs] || [];
-  
-  // Calculate statistics for currently viewed user profile
-  const pending  = userTasks.filter(t => t.status === 'pending');
-  const progress = userTasks.filter(t => t.status === 'progress');
-  const done     = userTasks.filter(t => t.status === 'done');
+  const wrap    = document.getElementById('taskSections');
+  const isAdmin = currentUser === ADMIN_NAME;
+  const isSelf  = viewingAs === currentUser;
+  wrap.innerHTML = '';
 
+  // ── MY TASKS (tasks assigned to viewingAs by themselves) ──
+  const allTasks  = DB[viewingAs] || [];
+  const myTasks   = allTasks.filter(t => t.addedBy === viewingAs || !t.addedBy);
+  const incomingTasks = allTasks.filter(t => t.addedBy && t.addedBy !== viewingAs);
+
+  // Stats based on ALL tasks for this user
+  const pending  = allTasks.filter(t => t.status === 'pending');
+  const progress = allTasks.filter(t => t.status === 'progress');
+  const done     = allTasks.filter(t => t.status === 'done');
   document.getElementById('statPending').textContent  = pending.length  + ' Pending';
   document.getElementById('statProgress').textContent = progress.length + ' In Progress';
   document.getElementById('statDone').textContent     = done.length     + ' Done';
 
-  const wrap = document.getElementById('taskSections');
-  wrap.innerHTML = '';
+  const canEdit = isAdmin || isSelf;
 
-  const isSelf = viewingAs === currentUser;
-  const isAdmin = currentUser === ADMIN_NAME;
+  // ── SECTION: ASSIGNED TO ME (from others) ──
+  if (incomingTasks.length > 0) {
+    const h = document.createElement('div');
+    h.className = 'section-label';
+    h.style.cssText = 'color:rgba(60,160,255,0.7);margin-bottom:8px;';
+    h.textContent = '📥 ASSIGNED TO ME';
+    wrap.appendChild(h);
 
-  // 1. RENDER MAIN TASKS FOR CURRENT VIEWING USER
-  if (userTasks.length === 0) {
-    wrap.innerHTML += `<div style="font-family:var(--font-mono);font-size:0.7rem;color:rgba(240,236,224,0.3);padding:10px 0;">NO TASKS YET.</div>`;
-  } else {
     const sections = [
-      { label: 'IN PROGRESS', items: userTasks.filter(t => t.status === 'progress') },
-      { label: 'PENDING',     items: userTasks.filter(t => t.status === 'pending')  },
-      { label: 'DONE',        items: userTasks.filter(t => t.status === 'done')     },
+      { label:'IN PROGRESS', items: incomingTasks.filter(t=>t.status==='progress') },
+      { label:'PENDING',     items: incomingTasks.filter(t=>t.status==='pending')  },
+      { label:'DONE',        items: incomingTasks.filter(t=>t.status==='done')     },
     ];
-
     sections.forEach(sec => {
-      if (sec.items.length === 0) return;
-      
-      const label = document.createElement('div');
-      label.className = 'section-label';
-      label.textContent = sec.label;
-      wrap.appendChild(label);
-
-      sec.items.forEach(task => {
-        const canEdit = isAdmin || isSelf;
-        renderSingleTask(wrap, task, viewingAs, canEdit);
-      });
+      if (!sec.items.length) return;
+      const sl = document.createElement('div');
+      sl.className = 'section-label';
+      sl.style.fontSize = '0.44rem';
+      sl.textContent = sec.label;
+      wrap.appendChild(sl);
+      sec.items.forEach(task => renderSingleTask(wrap, task, viewingAs, canEdit));
     });
   }
 
-  // 2. FOR REGULAR USERS: SHOW TASKS ASSIGNED TO MANDOOH BY THEM
-  if (!isAdmin && isSelf) {
-    const mandoohTasks = DB[ADMIN_NAME] || [];
-    const assignedByMe = mandoohTasks.filter(t => t.addedBy === currentUser);
+  // ── SECTION: MY TASKS ──
+  if (myTasks.length > 0) {
+    const h = document.createElement('div');
+    h.className = 'section-label';
+    h.style.cssText = 'color:rgba(240,160,20,0.7);margin-top:28px;margin-bottom:8px;';
+    h.textContent = '📋 MY TASKS';
+    wrap.appendChild(h);
 
-    if (assignedByMe.length > 0) {
-      const assignedHeader = document.createElement('div');
-      assignedHeader.className = 'section-label';
-      assignedHeader.style.marginTop = '40px';
-      assignedHeader.style.color = '#00ffff';
-      assignedHeader.textContent = 'TASKS ASSIGNED TO MANDOOH BY YOU';
-      wrap.appendChild(assignedHeader);
+    const sections = [
+      { label:'IN PROGRESS', items: myTasks.filter(t=>t.status==='progress') },
+      { label:'PENDING',     items: myTasks.filter(t=>t.status==='pending')  },
+      { label:'DONE',        items: myTasks.filter(t=>t.status==='done')     },
+    ];
+    sections.forEach(sec => {
+      if (!sec.items.length) return;
+      const sl = document.createElement('div');
+      sl.className = 'section-label';
+      sl.style.fontSize = '0.44rem';
+      sl.textContent = sec.label;
+      wrap.appendChild(sl);
+      sec.items.forEach(task => renderSingleTask(wrap, task, viewingAs, canEdit));
+    });
+  }
 
-      assignedByMe.forEach(task => {
-        renderSingleTask(wrap, task, ADMIN_NAME, true);
-      });
-    }
+  if (allTasks.length === 0) {
+    wrap.innerHTML = `<div style="font-family:var(--font-mono);font-size:0.65rem;color:rgba(240,236,224,0.2);padding:30px 0;text-transform:uppercase;letter-spacing:3px;">No tasks yet. Add something above.</div>`;
   }
 }
 
