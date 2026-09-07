@@ -10,59 +10,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
-  <style>
-    /* Task Board Custom Styles (Blends with universe.css) */
-    .who-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 350px; gap: 16px; text-align: center; }
-    .who-title { font-family: var(--font-display, monospace); font-size: 2rem; letter-spacing: 4px; color: var(--text, #f0ece0); }
-    .who-input { background: #000; border: 1px solid rgba(240,160,20,0.3); padding: 12px 18px; color: #f0a014; font-family: var(--font-mono, monospace); border-radius: 4px; text-align: center; outline: none; }
-    .who-btn { background: transparent; border: 1px solid #f0a014; color: #f0a014; padding: 10px 24px; font-family: var(--font-mono, monospace); cursor: pointer; letter-spacing: 2px; }
-    .who-btn:hover { background: rgba(240,160,20,0.1); }
-    .who-error { color: #dc503c; font-family: var(--font-mono, monospace); font-size: 0.7rem; display: none; margin-top: 8px; }
-    .who-error.show { display: block; }
-    
-    .task-board { display: none; padding: 20px 0; }
-    .task-board.show { display: block; }
-    .board-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(240,160,20,0.2); padding-bottom: 12px; }
-    .board-title { font-family: var(--font-display, monospace); font-size: 1.4rem; color: #f0a014; letter-spacing: 2px; }
-    .switch-user-btn { background: none; border: 1px solid rgba(255,255,255,0.2); color: rgba(240,236,224,0.6); padding: 6px 12px; font-family: var(--font-mono, monospace); font-size: 0.65rem; cursor: pointer; }
-    
-    .admin-tabs { display: none; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-    .admin-tabs.show { display: flex; }
-    .user-tab-btn { background: #000; border: 1px solid rgba(255,255,255,0.1); color: rgba(240,236,224,0.5); padding: 6px 14px; font-family: var(--font-mono, monospace); font-size: 0.65rem; cursor: pointer; }
-    .user-tab-btn.active { border-color: #f0a014; color: #f0a014; background: rgba(240,160,20,0.08); }
-    
-    .add-task-card { background: rgba(0,0,0,0.5); border: 1px solid rgba(240,160,20,0.2); padding: 18px; border-radius: 6px; margin-bottom: 24px; }
-    .add-task-label { font-family: var(--font-mono, monospace); font-size: 0.6rem; color: #f0a014; letter-spacing: 2px; margin-bottom: 10px; }
-    .add-task-inputs { display: flex; gap: 10px; flex-wrap: wrap; }
-    .task-input-field { flex: 1; min-width: 200px; background: #000; border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 10px 14px; font-family: var(--font-mono, monospace); font-size: 0.75rem; }
-    .task-select-field { background: #000; border: 1px solid rgba(255,255,255,0.1); color: #f0a014; padding: 10px 14px; font-family: var(--font-mono, monospace); font-size: 0.75rem; outline: none; cursor: pointer; }
-    .task-date-field { background: #000; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); padding: 10px; font-family: var(--font-mono, monospace); font-size: 0.75rem; }
-    .add-task-btn { background: #f0a014; border: none; color: #000; font-family: var(--font-mono, monospace); font-weight: bold; padding: 10px 20px; cursor: pointer; }
-    
-    .task-item { display: flex; align-items: center; gap: 14px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); padding: 12px 16px; border-radius: 4px; margin-bottom: 8px; }
-    .task-item.done-item { opacity: 0.5; }
-    .task-dot { width: 10px; height: 10px; border-radius: 50%; cursor: pointer; flex-shrink: 0; }
-    .task-dot.pending { background: #f0a014; }
-    .task-dot.progress { background: #00ffff; }
-    .task-dot.done { background: #50c864; }
-    .task-body { flex: 1; }
-    .task-text { font-family: var(--font-mono, monospace); font-size: 0.8rem; color: #f0ece0; }
-    .task-meta { display: flex; gap: 12px; font-family: var(--font-mono, monospace); font-size: 0.6rem; color: rgba(240,236,224,0.4); margin-top: 4px; align-items: center; }
-    .task-due.overdue { color: #dc503c; }
-    .task-status-btn { background: none; border: none; font-family: var(--font-mono, monospace); font-size: 0.6rem; cursor: pointer; padding: 0; }
-    .task-status-btn.pending { color: #f0a014; }
-    .task-status-btn.progress { color: #00ffff; }
-    .task-status-btn.done { color: #50c864; }
-    .task-delete { background: none; border: none; color: rgba(220,80,60,0.6); font-size: 0.9rem; cursor: pointer; }
-    .task-delete:hover { color: #dc503c; }
-    
-    .section-label { font-family: var(--font-mono, monospace); font-size: 0.55rem; color: #f0a014; letter-spacing: 3px; margin: 20px 0 10px; text-transform: uppercase; opacity: 0.7; }
-    .stat-badges { display: flex; gap: 10px; margin-bottom: 16px; font-family: var(--font-mono, monospace); font-size: 0.6rem; }
-    .stat-badge { padding: 4px 8px; border-radius: 3px; background: rgba(255,255,255,0.05); }
-    .stat-badge.pending { color: #f0a014; }
-    .stat-badge.progress { color: #00ffff; }
-    .stat-badge.done { color: #50c864; }
-  </style>
 </head>
 <body>
 
@@ -80,161 +27,18 @@
   <header class="page-header">
     <img src="photos/logo/logo.png" class="logo" alt="THE.MAN.DO">
     <h1 class="page-title">MANDOLAB</h1>
-    <p class="page-sub">ethical hacking · networking · ctf</p>
+    <p class="page-sub">hehehehhe</p>
   </header>
 
   <!-- TABS -->
   <div class="dept-tabs">
     <button class="dept-tab" onclick="switchTab('concepts', this)">Concepts</button>
-    <button class="dept-tab active" onclick="switchTab('hacking', this)">Hacking</button>
     <button class="dept-tab" onclick="switchTab('tasks', this)">Tasks</button>
     <button class="dept-tab" onclick="switchTab('dj', this)">DJ</button>
     <button class="dept-tab" onclick="switchTab('secret', this)">Secret</button>
   </div>
 
-  <!-- ═══════════════ HACKING ═══════════════ -->
-  <div class="dept-panel active" id="panel-hacking">
-    <div class="lab-grid" style="padding:40px 0 0;">
-
-      <div class="lab-card active-project">
-        <div class="lab-status">STATUS: LIVE</div>
-        <h2 class="lab-title">IP_CONFLICT_CASE</h2>
-        <p class="lab-desc">A rogue device pretending to be our gateway router took down an entire office. Found it in under 5 minutes.</p>
-        <div class="lab-tags">#NETWORKING #ARP #REALCASE</div>
-      </div>
-
-      <div class="lab-card active-project">
-        <div class="lab-status">STATUS: LIVE</div>
-        <h2 class="lab-title">PRINTER_DHCP_CASE</h2>
-        <p class="lab-desc">Printer kept losing its IP after every restart. Classic DHCP conflict that drove the whole office crazy.</p>
-        <div class="lab-tags">#DHCP #PRINTING #REALCASE</div>
-      </div>
-
-      <div class="lab-card">
-        <div class="lab-status">STATUS: COMING</div>
-        <h2 class="lab-title">CTF_CHALLENGE_01</h2>
-        <p class="lab-desc">First capture the flag challenge walkthrough. Beginner friendly. Tools: Kali Linux, Wireshark.</p>
-        <div class="lab-tags">#CTF #KALI #ETHICALHACKING</div>
-      </div>
-
-      <div class="lab-card">
-        <div class="lab-status">STATUS: COMING</div>
-        <h2 class="lab-title">NMAP_FIELD_NOTES</h2>
-        <p class="lab-desc">Real commands I use daily for network scanning. Not a tutorial — actual field notes from the job.</p>
-        <div class="lab-tags">#NMAP #NETWORKING #TOOLS</div>
-      </div>
-
-      <div class="lab-card">
-        <div class="lab-status">STATUS: COMING</div>
-        <h2 class="lab-title">WIRESHARK_101</h2>
-        <p class="lab-desc">How to read packet captures like a network engineer. Starting from zero, ending at useful.</p>
-        <div class="lab-tags">#WIRESHARK #PACKETS #ANALYSIS</div>
-      </div>
-
-    </div>
-
-    <!-- CASE 01 FULL WRITEUP -->
-    <div class="lab-grid" style="padding:20px 0 0;">
-      <div class="lab-card active-project" style="grid-column:1/-1; border-left:2px solid #f0a014;">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px; margin-bottom:20px;">
-          <div>
-            <div class="lab-status">STATUS: LIVE — REAL CASE</div>
-            <h2 class="lab-title" style="font-size:1.3rem; margin-top:6px;">CASE_01 — THE GHOST IN THE GATEWAY</h2>
-          </div>
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <span style="font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:2px;padding:4px 10px;border:1px solid rgba(240,160,20,0.25);border-radius:100px;color:#f0a014;text-transform:uppercase;">Networking</span>
-            <span style="font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:2px;padding:4px 10px;border:1px solid rgba(255,255,255,0.1);border-radius:100px;color:rgba(240,236,224,0.4);text-transform:uppercase;">IP Conflict</span>
-            <span style="font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:2px;padding:4px 10px;border:1px solid rgba(255,255,255,0.1);border-radius:100px;color:rgba(240,236,224,0.4);text-transform:uppercase;">ARP</span>
-          </div>
-        </div>
-        <div style="width:100%;height:1px;background:rgba(240,160,20,0.08);margin-bottom:24px;"></div>
-        <div style="margin-bottom:22px;">
-          <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:#f0a014;opacity:0.6;text-transform:uppercase;margin-bottom:10px;">01 — THE SYMPTOM</div>
-          <p class="lab-desc" style="margin:0;">Half the office lost their network randomly. Emails wouldn't sync. Sessions kept dropping. It wasn't completely dead — it was <strong style="color:#f0ece0;">erratic</strong>. That pattern matters.</p>
-        </div>
-        <div style="margin-bottom:22px;">
-          <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:#f0a014;opacity:0.6;text-transform:uppercase;margin-bottom:10px;">02 — THE HUNT</div>
-          <p class="lab-desc" style="margin:0 0 12px 0;">Continuous ping to the default gateway. Clean for a few rows, then timeout spikes to 1500ms.</p>
-          <div style="background:#000;border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:14px 18px;font-family:'Space Mono',monospace;font-size:0.7rem;color:#f0a014;letter-spacing:1px;margin-bottom:12px;">ping -t 192.168.1.1</div>
-          <p class="lab-desc" style="margin:0;">First guess was a failing switch or loop. Checked everything physically — all fine. Time to go deeper.</p>
-        </div>
-        <div style="margin-bottom:22px;">
-          <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:#f0a014;opacity:0.6;text-transform:uppercase;margin-bottom:10px;">03 — THE BREAKTHROUGH</div>
-          <div style="background:#000;border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:14px 18px;font-family:'Space Mono',monospace;font-size:0.68rem;letter-spacing:1px;margin-bottom:12px;line-height:2.2;">
-            <span style="color:rgba(240,236,224,0.4);">C:\&gt;</span> <span style="color:#f0a014;">arp -a</span><br>
-            <span style="color:rgba(240,236,224,0.6);">192.168.1.1</span>&nbsp;&nbsp;<span style="color:#f0a014;">aa-bb-cc-dd-ee-ff</span>&nbsp;&nbsp;<span style="color:rgba(240,236,224,0.3);">dynamic</span><br>
-            <span style="color:rgba(240,160,20,0.35);font-size:0.6rem;">← 10 seconds later, same IP, different MAC:</span><br>
-            <span style="color:rgba(240,236,224,0.6);">192.168.1.1</span>&nbsp;&nbsp;<span style="color:#f0a014;">11-22-33-44-55-66</span>&nbsp;&nbsp;<span style="color:rgba(240,236,224,0.3);">dynamic</span>
-          </div>
-          <p class="lab-desc" style="margin:0;">Two MACs fighting over the same IP — <strong style="color:#f0ece0;">IP address conflict.</strong> A rogue device had been manually assigned the exact same IP as the gateway router.</p>
-        </div>
-        <div style="margin-bottom:22px;">
-          <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:rgba(80,200,100,0.7);text-transform:uppercase;margin-bottom:10px;">04 — THE FIX</div>
-          <div style="background:#000;border:1px solid rgba(80,200,100,0.1);border-radius:6px;padding:14px 18px;font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(80,200,100,0.7);letter-spacing:1px;line-height:2;">
-            Switch(config)# interface FastEthernet0/[PORT]<br>
-            Switch(config-if)# shutdown<br>
-            <span style="color:rgba(240,236,224,0.3);">→ Network stabilized immediately</span>
-          </div>
-        </div>
-        <div style="padding:16px 20px;background:rgba(240,160,20,0.04);border:1px solid rgba(240,160,20,0.12);border-radius:6px;">
-          <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:#f0a014;opacity:0.6;text-transform:uppercase;margin-bottom:10px;">TAKEAWAY</div>
-          <p class="lab-desc" style="margin:0;color:rgba(240,236,224,0.5);line-height:2;">
-            1. Erratic network = suspect IP conflict before hardware failure.<br>
-            2. <code style="background:#000;padding:1px 6px;border-radius:3px;color:#f0a014;">arp -a</code> is one of the fastest diagnostic commands — use it early.<br>
-            3. Never let users manually assign static IPs without checking your DHCP range.
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- CASE 02 FULL WRITEUP -->
-    <div class="lab-grid" style="padding:20px 0 0;">
-      <div class="lab-card" style="grid-column:1/-1; border-left:2px solid rgba(240,160,20,0.4);">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px; margin-bottom:20px;">
-          <div>
-            <div class="lab-status">STATUS: LIVE — REAL CASE</div>
-            <h2 class="lab-title" style="font-size:1.3rem; margin-top:6px;">CASE_02 — THE PRINTER THAT FORGOT ITS NAME</h2>
-          </div>
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <span style="font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:2px;padding:4px 10px;border:1px solid rgba(240,160,20,0.25);border-radius:100px;color:#f0a014;text-transform:uppercase;">DHCP</span>
-            <span style="font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:2px;padding:4px 10px;border:1px solid rgba(255,255,255,0.1);border-radius:100px;color:rgba(240,236,224,0.4);text-transform:uppercase;">Printing</span>
-          </div>
-        </div>
-        <div style="width:100%;height:1px;background:rgba(240,160,20,0.08);margin-bottom:24px;"></div>
-        <div style="margin-bottom:22px;">
-          <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:#f0a014;opacity:0.6;text-transform:uppercase;margin-bottom:10px;">01 — THE SYMPTOM</div>
-          <p class="lab-desc" style="margin:0;">Every time the office printer restarted, nobody could print. The printer was on and showing online — but jobs just sat in the queue going nowhere.</p>
-        </div>
-        <div style="margin-bottom:22px;">
-          <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:#f0a014;opacity:0.6;text-transform:uppercase;margin-bottom:10px;">02 — THE CAUSE</div>
-          <div style="background:#000;border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:14px 18px;font-family:'Space Mono',monospace;font-size:0.68rem;letter-spacing:1px;line-height:2.2;margin-bottom:12px;">
-            <span style="color:rgba(240,236,224,0.4);">Before restart:</span><br>
-            <span style="color:rgba(240,236,224,0.6);">Printer IP →</span> <span style="color:#f0a014;">192.168.1.45</span> <span style="color:rgba(80,200,100,0.6);">← all computers pointed here</span><br><br>
-            <span style="color:rgba(240,236,224,0.4);">After restart:</span><br>
-            <span style="color:rgba(240,236,224,0.6);">Printer IP →</span> <span style="color:#f0a014;">192.168.1.78</span> <span style="color:rgba(220,80,60,0.7);">← printer moved, nobody knows</span>
-          </div>
-          <p class="lab-desc" style="margin:0;">Printer was on DHCP — every restart gave it a new IP. But every computer still had the old IP saved. Print jobs flying to an address that no longer existed.</p>
-        </div>
-        <div style="margin-bottom:22px;">
-          <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:rgba(80,200,100,0.7);text-transform:uppercase;margin-bottom:10px;">03 — THE FIX</div>
-          <div style="background:#000;border:1px solid rgba(80,200,100,0.1);border-radius:6px;padding:14px 18px;font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(80,200,100,0.7);letter-spacing:1px;line-height:2;">
-            Router DHCP Reservation:<br>
-            MAC: aa:bb:cc:dd:ee:ff → Always gets 192.168.1.45<br>
-            <span style="color:rgba(240,236,224,0.3);">→ Printer always gets same IP, forever</span>
-          </div>
-        </div>
-        <div style="padding:16px 20px;background:rgba(240,160,20,0.04);border:1px solid rgba(240,160,20,0.12);border-radius:6px;">
-          <div style="font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:4px;color:#f0a014;opacity:0.6;text-transform:uppercase;margin-bottom:10px;">TAKEAWAY</div>
-          <p class="lab-desc" style="margin:0;color:rgba(240,236,224,0.5);line-height:2;">
-            1. Shared devices — printers, scanners — should never have random DHCP addresses.<br>
-            2. When a shared device stops working after restart, check its IP first.<br>
-            3. DHCP reservation is cleaner than static — same result, less risk.
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-
+  
   <!-- ═══════════════ CONCEPTS ═══════════════ -->
   <div class="dept-panel" id="panel-concepts">
     <div style="padding:40px 0 0;">
