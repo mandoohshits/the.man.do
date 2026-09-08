@@ -30,77 +30,87 @@
     <button class="shits-tab-btn" onclick="switchShitsTab('videos', this)">VIDEOS</button>
   </div>
 
-  <!-- PHOTOS PANEL -->
+  <!-- ══ PHOTOS PANEL ══ -->
   <div class="shits-panel active" id="panel-photos">
     <main class="photo-grid">
-    <!-- PHOTO 1 -->
-    <div class="photo-cell" onclick="openPhoto(1)">
-      <img src="photos/Shits/sh1.png" alt="">
-      <div class="photo-overlay"><span class="overlay-hint">READ →</span></div>
-    </div>
 
-    <!-- PHOTO 2 -->
-    <div class="photo-cell" onclick="openPhoto(2)">
-      <img src="photos/Shits/sh2.png" alt="">
-      <div class="photo-overlay"><span class="overlay-hint">READ →</span></div>
-    </div>
-
-    <!-- PHOTO 3 -->
-    <div class="photo-cell" onclick="openPhoto(3)">
-      <img src="photos/Shits/sh3.png" alt="">
-      <div class="photo-overlay"><span class="overlay-hint">READ →</span></div>
-    </div>
-
-    <!-- PHOTO 4 -->
-    <div class="photo-cell" onclick="openPhoto(4)">
-      <img src="photos/Shits/sh4.png" alt="">
-      <div class="photo-overlay"><span class="overlay-hint">READ →</span></div>
-    </div>
-
-    <!-- PHOTO 5 -->
-    <div class="photo-cell" onclick="openPhoto(5)">
-      <img src="photos/Shits/sh5.png" alt="">
-      <div class="photo-overlay"><span class="overlay-hint">READ →</span></div>
-    </div>
-
-    <!-- PHOTO 6 -->
-    <div class="photo-cell" onclick="openPhoto(6)">
-      <img src="photos/Shits/sh6.png" alt="">
-      <div class="photo-overlay"><span class="overlay-hint">READ →</span></div>
-    </div>
-
-    <!-- PHOTO 7 -->
-    <div class="photo-cell" onclick="openPhoto(7)">
-      <img src="photos/Shits/sh7.png" alt="">
-      <div class="photo-overlay"><span class="overlay-hint">READ →</span></div>
-    </div>
-
-    <!-- LOCKED PHOTO CELL 8 -->
-    <div class="photo-cell locked" data-answer="CR7">
-      <img src="photos/Shits/sh8.jpeg" class="locked-photo" alt="" onclick="openPhoto(8)">
-      <div class="lock-overlay">
-        <div class="lock-icon">🔒</div>
-        <div class="lock-hint">THIS PHOTO IS LOCKED<br>ENTER THE CODE</div>
-        <div class="lock-input-wrap">
-          <input class="lock-input" type="text" placeholder="answer..." autocomplete="off" spellcheck="false">
-          <button class="lock-submit" onclick="unlockPhoto(this)">→</button>
-        </div>
-        <div class="lock-wrong">wrong.</div>
+      <!-- PHOTO 1 -->
+      <div class="photo-cell" onclick="openPhoto(1)">
+        <img src="photos/Shits/sh1.png" alt="">
+        <div class="photo-overlay"><span class="overlay-hint">READ →</span></div>
       </div>
-    </div>
 
-    <!-- PHOTO 9 -->
-    <div class="photo-cell" onclick="openPhoto(9)">
-      <img src="photos/Shits/sh9.png" alt="">
-      <div class="photo-overlay"><span class="overlay-hint">READ →</span></div>
-    </div>
+      <!-- PHOTO 2 -->
+      <div class="photo-cell" onclick="openPhoto(2)">
+        <img src="photos/Shits/sh2.png" alt="">
+        <div class="photo-overlay"><span class="overlay-hint">READ →</span></div>
+      </div>
 
-    <!-- PHOTO 10 -->
-    <div class="photo-cell" onclick="openPhoto(10)">
-      <img src="photos/Shits/sh10.png" alt="">
-      <div class="photo-overlay"><span class="overlay-hint">READ →</span></div>
-    </div>
-  </main>
+      <!-- PHOTO 3 -->
+      <div class="photo-cell" onclick="openPhoto(3)">
+        <img src="photos/Shits/sh3.png" alt="">
+        <div class="photo-overlay"><span class="overlay-hint">READ →</span></div>
+      </div>
+
+      <!-- PHOTO 4 -->
+      <div class="photo-cell" onclick="openPhoto(4)">
+        <img src="photos/Shits/sh4.png" alt="">
+        <div class="photo-overlay"><span class="overlay-hint">READ →</span></div>
+      </div>
+
+      <!-- PHOTO 5 -->
+      <div class="photo-cell" onclick="openPhoto(5)">
+        <img src="photos/Shits/sh5.png" alt="">
+        <div class="photo-overlay"><span class="overlay-hint">READ →</span></div>
+      </div>
+
+      <!-- PHOTO 6 -->
+      <div class="photo-cell" onclick="openPhoto(6)">
+        <img src="photos/Shits/sh6.png" alt="">
+        <div class="photo-overlay"><span class="overlay-hint">READ →</span></div>
+      </div>
+
+      <!-- PHOTO 7 -->
+      <div class="photo-cell" onclick="openPhoto(7)">
+        <img src="photos/Shits/sh7.png" alt="">
+        <div class="photo-overlay"><span class="overlay-hint">READ →</span></div>
+      </div>
+
+      <!-- PHOTO 8 — LOCKED -->
+      <div class="photo-cell locked" data-answer="CR7">
+        <img src="photos/Shits/sh8.jpeg" class="locked-photo" alt="" onclick="openPhoto(8)">
+        <div class="lock-overlay">
+          <div class="lock-icon">🔒</div>
+          <div class="lock-hint">LOCKED<br>ENTER THE CODE</div>
+          <div class="lock-input-wrap">
+            <input class="lock-input" type="text" placeholder="answer..." autocomplete="off" spellcheck="false">
+            <button class="lock-submit" onclick="unlockPhoto(this)">→</button>
+          </div>
+          <div class="lock-wrong">wrong.</div>
+        </div>
+      </div>
+
+      <!-- PHOTO 9 -->
+      <div class="photo-cell" onclick="openPhoto(9)">
+        <img src="photos/Shits/sh9.png" alt="">
+        <div class="photo-overlay"><span class="overlay-hint">READ →</span></div>
+      </div>
+
+      <!-- PHOTO 10 -->
+      <div class="photo-cell" onclick="openPhoto(10)">
+        <img src="photos/Shits/sh10.png" alt="">
+        <div class="photo-overlay"><span class="overlay-hint">READ →</span></div>
+      </div>
+
+      <!-- PHOTO 11 -->
+      <div class="photo-cell" onclick="openPhoto(11)">
+        <img src="photos/Shits/sh11.png" alt="">
+        <div class="photo-overlay"><span class="overlay-hint">READ →</span></div>
+      </div>
+
+      <!-- PASTE MORE PHOTOS HERE — copy any photo-cell block above -->
+
+    </main>
   </div><!-- end panel-photos -->
 
   <!-- ── LIGHTBOX ── -->
@@ -393,6 +403,18 @@ const PHOTOS = {
     answer:   'pupil',
     quote:    'Im always proud to stand by your side and remind you that you are one of the most genuine, sweetest human beings Ive ever met. Im lucky to have found someone who gets me. You goofy ',
     music:    'music/sm10.mp3',
+  },
+11: {
+    imgSrc:   'photos/Shits/sh11.png',
+    title:    '------------',
+    date:     '2002',
+    location: '',
+    letter:   '',
+    sign:     '',
+    riddle:   '',
+    answer:   '',
+    quote:    '',
+    music:    'music/sm11.mp3',
   },
 };
 
