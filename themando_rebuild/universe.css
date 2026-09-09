@@ -1708,4 +1708,19 @@ a, a:visited, a:hover, a:active { text-decoration: none; color: inherit; outline
       .budget-summary { grid-template-columns: 1fr; }
       .feature-tab { padding: 10px 12px; font-size: 0.45rem; }
     }
+
+body {
+  /* Replace with the actual path to your GIF */
+  background-image: url('theme/gifs/main.gif');
   
+  /* Make it cover the whole screen */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  
+  /* Keep the background static while scrolling */
+  background-attachment: fixed;
+  
+  /* Optional: dark tint fallback if GIF takes a moment to load */
+  background-color: #0d0d0d;
+}
