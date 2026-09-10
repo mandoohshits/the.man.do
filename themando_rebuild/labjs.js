@@ -340,35 +340,42 @@
     }
 
     /* ── BUCKET LIST LOGIC ── */
-    function addBucket(type) {
-      const inputId = type === 'my' ? 'myBucketInput' : 'sharedBucketInput';
-      const tagId   = type === 'my' ? 'myBucketTag'   : 'sharedBucketTag';
-      const text    = document.getElementById(inputId).value.trim();
-      const tag     = document.getElementById(tagId).value;
+    function addBucket(type = 'shared') {
+      const input = document.getElementById('sharedBucketInput');
+      const tagSelect = document.getElementById('sharedBucketTag');
+      if (!input) return;
+
+      const text = input.value.trim();
+      const tag  = tagSelect ? tagSelect.value : 'other';
       if (!text) return;
 
       initUser(viewingAs);
+
       const item = { id: Date.now().toString(), text, tag, done: false, addedBy: currentUser };
 
-      if (type === 'shared') {
-        DB[viewingAs].bucket.shared.push(item);
-        if (viewingAs !== ADMIN_NAME) {
-          initUser(ADMIN_NAME);
-          DB[ADMIN_NAME].bucket.shared.push({ ...item, sharedWith: viewingAs });
-        }
-      } else {
-        DB[viewingAs].bucket.my.push(item);
+      if (!DB[viewingAs].bucket) DB[viewingAs].bucket = { my: [], shared: [] };
+      if (!DB[viewingAs].bucket.shared) DB[viewingAs].bucket.shared = [];
+
+      DB[viewingAs].bucket.shared.push(item);
+
+      // Sync items added by other users (like Ummi) to mandooh's list too
+      if (viewingAs !== ADMIN_NAME) {
+        initUser(ADMIN_NAME);
+        if (!DB[ADMIN_NAME].bucket) DB[ADMIN_NAME].bucket = { my: [], shared: [] };
+        if (!DB[ADMIN_NAME].bucket.shared) DB[ADMIN_NAME].bucket.shared = [];
+        DB[ADMIN_NAME].bucket.shared.push({ ...item, sharedWith: viewingAs });
       }
 
       dbSave();
-      document.getElementById(inputId).value = '';
+      input.value = '';
       renderBucket();
     }
 
     function toggleBucket(type, id) {
       initUser(viewingAs);
-      const list = DB[viewingAs].bucket[type] || [];
-      const item = list.find(i => i.id === id);
+      if (!DB[viewingAs]?.bucket?.shared) return;
+
+      const item = DB[viewingAs].bucket.shared.find(i => i.id === id);
       if (item) {
         item.done = !item.done;
         dbSave();
@@ -378,7 +385,9 @@
 
     function deleteBucket(type, id) {
       initUser(viewingAs);
-      DB[viewingAs].bucket[type] = DB[viewingAs].bucket[type].filter(i => i.id !== id);
+      if (!DB[viewingAs]?.bucket?.shared) return;
+
+      DB[viewingAs].bucket.shared = DB[viewingAs].bucket.shared.filter(i => i.id !== id);
       dbSave();
       renderBucket();
     }
@@ -386,15 +395,14 @@
     function renderBucket() {
       initUser(viewingAs);
       const canEdit    = currentUser === ADMIN_NAME || viewingAs === currentUser;
-      const myList     = DB[viewingAs].bucket.my     || [];
-      const sharedList = DB[viewingAs].bucket.shared || [];
+      const sharedList = DB[viewingAs]?.bucket?.shared || [];
 
-      renderBucketList('myBucketList', myList, 'my', canEdit);
       renderBucketList('sharedBucketList', sharedList, 'shared', canEdit);
     }
 
     function renderBucketList(wrapperId, items, type, canEdit) {
       const wrap = document.getElementById(wrapperId);
+      if (!wrap) return;
       wrap.innerHTML = '';
 
       if (items.length === 0) {
@@ -406,16 +414,16 @@
         const el = document.createElement('div');
         el.className = `bucket-item ${item.done ? 'done-bucket' : ''}`;
         el.innerHTML = `
-          <button class="bucket-check" onclick="${canEdit ? `toggleBucket('${type}','${item.id}')` : ''}">${item.done ? '✓' : ''}</button>
+          <button class="bucket-check" onclick="${canEdit ? `toggleBucket('shared','${item.id}')` : ''}">${item.done ? '✓' : ''}</button>
           <div class="bucket-text">${escHtml(item.text)}</div>
           <span class="bucket-tag">${item.tag}</span>
           ${item.sharedWith ? `<span class="bucket-tag" style="color:rgba(240,160,20,0.4);">${item.sharedWith}</span>` : ''}
-          ${canEdit ? `<button class="del-btn" onclick="deleteBucket('${type}','${item.id}')">✕</button>` : ''}
+          ${canEdit ? `<button class="del-btn" onclick="deleteBucket('shared','${item.id}')">✕</button>` : ''}
         `;
         wrap.appendChild(el);
       });
     }
-
+    
     /* ── HELPERS ── */
     function statusLabel(s) {
       return { pending: 'Pending', progress: 'In Progress', done: 'Done' }[s] || s;
