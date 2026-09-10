@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THE.MAN.DO — The Story</title>
+  <link rel="stylesheet" href="universe.css">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      background: #000;
+      color: #f0ece0;
+      font-family: 'Space Mono', monospace;
+      min-height: 100vh;
+      overflow: hidden;
+      cursor: none;
+    }
+
+    /* ── STORY SCREEN ── */
+    #storyScreen {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 10%;
+    }
+
+    /* Progress bar — thin gold line at top */
+    #progressBar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 1px;
+      background: #f0a014;
+      width: 0%;
+      transition: width 0.4s ease;
+      z-index: 10000;
+    }
+
+    /* Chapter label */
+    #chapterLabel {
+      position: fixed;
+      top: 28px; left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.45rem;
+      letter-spacing: 5px;
+      color: rgba(240,160,20,0.35);
+      text-transform: uppercase;
+      transition: opacity 0.6s;
+    }
+
+    /* Skip button */
+    #skipBtn {
+      position: fixed;
+      bottom: 28px; right: 32px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 3px;
+      color: rgba(240,236,224,0.5);
+      text-transform: uppercase;
+      background: rgba(6,6,6,0.8);
+      border: 1px solid rgba(240,160,20,0.25);
+      border-radius: 100px;
+      padding: 8px 18px;
+      cursor: pointer;
+      transition: all 0.2s;
+      z-index: 10001;
+    }
+    #skipBtn:hover { color: #f0a014; border-color: #f0a014; background: rgba(240,160,20,0.08); }
+
+    /* Tap to continue hint */
+    #tapHint {
+      position: fixed;
+      bottom: 28px; left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.45rem;
+      letter-spacing: 4px;
+      color: rgba(240,236,224,0.15);
+      text-transform: uppercase;
+      opacity: 0;
+      transition: opacity 0.5s;
+      cursor: pointer;
+    }
+    #tapHint.show { opacity: 1; }
+
+    /* Main text area */
+    #storyText {
+      text-align: center;
+      max-width: 680px;
+      line-height: 1.9;
+    }
+
+    .story-line {
+      display: block;
+      font-size: clamp(1rem, 2.5vw, 1.35rem);
+      letter-spacing: 1px;
+      color: rgba(240,236,224,0.9);
+      margin-bottom: 0.2em;
+      min-height: 1.5em;
+    }
+
+    .story-line.accent {
+      color: #f0a014;
+      font-size: clamp(1.1rem, 3vw, 1.6rem);
+      letter-spacing: 3px;
+    }
+
+    .story-line.small {
+      font-size: clamp(0.7rem, 1.5vw, 0.85rem);
+      color: rgba(240,236,224,0.4);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 0.6em;
+    }
+
+    .story-line.big {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.5rem, 7vw, 5rem);
+      letter-spacing: 8px;
+      color: #f0ece0;
+      line-height: 1;
+      margin-bottom: 0.15em;
+    }
+
+    /* Cursor blink */
+    .blink-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1.1em;
+      background: #f0a014;
+      vertical-align: middle;
+      margin-left: 3px;
+      animation: blink 0.9s step-end infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    /* Fade transition between chapters */
+    #storyText {
+      transition: opacity 0.5s;
+    }
+    #storyText.fade-out { opacity: 0; }
+    #storyText.fade-in  { opacity: 1; }
+
+    /* ── END SCREEN ── */
+    #endScreen {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #000;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9998;
+      opacity: 0;
+      transition: opacity 1s;
+    }
+    #endScreen.visible {
+      display: flex;
+      opacity: 1;
+    }
+
+    .end-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 10vw, 7rem);
+      letter-spacing: 12px;
+      color: #f0ece0;
+      margin-bottom: 16px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 1s 0.3s, transform 1s 0.3s;
+    }
+
+    .end-sub {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 6px;
+      color: #f0a014;
+      text-transform: uppercase;
+      opacity: 0;
+      transition: opacity 1s 0.8s;
+      margin-bottom: 50px;
+    }
+
+    .enter-btn {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      padding: 14px 36px;
+      background: none;
+      border: 1px solid rgba(240,160,20,0.4);
+      color: #f0a014;
+      cursor: pointer;
+      transition: all 0.3s;
+      opacity: 0;
+      transition: opacity 1s 1.3s, background 0.2s, border-color 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .enter-btn:hover {
+      background: rgba(240,160,20,0.08);
+      border-color: #f0a014;
+    }
+
+    #endScreen.visible .end-logo,
+    #endScreen.visible .end-sub,
+    #endScreen.visible .enter-btn {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Noise overlay */
+    .noise {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 10002;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 120px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="noise"></div>
+<div id="progressBar"></div>
+<div id="chapterLabel"></div>
+
+<div id="storyScreen">
+  <div id="storyText"></div>
+  <div id="tapHint">tap to continue</div>
+</div>
+
+<button id="skipBtn" onclick="skipStory()">SKIP →</button>
+
+<div id="endScreen">
+  <div class="end-logo">THE.MAN.DO</div>
+  <div class="end-sub">[ OWNERSHIP IS A HABIT ]</div>
+  <a href="index.html" class="enter-btn">ENTER THE UNIVERSE →</a>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// THE STORY — chapters play one after another
+// Each chapter has lines that type out word by word
+// style: 'normal' | 'accent' | 'small' | 'big'
+// pause: ms to wait after chapter finishes before auto-advancing
+// ══════════════════════════════════════════════════════
+const CHAPTERS = [
+  {
+    label: '001 — THE NAME',
+    lines: [
+      { text: 'My name is Amaljith.', style: 'normal' },
+      { text: 'But nobody calls me that.', style: 'normal' },
+    ],
+    pause: 1800,
+  },
+  {
+    label: '001 — THE NAME',
+    lines: [
+      { text: 'Somewhere along the way,', style: 'small' },
+      { text: 'MANDOOH.', style: 'big' },
+      { text: 'In my village, that word means a ghost.', style: 'normal' },
+      { text: 'A child hunter.', style: 'accent' },
+    ],
+    pause: 2000,
+  },
+  {
+    label: '001 — THE NAME',
+    lines: [
+      { text: 'I know. Funny, right?', style: 'normal' },
+      { text: 'I was embarrassed by it for a long time.', style: 'normal' },
+      { text: 'Now it\'s my identity.', style: 'accent' },
+    ],
+    pause: 2200,
+  },
+  {
+    label: '002 — WHY THIS EXISTS',
+    lines: [
+      { text: 'I built this because...', style: 'small' },
+      { text: 'I don\'t really know why I built this.', style: 'normal' },
+    ],
+    pause: 1600,
+  },
+  {
+    label: '002 — WHY THIS EXISTS',
+    lines: [
+      { text: 'Maybe to help someone.', style: 'normal' },
+      { text: 'Maybe to show what I can do.', style: 'normal' },
+      { text: 'Maybe just to prove I exist', style: 'normal' },
+      { text: 'outside of someone else\'s feed.', style: 'accent' },
+    ],
+    pause: 2200,
+  },
+  {
+    label: '003 — WHO I AM',
+    lines: [
+      { text: 'I\'m just a normal person.', style: 'normal' },
+      { text: 'Like everyone.', style: 'small' },
+      { text: 'But I love this world a lot.', style: 'accent' },
+    ],
+    pause: 2000,
+  },
+  {
+    label: '003 — WHO I AM',
+    lines: [
+      { text: 'No algorithm owns that.', style: 'normal' },
+      { text: 'No feed filters it.', style: 'normal' },
+      { text: 'No one decides what I show', style: 'normal' },
+      { text: 'except me.', style: 'accent' },
+    ],
+    pause: 2000,
+  },
+  {
+    label: '004 — AND THEN',
+    lines: [
+      { text: 'And then — meet Irappi.', style: 'normal' },
+      { text: 'Don\'t ask who that is.', style: 'small' },
+      { text: 'That\'s it.', style: 'accent' },
+      { text: 'That\'s the whole story.', style: 'normal' },
+    ],
+    pause: 2500,
+  },
+  {
+    label: '005 — THE UNIVERSE',
+    lines: [
+      { text: 'This is THE.MAN.DO.', style: 'big' },
+      { text: 'A universe built by one person.', style: 'normal' },
+      { text: 'No noise. No follow. No filter.', style: 'accent' },
+      { text: 'Just real.', style: 'normal' },
+    ],
+    pause: 3000,
+  },
+];
+
+// ── STATE ─────────────────────────────────────────
+let currentChapter = 0;
+let isTyping       = false;
+let skipChapter    = false;
+let storyDone      = false;
+
+// ── TYPING ENGINE ─────────────────────────────────
+function typeWords(element, text, speed, onDone) {
+  const words = text.split(' ');
+  let i = 0;
+  element.textContent = '';
+
+  function next() {
+    if (skipChapter) {
+      element.textContent = text;
+      onDone && onDone();
+      return;
+    }
+    if (i < words.length) {
+      element.textContent += (i === 0 ? '' : ' ') + words[i];
+      i++;
+      setTimeout(next, speed + Math.random() * 40);
+    } else {
+      onDone && onDone();
+    }
+  }
+  next();
+}
+
+// ── RENDER CHAPTER ────────────────────────────────
+function renderChapter(idx) {
+  if (idx >= CHAPTERS.length) {
+    finishStory();
+    return;
+  }
+
+  const ch    = CHAPTERS[idx];
+  const el    = document.getElementById('storyText');
+  const label = document.getElementById('chapterLabel');
+  const hint  = document.getElementById('tapHint');
+  const prog  = document.getElementById('progressBar');
+
+  hint.classList.remove('show');
+  skipChapter = false;
+  isTyping    = true;
+
+  // Update label + progress
+  label.textContent = ch.label;
+  prog.style.width  = ((idx + 1) / CHAPTERS.length * 100) + '%';
+
+  // Fade out old content
+  el.classList.add('fade-out');
+
+  setTimeout(() => {
+    el.innerHTML = '';
+    el.classList.remove('fade-out');
+
+    // Build line elements
+    const lineEls = ch.lines.map(l => {
+      const span = document.createElement('span');
+      span.className = 'story-line' + (l.style !== 'normal' ? ' ' + l.style : '');
+      el.appendChild(span);
+      return { el: span, text: l.text };
+    });
+
+    // Type lines sequentially
+    let lineIdx = 0;
+    const cursor = document.createElement('span');
+    cursor.className = 'blink-cursor';
+
+    function typeNextLine() {
+      if (lineIdx >= lineEls.length) {
+        // All lines done
+        isTyping = false;
+        hint.classList.add('show');
+
+        // Auto advance after pause
+        setTimeout(() => {
+          if (!storyDone) {
+            currentChapter++;
+            renderChapter(currentChapter);
+          }
+        }, ch.pause);
+        return;
+      }
+
+      const current = lineEls[lineIdx];
+
+      // Add cursor to current line while typing
+      current.el.appendChild(cursor);
+
+      const speed = current.el.classList.contains('big') ? 60 :
+                    current.el.classList.contains('small') ? 50 : 55;
+
+      typeWords(current.el, current.text, speed, () => {
+        // Remove cursor from this line
+        if (cursor.parentNode === current.el) current.el.removeChild(cursor);
+        lineIdx++;
+        setTimeout(typeNextLine, 180);
+      });
+    }
+
+    typeNextLine();
+  }, 400);
+}
+
+// ── TAP TO SKIP CHAPTER ───────────────────────────
+document.getElementById('storyScreen').addEventListener('click', () => {
+  if (isTyping) {
+    skipChapter = true; // finish typing instantly
+  } else {
+    // Already done typing — advance now
+    clearTimeout(); // won't cancel the specific one but that's ok
+    currentChapter++;
+    renderChapter(currentChapter);
+  }
+});
+
+// ── FINISH ────────────────────────────────────────
+function finishStory() {
+  storyDone = true;
+  const story = document.getElementById('storyScreen');
+  const end   = document.getElementById('endScreen');
+  const skip  = document.getElementById('skipBtn');
+  const hint  = document.getElementById('tapHint');
+  const prog  = document.getElementById('progressBar');
+
+  hint.classList.remove('show');
+  skip.style.display = 'none';
+  prog.style.width = '100%';
+
+  story.style.transition = 'opacity 0.8s';
+  story.style.opacity = '0';
+
+  setTimeout(() => {
+    story.style.display = 'none';
+    end.style.display = 'flex';
+    setTimeout(() => end.classList.add('visible'), 50);
+  }, 800);
+}
+
+// ── SKIP ALL ──────────────────────────────────────
+function skipStory() {
+  storyDone   = true;
+  skipChapter = true;
+  isTyping    = false;
+  finishStory();
+}
+
+// ── START ─────────────────────────────────────────
+window.addEventListener('load', () => {
+  setTimeout(() => renderChapter(0), 600);
+});
+</script>
+
+</body>
+</html>

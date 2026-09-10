@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THE.MAN.DO GIVES</title>
+  <link rel="stylesheet" href="universe.css">
+  <style>
+
+    /* ── GIVES PAGE ── */
+    .gives-body { padding: 0 0 120px; }
+
+    /* ── MISSION BLOCK ── */
+    .mission-block {
+      padding: 60px 8% 70px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      max-width: 800px;
+    }
+
+    .mission-tag {
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+      letter-spacing: 5px;
+      color: var(--accent);
+      text-transform: uppercase;
+      opacity: 0.6;
+    }
+
+    .mission-text {
+      font-family: var(--font-body);
+      font-size: 1.05rem;
+      line-height: 2;
+      color: rgba(240,236,224,0.7);
+      font-weight: 300;
+    }
+
+    .mission-text strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    /* ── STATS ROW ── */
+    .stats-row {
+      display: flex;
+      gap: 0;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .stat-block {
+      flex: 1;
+      padding: 30px 8%;
+      border-right: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .stat-block:last-child { border-right: none; }
+
+    .stat-num {
+      font-family: var(--font-display);
+      font-size: 2.8rem;
+      letter-spacing: 2px;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat-label {
+      font-family: var(--font-mono);
+      font-size: 0.52rem;
+      letter-spacing: 3px;
+      color: rgba(240,236,224,0.3);
+      text-transform: uppercase;
+    }
+
+    /* ── THREE COLUMNS ── */
+    .three-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .col-section {
+      padding: 50px 6%;
+      border-right: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .col-section:last-child { border-right: none; }
+
+    .col-tag {
+      font-family: var(--font-mono);
+      font-size: 0.52rem;
+      letter-spacing: 4px;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      display: block;
+      opacity: 0.6;
+    }
+
+    .col-title {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      letter-spacing: 2px;
+      color: var(--text);
+      margin-bottom: 14px;
+      line-height: 1;
+    }
+
+    .col-body {
+      font-size: 0.82rem;
+      line-height: 1.9;
+      color: rgba(240,236,224,0.4);
+      margin-bottom: 20px;
+    }
+
+    /* ── FORM ELEMENTS ── */
+    .gives-input, .gives-textarea, .gives-select {
+      width: 100%;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 4px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 1px;
+      outline: none;
+      transition: border-color 0.2s;
+      margin-bottom: 10px;
+    }
+
+    .gives-input:focus,
+    .gives-textarea:focus,
+    .gives-select:focus {
+      border-color: rgba(240,160,20,0.4);
+    }
+
+    .gives-input::placeholder,
+    .gives-textarea::placeholder {
+      color: rgba(240,236,224,0.2);
+      font-family: var(--font-mono);
+    }
+
+    .gives-select option { background: #0a0a0a; }
+
+    .gives-textarea { resize: none; }
+
+    .gives-btn {
+      width: 100%;
+      padding: 11px;
+      background: none;
+      border: 1px solid rgba(240,160,20,0.35);
+      border-radius: 3px;
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 4px;
+    }
+
+    .gives-btn:hover {
+      background: rgba(240,160,20,0.08);
+      border-color: var(--accent);
+    }
+
+    .gives-btn.primary {
+      background: var(--accent);
+      color: #060606;
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+
+    .gives-btn.primary:hover { opacity: 0.88; }
+
+    /* ── PROOF WALL ── */
+    .proof-section {
+      padding: 60px 8%;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 30px;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      letter-spacing: 3px;
+      color: var(--text);
+    }
+
+    .section-sub {
+      font-family: var(--font-mono);
+      font-size: 0.52rem;
+      letter-spacing: 3px;
+      color: rgba(240,236,224,0.25);
+      text-transform: uppercase;
+    }
+
+    /* Proof grid */
+    .proof-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .proof-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+
+    .proof-card:hover { border-color: rgba(240,160,20,0.2); }
+
+    .proof-img {
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: rgba(255,255,255,0.03);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .proof-img img {
+      width: 100%; height: 100%;
+      object-fit: cover; opacity: 0.85;
+      transition: opacity 0.3s;
+    }
+
+    .proof-card:hover .proof-img img { opacity: 1; }
+
+    .proof-placeholder {
+      font-family: var(--font-mono);
+      font-size: 0.5rem;
+      letter-spacing: 3px;
+      color: rgba(240,160,20,0.15);
+      text-transform: uppercase;
+      text-align: center;
+      padding: 10px;
+      line-height: 2;
+    }
+
+    .proof-info {
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .proof-date {
+      font-family: var(--font-mono);
+      font-size: 0.48rem;
+      letter-spacing: 3px;
+      color: var(--accent);
+      opacity: 0.5;
+      text-transform: uppercase;
+    }
+
+    .proof-title {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      color: var(--text);
+      text-transform: uppercase;
+    }
+
+    .proof-amount {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      letter-spacing: 2px;
+      color: var(--accent);
+    }
+
+    .proof-desc {
+      font-size: 0.72rem;
+      color: rgba(240,236,224,0.3);
+      line-height: 1.6;
+    }
+
+    /* ── IDEAS WALL ── */
+    .ideas-section {
+      padding: 60px 8%;
+    }
+
+    .idea-item {
+      padding: 18px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+
+    .idea-item:last-child { border-bottom: none; }
+
+    .idea-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: 0.4;
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+
+    .idea-body { flex: 1; }
+
+    .idea-text {
+      font-size: 0.85rem;
+      color: rgba(240,236,224,0.6);
+      line-height: 1.7;
+      margin-bottom: 5px;
+    }
+
+    .idea-meta {
+      font-family: var(--font-mono);
+      font-size: 0.48rem;
+      letter-spacing: 2px;
+      color: rgba(240,236,224,0.2);
+      text-transform: uppercase;
+    }
+
+    .idea-vote {
+      font-family: var(--font-mono);
+      font-size: 0.5rem;
+      letter-spacing: 1px;
+      color: rgba(240,160,20,0.4);
+      background: none;
+      border: 1px solid rgba(240,160,20,0.15);
+      border-radius: 100px;
+      padding: 3px 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .idea-vote:hover, .idea-vote.voted {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(240,160,20,0.06);
+    }
+
+    /* ── MANIFESTO STRIP ── */
+    .manifesto-strip {
+      padding: 50px 8%;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      gap: 60px;
+      align-items: center;
+    }
+
+    .manifesto-line {
+      flex: 1;
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      letter-spacing: 3px;
+      line-height: 2.2;
+      color: rgba(240,236,224,0.25);
+      text-transform: uppercase;
+    }
+
+    .manifesto-line span {
+      color: var(--accent);
+      opacity: 0.7;
+    }
+
+    /* ── TOAST ── */
+    #givesToast {
+      position: fixed;
+      bottom: 80px; left: 50%;
+      transform: translateX(-50%) translateY(16px);
+      background: rgba(6,6,6,0.97);
+      border: 1px solid rgba(240,160,20,0.3);
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+      letter-spacing: 2px;
+      padding: 10px 24px;
+      border-radius: 100px;
+      opacity: 0;
+      transition: all 0.3s;
+      z-index: 99999;
+      white-space: nowrap;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+
+    #givesToast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .three-col { grid-template-columns: 1fr; }
+      .col-section { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); }
+      .stats-row { flex-direction: column; }
+      .stat-block { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); }
+      .manifesto-strip { flex-direction: column; gap: 20px; }
+    }
+
+  </style>
+</head>
+<body>
+
+      <nav class="universe-nav">
+    <a href="index.html">Index</a>
+    <a href="shits.html">Shits</a>
+    <a href="writings.html">Writings</a>
+    <a href="lab.html">Lab</a>
+    <a href="products.html">Products</a>
+    <a href="gives.html" class="active">Gives</a>
+  </nav>
+
+  <header class="page-header">
+      <img src="photos/logo/logo.png" class="logo" alt="THE.MAN.DO">
+    <h1 class="page-title">THE.MAN.DO GIVES</h1>
+    <p class="page-sub">No institution. No middleman. Just people helping people.</p>
+  </header>
+
+  <div class="gives-body">
+
+    <!-- ── MISSION ── -->
+    <div class="mission-block">
+      <span class="mission-tag">Why this exists</span>
+      <p class="mission-text">
+        In this busy life, <strong>some people think of helping but can't find the way.</strong>
+        We want to make that possible. You have an idea — we act on it.
+        You have something to give — we make sure it reaches a child who needs it.
+        <br><br>
+        This is not a charity organisation. <strong>This is a community that moves.</strong>
+        Every dirham, every idea, every photo of what we did — documented here.
+        No secrets. No overhead. Just the work.
+      </p>
+    </div>
+
+    <!-- ── STATS ── -->
+    <div class="stats-row">
+      <div class="stat-block">
+        <div class="stat-num" id="statIdeas">0</div>
+        <div class="stat-label">Ideas submitted</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-num">0</div>
+        <div class="stat-label">Actions completed</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-num">0</div>
+        <div class="stat-label">Children reached</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-num">AED 0</div>
+        <div class="stat-label">Total given</div>
+      </div>
+    </div>
+
+    <!-- ── THREE COLUMNS ── -->
+    <div class="three-col">
+
+      <!-- COLUMN 1 — Submit an idea -->
+      <div class="col-section">
+        <span class="col-tag">01 — Your idea</span>
+        <div class="col-title">GOT AN IDEA?</div>
+        <p class="col-body">
+          You don't have to do it yourself. Tell us what you think we can do — food, school supplies, clothes, shelter, anything. If it's real and it helps a child, we'll find a way to make it happen.
+        </p>
+        <select class="gives-select" id="ideaCategory">
+          <option value="" disabled selected>What kind of help?</option>
+          <option value="food">Food & meals</option>
+          <option value="education">Education & school supplies</option>
+          <option value="shelter">Shelter & safety</option>
+          <option value="clothes">Clothes & essentials</option>
+          <option value="medical">Medical & health</option>
+          <option value="other">Other — I'll explain</option>
+        </select>
+        <textarea class="gives-textarea" id="ideaText" rows="4" placeholder="Describe your idea... where, what, how many children could it help?"></textarea>
+        <input class="gives-input" id="ideaName" type="text" placeholder="Your name (optional — can be anonymous)">
+        <button class="gives-btn" onclick="submitIdea()">Submit idea →</button>
+      </div>
+
+      <!-- COLUMN 2 — Donate -->
+      <div class="col-section">
+        <span class="col-tag">02 — Give what you can</span>
+        <div class="col-title">SUPPORT THE WORK</div>
+        <p class="col-body">
+          Every amount matters. AED 10 can buy a meal. AED 50 can buy school books. AED 200 can change a week for a family. Give what you can — we show you exactly what it became.
+        </p>
+
+        <!-- Amount selector -->
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+          <button class="idea-vote" onclick="setAmount(10,this)">AED 10</button>
+          <button class="idea-vote" onclick="setAmount(25,this)">AED 25</button>
+          <button class="idea-vote" onclick="setAmount(50,this)">AED 50</button>
+          <button class="idea-vote" onclick="setAmount(100,this)">AED 100</button>
+          <button class="idea-vote" onclick="setAmount(200,this)">AED 200</button>
+          <button class="idea-vote" onclick="setAmount(500,this)">AED 500</button>
+        </div>
+
+        <input class="gives-input" id="donateAmount" type="number" placeholder="Or enter custom amount (AED)">
+        <input class="gives-input" id="donateName" type="text" placeholder="Your name (optional)">
+        <input class="gives-input" id="donateMsg" type="text" placeholder="Leave a message (optional)">
+
+        <!-- Replace href with your actual payment link -->
+        <button class="gives-btn primary" onclick="handleDonate()">GIVE NOW →</button>
+
+        <p style="font-family:var(--font-mono);font-size:0.48rem;letter-spacing:1px;color:rgba(240,236,224,0.18);margin-top:10px;line-height:1.8;text-transform:uppercase;">
+          Payment handled directly. Every transaction will be photographed and posted to the proof wall below.
+        </p>
+      </div>
+
+      <!-- COLUMN 3 — Pledge time/skill -->
+      <div class="col-section">
+        <span class="col-tag">03 — Give your time</span>
+        <div class="col-title">CAN'T GIVE MONEY? GIVE THIS.</div>
+        <p class="col-body">
+          Skills, time, connections — sometimes worth more than money. If you can teach, drive, cook, photograph, build, or just show up — tell us.
+        </p>
+        <select class="gives-select" id="skillType">
+          <option value="" disabled selected>What can you offer?</option>
+          <option value="teach">Teaching / tutoring</option>
+          <option value="cook">Cooking / food prep</option>
+          <option value="drive">Transport / driving</option>
+          <option value="photo">Photography / documenting</option>
+          <option value="build">Building / fixing things</option>
+          <option value="connect">Connections / networking</option>
+          <option value="other">Something else</option>
+        </select>
+        <textarea class="gives-textarea" id="skillDesc" rows="3" placeholder="Tell us more about what you can offer and when..."></textarea>
+        <input class="gives-input" id="skillContact" type="text" placeholder="How to reach you (email, WhatsApp, etc.)">
+        <button class="gives-btn" onclick="submitSkill()">Offer your help →</button>
+      </div>
+
+    </div>
+
+    <!-- ── MANIFESTO STRIP ── -->
+    <div class="manifesto-strip">
+      <p class="manifesto-line">
+        <span>We don't ask where you're from.</span><br>
+        We don't ask how much you make.<br>
+        <span>We ask: what do you have today that a child needs?</span><br>
+        That's it. That's the whole thing.
+      </p>
+      <p class="manifesto-line" style="text-align:right;">
+        No board of directors.<br>
+        <span>No admin fees. No waiting.</span><br>
+        You give on Monday.<br>
+        <span>We show proof by Friday.</span>
+      </p>
+    </div>
+
+    <!-- ── IDEAS WALL ── -->
+    <div class="ideas-section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">IDEA WALL</div>
+          <div class="section-sub" style="margin-top:6px;">Community ideas — vote up what matters most</div>
+        </div>
+      </div>
+
+      <div id="ideasList">
+        <!-- Default seed ideas -->
+        <div class="idea-item">
+          <div class="idea-dot"></div>
+          <div class="idea-body">
+            <div class="idea-text">Weekly hot meal delivery to children in labour camps around Sharjah industrial area — even just Friday evenings.</div>
+            <div class="idea-meta">Food · Anonymous · Just now</div>
+          </div>
+          <button class="idea-vote" onclick="voteIdea(this)">↑ 0</button>
+        </div>
+        <div class="idea-item">
+          <div class="idea-dot"></div>
+          <div class="idea-body">
+            <div class="idea-text">Collect used school bags and stationery at the end of each year and redistribute before the new term starts.</div>
+            <div class="idea-meta">Education · Anonymous · Just now</div>
+          </div>
+          <button class="idea-vote" onclick="voteIdea(this)">↑ 0</button>
+        </div>
+        <div class="idea-item">
+          <div class="idea-dot"></div>
+          <div class="idea-body">
+            <div class="idea-text">Photograph and document children in need so donors can see exactly who their money reaches — faces, names, stories.</div>
+            <div class="idea-meta">Transparency · Anonymous · Just now</div>
+          </div>
+          <button class="idea-vote" onclick="voteIdea(this)">↑ 0</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PROOF WALL ── -->
+    <div class="proof-section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">PROOF WALL</div>
+          <div class="section-sub" style="margin-top:6px;">Every action we take — documented here</div>
+        </div>
+        <span class="section-sub">This updates every time we do something</span>
+      </div>
+
+      <div class="proof-grid">
+
+        <!--
+        ════════════════════════════════════════
+        HOW TO ADD A PROOF CARD:
+        1. Copy this block
+        2. Replace the img src with your photo
+        3. Update date, title, amount, description
+        ════════════════════════════════════════
+        -->
+
+        <div class="proof-card">
+          <div class="proof-img">
+            <!-- <img src="images/gives/action1.jpg" alt=""> -->
+            <div class="proof-placeholder">PHOTO COMING<br>WHEN WE ACT</div>
+          </div>
+          <div class="proof-info">
+            <span class="proof-date">Waiting for first action</span>
+            <div class="proof-title">THE FIRST ONE</div>
+            <div class="proof-amount">AED —</div>
+            <div class="proof-desc">This will be the first proof card. The first real action. It will have a photo, the amount spent, and exactly what happened.</div>
+          </div>
+        </div>
+
+        <!-- PASTE MORE PROOF CARDS HERE as you do things -->
+
+      </div>
+    </div>
+
+  </div>
+
+  <div id="givesToast"></div>
+
+  <div class="chat-trigger" onclick="toggleChat()" id="chatBtn">MSG</div>
+  <div class="chat-dock" id="chatBox">
+    <div class="chat-header">
+      <span>COMM_LINK_V1</span>
+      <span class="chat-close" onclick="toggleChat()">[ CLOSE ]</span>
+    </div>
+    <iframe src="https://www5.cbox.ws/box/?boxid=962257&boxtag=nzOFGW" width="100%" height="400" allowtransparency="yes" frameborder="0" style="display:block;"></iframe>
+  </div>
+
+<script>
+// ══════════════════════════════════════════════
+// JSONBIN — cloud database so nothing disappears
+// ══════════════════════════════════════════════
+const JKEY   = '$2a$10$JRpAvbI7jgF3IofvCI49beHmYwpJ/PfaoX34h5BxhSXaSpDAyD4KW';
+const JURL   = 'https://api.jsonbin.io/v3/b';
+const BIN_LS = 'tmdo_gives_bin';
+
+let BIN_ID = localStorage.getItem(BIN_LS) || null;
+let DB     = { ideas: [], donations: [], skills: [] };
+
+// ── LOAD on page open ───────────────────────────
+async function dbLoad() {
+  try {
+    if (!BIN_ID) {
+      // First ever visit — create a new bin
+      const res  = await fetch(JURL, {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json', 'X-Master-Key':JKEY, 'X-Bin-Name':'tmdo-gives', 'X-Bin-Private':'false' },
+        body: JSON.stringify(DB)
+      });
+      const data = await res.json();
+      BIN_ID = data.metadata.id;
+      localStorage.setItem(BIN_LS, BIN_ID);
+    } else {
+      const res  = await fetch(`${JURL}/${BIN_ID}/latest`, { headers:{ 'X-Master-Key':JKEY } });
+      const data = await res.json();
+      DB = { ideas:[], donations:[], skills:[], ...data.record };
+    }
+    renderIdeas();
+    updateStats();
+  } catch(e) {
+    console.warn('Could not connect to cloud:', e);
+  }
+}
+
+// ── SAVE ────────────────────────────────────────
+async function dbSave() {
+  if (!BIN_ID) return;
+  try {
+    await fetch(`${JURL}/${BIN_ID}`, {
+      method: 'PUT',
+      headers: { 'Content-Type':'application/json', 'X-Master-Key':JKEY },
+      body: JSON.stringify(DB)
+    });
+  } catch(e) { console.warn('Save failed:', e); }
+}
+
+// ── RENDER IDEAS from DB ─────────────────────────
+function renderIdeas() {
+  const list = document.getElementById('ideasList');
+  // Keep the 3 seed ideas (first 3 children) and add DB ones before them
+  const seeds = Array.from(list.children);
+
+  // Remove any previously rendered DB ideas
+  list.querySelectorAll('.db-idea').forEach(el => el.remove());
+
+  // Add DB ideas at the top
+  [...DB.ideas].reverse().forEach(idea => {
+    const item = document.createElement('div');
+    item.className = 'idea-item db-idea';
+    item.innerHTML = `
+      <div class="idea-dot"></div>
+      <div class="idea-body">
+        <div class="idea-text">${escHtml(idea.text)}</div>
+        <div class="idea-meta">${escHtml(idea.category)} · ${escHtml(idea.name)} · ${idea.date}</div>
+      </div>
+      <button class="idea-vote" onclick="voteIdea(this,'${idea.id}')">↑ ${idea.votes||0}</button>
+    `;
+    list.insertBefore(item, list.firstChild);
+  });
+}
+
+// ── UPDATE STATS ────────────────────────────────
+function updateStats() {
+  document.getElementById('statIdeas').textContent = DB.ideas.length;
+}
+
+// ── IDEA SUBMIT ─────────────────────────────────
+async function submitIdea() {
+  const text     = document.getElementById('ideaText').value.trim();
+  const category = document.getElementById('ideaCategory').value;
+  const name     = document.getElementById('ideaName').value.trim() || 'Anonymous';
+
+  if (!text)     { toast('Write your idea first'); return; }
+  if (!category) { toast('Pick a category'); return; }
+
+  const catLabel = document.getElementById('ideaCategory').options[document.getElementById('ideaCategory').selectedIndex].text;
+  const date     = new Date().toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'});
+
+  const idea = { id: Date.now().toString(), text, category: catLabel, name, date, votes: 0 };
+  DB.ideas.push(idea);
+
+  toast('Saving your idea...');
+  await dbSave();
+
+  renderIdeas();
+  updateStats();
+
+  document.getElementById('ideaText').value = '';
+  document.getElementById('ideaCategory').selectedIndex = 0;
+  document.getElementById('ideaName').value = '';
+
+  toast('Idea submitted — thank you ✓');
+}
+
+// ── VOTE ────────────────────────────────────────
+async function voteIdea(btn, id) {
+  const isVoted = btn.classList.contains('voted');
+  const current = parseInt(btn.textContent.replace('↑ ', '')) || 0;
+
+  if (isVoted) {
+    btn.classList.remove('voted');
+    btn.textContent = '↑ ' + Math.max(0, current - 1);
+    if (id) { const idea = DB.ideas.find(i => i.id === id); if (idea) idea.votes = Math.max(0, (idea.votes||0) - 1); }
+  } else {
+    btn.classList.add('voted');
+    btn.textContent = '↑ ' + (current + 1);
+    if (id) { const idea = DB.ideas.find(i => i.id === id); if (idea) idea.votes = (idea.votes||0) + 1; }
+  }
+
+  if (id) await dbSave();
+}
+
+// ── SKILL SUBMIT ────────────────────────────────
+async function submitSkill() {
+  const desc    = document.getElementById('skillDesc').value.trim();
+  const contact = document.getElementById('skillContact').value.trim();
+  const type    = document.getElementById('skillType').value;
+  if (!desc)    { toast('Tell us what you can offer'); return; }
+  if (!contact) { toast('Add a way to reach you'); return; }
+
+  DB.skills.push({ type, desc, contact, date: new Date().toISOString() });
+  toast('Saving...');
+  await dbSave();
+
+  document.getElementById('skillDesc').value = '';
+  document.getElementById('skillContact').value = '';
+  document.getElementById('skillType').selectedIndex = 0;
+  toast('Thank you — we will reach out ✓');
+}
+
+// ── DONATE ──────────────────────────────────────
+function setAmount(amount, btn) {
+  document.querySelectorAll('.idea-vote[onclick*="setAmount"]').forEach(b => b.classList.remove('voted'));
+  btn.classList.add('voted');
+  document.getElementById('donateAmount').value = amount;
+}
+
+async function handleDonate() {
+  const amount = document.getElementById('donateAmount').value;
+  const name   = document.getElementById('donateName').value.trim() || 'Anonymous';
+  const msg    = document.getElementById('donateMsg').value.trim();
+  if (!amount || amount <= 0) { toast('Enter an amount first'); return; }
+
+  // Log the donation intent
+  DB.donations.push({ amount, name, msg, date: new Date().toISOString() });
+  await dbSave();
+
+  // ── REPLACE WITH YOUR ACTUAL PAYMENT LINK ──────
+  const paymentUrl = 'https://paypal.me/YOURUSERNAME/' + amount;
+  toast('Redirecting to payment...');
+  setTimeout(() => { window.open(paymentUrl, '_blank'); }, 800);
+}
+
+// ── HELPERS ─────────────────────────────────────
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function toast(msg) {
+  const t = document.getElementById('givesToast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function toggleChat() {
+  const box = document.getElementById('chatBox');
+  const btn = document.getElementById('chatBtn');
+  box.classList.toggle('active');
+  btn.textContent = box.classList.contains('active') ? 'CLOSE' : 'MSG';
+}
+
+// ── BOOT ────────────────────────────────────────
+window.addEventListener('load', dbLoad);
+</script>
+
+  <script src="universe.js"></script>
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SHITS // THE.MAN.DO</title>
+  <link rel="stylesheet" href="universe.css">
+  <body class="page-shits">
+</head>
+<body>
+
+  <nav class="universe-nav">
+    <a href="index.html">Index</a>
+    <a href="shits.html" class="active">Shits</a>
+    <a href="writings.html">Writings</a>
+    <a href="lab.html">Lab</a>
+    <a href="products.html">Products</a>
+    <a href="gives.html">gives</a>
+  </nav>
+
+  <header class="page-header">
+    <img src="photos/logo/logo.png" class="page-logo" alt="THE.MAN.DO">
+    <h1 class="page-title">the.man.do.shits</h1>
+    <p class="page-sub">Raw frames. Click to read.</p>
+  </header>
+  
+<!-- SUB-TABS FOR PHOTOS & VIDEOS -->
+  <div class="shits-tabs">
+    <button class="shits-tab-btn active" onclick="switchShitsTab('photos', this)">PHOTOS</button>
+    <button class="shits-tab-btn" onclick="switchShitsTab('videos', this)">VIDEOS</button>
+  </div>
+
+  <!-- ══ PHOTOS PANEL ══ -->
+  <div class="shits-panel active" id="panel-photos">
+    <main class="photo-grid">
+
+      <!-- PHOTO 1 -->
+      <div class="photo-cell" onclick="openPhoto(1)">
+        <img src="photos/Shits/sh1.png" alt="">
+        <div class="photo-overlay"><span class="overlay-hint">READ →</span></div>
+      </div>
+
+      <!-- PHOTO 2 -->
+      <div class="photo-cell" onclick="openPhoto(2)">
+        <img src="photos/Shits/sh2.png" alt="">
+        <div class="photo-overlay"><span class="overlay-hint">READ →</span></div>
+      </div>
+
+      <!-- PHOTO 3 -->
+      <div class="photo-cell" onclick="openPhoto(3)">
+        <img src="photos/Shits/sh3.png" alt="">
+        <div class="photo-overlay"><span class="overlay-hint">READ →</span></div>
+      </div>
+
+      <!-- PHOTO 4 -->
+      <div class="photo-cell" onclick="openPhoto(4)">
+        <img src="photos/Shits/sh4.png" alt="">
+        <div class="photo-overlay"><span class="overlay-hint">READ →</span></div>
+      </div>
+
+      <!-- PHOTO 5 -->
+      <div class="photo-cell" onclick="openPhoto(5)">
+        <img src="photos/Shits/sh5.png" alt="">
+        <div class="photo-overlay"><span class="overlay-hint">READ →</span></div>
+      </div>
+
+      <!-- PHOTO 6 -->
+      <div class="photo-cell" onclick="openPhoto(6)">
+        <img src="photos/Shits/sh6.png" alt="">
+        <div class="photo-overlay"><span class="overlay-hint">READ →</span></div>
+      </div>
+
+      <!-- PHOTO 7 -->
+      <div class="photo-cell" onclick="openPhoto(7)">
+        <img src="photos/Shits/sh7.png" alt="">
+        <div class="photo-overlay"><span class="overlay-hint">READ →</span></div>
+      </div>
+
+      <!-- PHOTO 8 — LOCKED -->
+      <div class="photo-cell locked" data-answer="CR7">
+        <img src="photos/Shits/sh8.jpeg" class="locked-photo" alt="" onclick="openPhoto(8)">
+        <div class="lock-overlay">
+          <div class="lock-icon">🔒</div>
+          <div class="lock-hint">LOCKED<br>ENTER THE CODE</div>
+          <div class="lock-input-wrap">
+            <input class="lock-input" type="text" placeholder="answer..." autocomplete="off" spellcheck="false">
+            <button class="lock-submit" onclick="unlockPhoto(this)">→</button>
+          </div>
+          <div class="lock-wrong">wrong.</div>
+        </div>
+      </div>
+
+      <!-- PHOTO 9 -->
+      <div class="photo-cell" onclick="openPhoto(9)">
+        <img src="photos/Shits/sh9.png" alt="">
+        <div class="photo-overlay"><span class="overlay-hint">READ →</span></div>
+      </div>
+
+      <!-- PHOTO 10 -->
+      <div class="photo-cell" onclick="openPhoto(10)">
+        <img src="photos/Shits/sh10.png" alt="">
+        <div class="photo-overlay"><span class="overlay-hint">READ →</span></div>
+      </div>
+
+      <!-- PHOTO 11 -->
+      <div class="photo-cell" onclick="openPhoto(11)">
+        <img src="photos/Shits/sh11.png" alt="">
+        <div class="photo-overlay"><span class="overlay-hint">READ →</span></div>
+      </div>
+
+      <!-- PASTE MORE PHOTOS HERE — copy any photo-cell block above -->
+
+    </main>
+  </div><!-- end panel-photos -->
+
+  <!-- ── LIGHTBOX ── -->
+  <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+    <div class="lightbox-inner">
+      <div class="lb-photo" id="lbPhoto">
+        <div class="lb-placeholder">SELECT A PHOTO</div>
+      </div>
+      <div class="lb-letter">
+        <div class="lb-from">
+          <span id="lbFrom">FROM — THE.MAN.DO</span>
+          <span id="lbDate">2024</span>
+        </div>
+        <div class="lb-divider"></div>
+        <div class="lb-title" id="lbTitle">TITLE</div>
+        <p class="lb-body" id="lbBody">Letter text here.</p>
+        <div class="lb-sign" id="lbSign">— M</div>
+
+        <!-- RIDDLE UNLOCK -->
+        <div class="riddle-box" id="riddleBox" data-answer="">
+          <div class="riddle-locked">
+            <div class="riddle-icon">?</div>
+            <div class="riddle-question" id="riddleQuestion"></div>
+            <div class="riddle-input-wrap">
+              <input class="riddle-input" id="riddleInput" type="text" placeholder="type your answer..." autocomplete="off">
+              <button class="riddle-submit" onclick="checkRiddle(this)">→</button>
+            </div>
+            <div class="riddle-wrong" id="riddleWrong">wrong.</div>
+          </div>
+          <div class="riddle-unlocked" id="riddleUnlocked">
+            <div class="unlock-line">unlocked.</div>
+            <div class="unlocked-quote" id="unlockedQuote"></div>
+            <div class="unlock-sign">— M</div>
+          </div>
+        </div>
+
+        <button class="lb-close" onclick="closeLightbox()">[ CLOSE ]</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── HIDDEN AUDIO PLAYER ── -->
+  <audio id="photoMusic" loop style="display:none;">
+    <source id="photoMusicSrc" src="" type="audio/mpeg">
+  </audio>
+
+  <!-- VIDEOS PANEL -->
+  <div class="shits-panel" id="panel-videos">
+  <div class="video-feed">
+
+<!-- VIDEO 1 -->
+    <div class="video-post">
+      <div class="video-wrap" id="wrap-1" onclick="handleClick('yt-1','wrap-1','skel-1','bar-1')">
+        <div class="video-skeleton" id="skel-1">
+          <img src="photos/cover/cm1.jpg" class="skeleton-cover" alt="">
+          <div class="skeleton-dots"><div class="skeleton-dot"></div><div class="skeleton-dot"></div><div class="skeleton-dot"></div></div>
+          <div class="play-trigger">▶</div>
+          <span class="skeleton-title">INTO THE WILD</span>
+        </div>
+        <span class="expand-hint">CLICK TO EXPAND</span>
+        <div id="yt-1" class="yt-player"></div>
+      </div>
+      <div class="video-status-bar vsb-idle" id="bar-1">
+        <div class="status-left">
+          <div class="buf-dots"><div class="buf-dot"></div><div class="buf-dot"></div><div class="buf-dot"></div></div>
+          <span class="buf-text">BUFFERING</span>
+          <span class="play-text">PLAYING</span>
+          <span class="pause-text">PAUSED</span>
+          <div class="waveform-mini"><span></span><span></span><span></span><span></span><span></span></div>
+        </div>
+        <div class="status-right">
+          <span class="video-post-title">INTO THE WILD</span>
+          <span class="video-post-meta">RAW · 2024</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIDEO 2 -->
+         <div class="video-post">
+      <div class="video-wrap" id="wrap-2" onclick="handleClick('yt-2','wrap-2','skel-2','bar-2')">
+        <div class="video-skeleton" id="skel-2">
+          <img src="photos/cover/cm2.jpg" class="skeleton-cover" alt="">
+          <div class="skeleton-dots"><div class="skeleton-dot"></div><div class="skeleton-dot"></div><div class="skeleton-dot"></div></div>
+          <div class="play-trigger">▶</div>
+          <span class="skeleton-title">RAW SESSION</span>
+        </div>
+        <span class="expand-hint">CLICK TO EXPAND</span>
+        <div id="yt-2" class="yt-player"></div>
+      </div>
+      <div class="video-status-bar vsb-idle" id="bar-2">
+        <div class="status-left">
+          <div class="buf-dots"><div class="buf-dot"></div><div class="buf-dot"></div><div class="buf-dot"></div></div>
+          <span class="buf-text">BUFFERING</span>
+          <span class="play-text">PLAYING</span>
+          <span class="pause-text">PAUSED</span>
+          <div class="waveform-mini"><span></span><span></span><span></span><span></span><span></span></div>
+        </div>
+        <div class="status-right">
+          <span class="video-post-title">RAW SESSION</span>
+          <span class="video-post-meta">RAW · 2024</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIDEO 3 -->
+         <div class="video-post">
+     <div class="video-wrap" id="wrap-3" onclick="handleClick('yt-3','wrap-3','skel-3','bar-3')">
+        <div class="video-skeleton" id="skel-3">
+          <img src="photos/cover/cm3.jpg" class="skeleton-cover" alt="">
+          <div class="skeleton-dots"><div class="skeleton-dot"></div><div class="skeleton-dot"></div><div class="skeleton-dot"></div></div>
+          <div class="play-trigger">▶</div>
+          <span class="skeleton-title">eyes</span>
+        </div>
+        <span class="expand-hint">CLICK TO EXPAND</span>
+        <div id="yt-3" class="yt-player"></div>
+      </div>
+      <div class="video-status-bar vsb-idle" id="bar-3">
+        <div class="status-left">
+          <div class="buf-dots"><div class="buf-dot"></div><div class="buf-dot"></div><div class="buf-dot"></div></div>
+          <span class="buf-text">BUFFERING</span>
+          <span class="play-text">PLAYING</span>
+          <span class="pause-text">PAUSED</span>
+          <div class="waveform-mini"><span></span><span></span><span></span><span></span><span></span></div>
+        </div>
+        <div class="status-right">
+          <span class="video-post-title">eyes as camera</span>
+          <span class="video-post-meta">RAW · 2024</span>
+        </div>
+      </div>
+    </div>
+
+       
+    <!-- VIDEO 4 -->
+    <div class="video-post">
+      <div class="video-wrap" id="wrap-4" onclick="handleClick('yt-4','wrap-4','skel-4','bar-4')">
+        <div class="video-skeleton" id="skel-4">
+          <img src="photos/cover/cm4.jpg" class="skeleton-cover" alt="">
+          <div class="skeleton-dots"><div class="skeleton-dot"></div><div class="skeleton-dot"></div><div class="skeleton-dot"></div></div>
+          <div class="play-trigger">▶</div>
+          <span class="skeleton-title">eyes</span>
+        </div>
+        <span class="expand-hint">CLICK TO EXPAND</span>
+        <div id="yt-4" class="yt-player"></div>
+      </div>
+      <div class="video-status-bar vsb-idle" id="bar-4">
+        <div class="status-left">
+          <div class="buf-dots"><div class="buf-dot"></div><div class="buf-dot"></div><div class="buf-dot"></div></div>
+          <span class="buf-text">BUFFERING</span>
+          <span class="play-text">PLAYING</span>
+          <span class="pause-text">PAUSED</span>
+          <div class="waveform-mini"><span></span><span></span><span></span><span></span><span></span></div>
+        </div>
+        <div class="status-right">
+          <span class="video-post-title">peace as song </span>
+          <span class="video-post-meta">RAW · 2024</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end video-feed -->
+  </div><!-- end panel-videos -->
+
+  <div class="chat-trigger" onclick="toggleChat()" id="chatBtn">MSG</div>
+  <div class="chat-dock" id="chatBox">
+    <div class="chat-header">
+      <span>COMM_LINK_V1</span>
+      <span class="chat-close" onclick="toggleChat()">[ CLOSE ]</span>
+    </div>
+    <iframe src="https://www5.cbox.ws/box/?boxid=962257&boxtag=nzOFGW" width="100%" height="400" allowtransparency="yes" frameborder="0" style="display:block;"></iframe>
+  </div>
+
+  <!-- EXTERNAL SCRIPTS -->
+  <script src="shitsjs.js"></script>
+  <script src="https://www.youtube.com/iframe_api"></script>
+</body>
+</html>
