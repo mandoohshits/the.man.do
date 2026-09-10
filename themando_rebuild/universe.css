@@ -47,7 +47,33 @@ body {
 }
 
 body.page-shits {
+  background-color: #0d0d0d;
   background-image: url('theme/gifs/shittheme.gif');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  cursor: none;
+}
+
+body.page-writings {
+  background-color: #0d0d0d;
+  background-image: url('theme/gifs/writting.gif');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  cursor: none;
 }
 
 body::after {
