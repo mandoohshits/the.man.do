@@ -415,7 +415,7 @@ function escHtml(str) {
 // ══════════════════════════════════════════════════════
 // SECRET ADMIN — PHOTO UPLOADER
 // ══════════════════════════════════════════════════════
-const SECRET_ADMIN_PASSWORD = 'mandooh2025'; // ← change this
+const SECRET_ADMIN_PASSWORD = '12345'; // ← change this
 let secretAdminUnlocked = false;
 let secretFile = null;
 
