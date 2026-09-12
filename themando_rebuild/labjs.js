@@ -51,6 +51,7 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
+const storage = firebase.storage();
 
 function initUser(u) {
   if (!DB[u]) DB[u] = { tasks: [], budget: [], bucket: { my: [], shared: [] } };
@@ -136,8 +137,72 @@ function switchUser() {
 
 function renderAll() {
   renderTasks();
-  renderBudget();
   renderBucket();
+}
+
+/* ── PHOTO UPLOADER LOGIC ── */
+function uploadPhoto() {
+  const fileInput = document.getElementById('uploadFile');
+  const file = fileInput.files[0];
+  const title = document.getElementById('uploadTitle').value.trim() || 'UNTITLED';
+  const location = document.getElementById('uploadLocation').value.trim() || 'UNKNOWN';
+  const letter = document.getElementById('uploadLetter').value.trim() || '';
+  const riddle = document.getElementById('uploadRiddle').value.trim() || '';
+  const answer = document.getElementById('uploadAnswer').value.trim() || '';
+  const status = document.getElementById('uploadStatus');
+  const btn = document.getElementById('uploadBtn');
+
+  if (!file) {
+    status.textContent = 'Please select a file to upload.';
+    return;
+  }
+
+  status.textContent = 'Uploading image...';
+  btn.disabled = true;
+
+  const storageRef = storage.ref('shits_photos/' + Date.now() + '_' + file.name);
+  const uploadTask = storageRef.put(file);
+
+  uploadTask.on('state_changed', 
+    (snapshot) => {
+      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+      status.textContent = 'Upload progress: ' + Math.round(progress) + '%';
+    }, 
+    (error) => {
+      status.textContent = 'Upload failed: ' + error.message;
+      btn.disabled = false;
+    }, 
+    () => {
+      uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+        const photoData = {
+          id: Date.now().toString(),
+          imgSrc: downloadURL,
+          title: title,
+          location: location,
+          date: new Date().getFullYear().toString(),
+          letter: letter,
+          riddle: riddle,
+          answer: answer,
+          sign: '— ' + (currentUser ? currentUser.toUpperCase() : 'M')
+        };
+
+        db.ref('uploaded_photos').push(photoData, (err) => {
+          btn.disabled = false;
+          if (err) {
+            status.textContent = 'Error saving photo metadata: ' + err.message;
+          } else {
+            status.textContent = 'Photo uploaded and posted successfully!';
+            document.getElementById('uploadTitle').value = '';
+            document.getElementById('uploadLocation').value = '';
+            document.getElementById('uploadLetter').value = '';
+            document.getElementById('uploadRiddle').value = '';
+            document.getElementById('uploadAnswer').value = '';
+            fileInput.value = '';
+          }
+        });
+      });
+    }
+  );
 }
 
 /* ── TASKS LOGIC ── */
@@ -248,122 +313,38 @@ function renderTaskGroup(wrap, tasks, canEdit) {
 }
 
 /* ── BUDGET LOGIC ── */
-function addBudget() {
-  const type     = document.getElementById('budgetType').value;
-  const label    = document.getElementById('budgetLabel').value.trim();
-  const amount   = parseFloat(document.getElementById('budgetAmount').value);
-  const date     = document.getElementById('budgetDate').value;
-  const category = document.getElementById('budgetCategory').value.trim();
-
-  if (!label || isNaN(amount) || amount <= 0) return;
-
-  initUser(viewingAs);
-  DB[viewingAs].budget.push({
-    id: Date.now().toString(),
-    type, label, amount,
-    date: date || null,
-    category: category || 'General',
-    addedBy: currentUser,
-  });
-
-  dbSave();
-  document.getElementById('budgetLabel').value    = '';
-  document.getElementById('budgetAmount').value   = '';
-  document.getElementById('budgetCategory').value = '';
-  document.getElementById('budgetDate').value     = '';
-  renderBudget();
-}
-
-function deleteBudget(id) {
-  if (!DB[viewingAs]?.budget) return;
-  DB[viewingAs].budget = DB[viewingAs].budget.filter(b => b.id !== id);
-  dbSave();
-  renderBudget();
-}
-
-function renderBudget() {
-  initUser(viewingAs);
-  const entries = DB[viewingAs].budget;
-  const income  = entries.filter(e => e.type === 'income').reduce((s, e) => s + e.amount, 0);
-  const expense = entries.filter(e => e.type === 'expense').reduce((s, e) => s + e.amount, 0);
-  const balance = income - expense;
-  const canEdit = currentUser === ADMIN_NAME || viewingAs === currentUser;
-
-  document.getElementById('budgetSummary').innerHTML = `
-    <div class="budget-card income">
-      <div class="budget-card-label">Total Income</div>
-      <div class="budget-card-amount">AED ${income.toLocaleString()}</div>
-    </div>
-    <div class="budget-card expense">
-      <div class="budget-card-label">Total Expense</div>
-      <div class="budget-card-amount">AED ${expense.toLocaleString()}</div>
-    </div>
-    <div class="budget-card balance">
-      <div class="budget-card-label">Balance</div>
-      <div class="budget-card-amount" style="color:${balance >= 0 ? 'rgba(80,200,100,0.9)' : 'rgba(220,80,60,0.8)'}">
-        AED ${balance.toLocaleString()}
-      </div>
-    </div>
-  `;
-
-  const wrap = document.getElementById('budgetList');
-  wrap.innerHTML = '';
-
-  if (entries.length === 0) {
-    wrap.innerHTML = `<div class="empty-state" style="padding:30px 0;text-align:center;font-family:var(--font-mono);font-size:0.65rem;color:rgba(240,236,224,0.2);letter-spacing:3px;text-transform:uppercase;">No budget entries yet. Track income and expenses above.</div>`;
-    return;
-  }
-
-  const cats = [...new Set(entries.map(e => e.category))];
-  cats.forEach(cat => {
-    const catItems = entries.filter(e => e.category === cat);
-    const h = document.createElement('div');
-    h.className = 'section-label';
-    h.textContent = cat;
-    wrap.appendChild(h);
-
-    catItems.forEach(e => {
-      const item = document.createElement('div');
-      item.className = 'budget-item';
-      item.innerHTML = `
-        <div class="budget-type-dot ${e.type}"></div>
-        <div class="budget-item-body">
-          <div class="budget-item-label">${escHtml(e.label)}</div>
-          <div class="budget-item-meta">${e.type.toUpperCase()} ${e.date ? '· ' + fmtDate(e.date) : ''} ${e.addedBy && e.addedBy !== viewingAs ? '· added by ' + e.addedBy : ''}</div>
-        </div>
-        <div class="budget-amount ${e.type}">${e.type === 'income' ? '+' : '-'} AED ${e.amount.toLocaleString()}</div>
-        ${canEdit ? `<button class="del-btn" onclick="deleteBudget('${e.id}')">✕</button>` : ''}
-      `;
-      wrap.appendChild(item);
-    });
-  });
-}
+function renderBudget() {}
 
 /* ── BUCKET LIST LOGIC ── */
 function addBucket(type = 'shared') {
-  const input = document.getElementById('sharedBucketInput');
-  const tagSelect = document.getElementById('sharedBucketTag');
+  const inputId  = type === 'my' ? 'myBucketInput'  : 'sharedBucketInput';
+  const tagId    = type === 'my' ? 'myBucketTag'    : 'sharedBucketTag';
+  const input    = document.getElementById(inputId);
+  const tagEl    = document.getElementById(tagId);
   if (!input) return;
 
   const text = input.value.trim();
-  const tag  = tagSelect ? tagSelect.value : 'other';
+  const tag  = tagEl ? tagEl.value : 'other';
   if (!text) return;
 
   initUser(viewingAs);
+  if (!DB[viewingAs].bucket)        DB[viewingAs].bucket = { my: [], shared: [] };
+  if (!DB[viewingAs].bucket.my)     DB[viewingAs].bucket.my = [];
+  if (!DB[viewingAs].bucket.shared) DB[viewingAs].bucket.shared = [];
 
   const item = { id: Date.now().toString(), text, tag, done: false, addedBy: currentUser };
 
-  if (!DB[viewingAs].bucket) DB[viewingAs].bucket = { my: [], shared: [] };
-  if (!DB[viewingAs].bucket.shared) DB[viewingAs].bucket.shared = [];
-
-  DB[viewingAs].bucket.shared.push(item);
-
-  // Sync items added by other users (like Ummi) to mandooh's list too
-  if (viewingAs !== ADMIN_NAME) {
-    initUser(ADMIN_NAME);
-    if (!DB[ADMIN_NAME].bucket) DB[ADMIN_NAME].bucket = { my: [], shared: [] };
-    if (!DB[ADMIN_NAME].bucket.shared) DB[ADMIN_NAME].bucket.shared = [];
-    DB[ADMIN_NAME].bucket.shared.push({ ...item, sharedWith: viewingAs });
+  if (type === 'my') {
+    DB[viewingAs].bucket.my.push(item);
+  } else {
+    DB[viewingAs].bucket.shared.push(item);
+    // Also add to mandooh's shared list so admin can see it
+    if (viewingAs !== ADMIN_NAME) {
+      initUser(ADMIN_NAME);
+      if (!DB[ADMIN_NAME].bucket)        DB[ADMIN_NAME].bucket = { my: [], shared: [] };
+      if (!DB[ADMIN_NAME].bucket.shared) DB[ADMIN_NAME].bucket.shared = [];
+      DB[ADMIN_NAME].bucket.shared.push({ ...item, sharedWith: viewingAs });
+    }
   }
 
   dbSave();
@@ -373,21 +354,16 @@ function addBucket(type = 'shared') {
 
 function toggleBucket(type, id) {
   initUser(viewingAs);
-  if (!DB[viewingAs]?.bucket?.shared) return;
-
-  const item = DB[viewingAs].bucket.shared.find(i => i.id === id);
-  if (item) {
-    item.done = !item.done;
-    dbSave();
-    renderBucket();
-  }
+  const list = DB[viewingAs]?.bucket?.[type];
+  if (!list) return;
+  const item = list.find(i => i.id === id);
+  if (item) { item.done = !item.done; dbSave(); renderBucket(); }
 }
 
 function deleteBucket(type, id) {
   initUser(viewingAs);
-  if (!DB[viewingAs]?.bucket?.shared) return;
-
-  DB[viewingAs].bucket.shared = DB[viewingAs].bucket.shared.filter(i => i.id !== id);
+  if (!DB[viewingAs]?.bucket?.[type]) return;
+  DB[viewingAs].bucket[type] = DB[viewingAs].bucket[type].filter(i => i.id !== id);
   dbSave();
   renderBucket();
 }
@@ -395,8 +371,10 @@ function deleteBucket(type, id) {
 function renderBucket() {
   initUser(viewingAs);
   const canEdit    = currentUser === ADMIN_NAME || viewingAs === currentUser;
+  const myList     = DB[viewingAs]?.bucket?.my     || [];
   const sharedList = DB[viewingAs]?.bucket?.shared || [];
 
+  renderBucketList('myBucketList',     myList,     'my',     canEdit);
   renderBucketList('sharedBucketList', sharedList, 'shared', canEdit);
 }
 
@@ -414,11 +392,11 @@ function renderBucketList(wrapperId, items, type, canEdit) {
     const el = document.createElement('div');
     el.className = `bucket-item ${item.done ? 'done-bucket' : ''}`;
     el.innerHTML = `
-      <button class="bucket-check" onclick="${canEdit ? `toggleBucket('shared','${item.id}')` : ''}">${item.done ? '✓' : ''}</button>
+      <button class="bucket-check" onclick="${canEdit ? `toggleBucket('${type}','${item.id}')` : ''}">${item.done ? '✓' : ''}</button>
       <div class="bucket-text">${escHtml(item.text)}</div>
       <span class="bucket-tag">${item.tag}</span>
       ${item.sharedWith ? `<span class="bucket-tag" style="color:rgba(240,160,20,0.4);">${item.sharedWith}</span>` : ''}
-      ${canEdit ? `<button class="del-btn" onclick="deleteBucket('shared','${item.id}')">✕</button>` : ''}
+      ${canEdit ? `<button class="del-btn" onclick="deleteBucket('${type}','${item.id}')">✕</button>` : ''}
     `;
     wrap.appendChild(el);
   });

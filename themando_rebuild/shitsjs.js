@@ -366,3 +366,265 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+
+// ══════════════════════════════════════════════════════
+// ADMIN UPLOAD SYSTEM
+// ══════════════════════════════════════════════════════
+
+// ── CONFIG — fill these in ─────────────────────────────
+const CLOUDINARY_CLOUD_NAME  = 'YOUR_CLOUD_NAME';   // ← from Cloudinary dashboard
+const CLOUDINARY_UPLOAD_PRESET = 'YOUR_UPLOAD_PRESET'; // ← Settings → Upload → Unsigned preset
+const JSONBIN_API_KEY        = '$2a$10$JRpAvbI7jgF3IofvCI49beHmYwpJ/PfaoX34h5BxhSXaSpDAyD4KW';
+const JSONBIN_BIN_ID         = 'YOUR_PHOTOS_BIN_ID'; // ← create a new bin at jsonbin.io for photos
+const ADMIN_PASSWORD         = 'mandooh2025';        // ← change this to your own password
+
+// ── STATE ─────────────────────────────────────────────
+let adminUnlocked  = false;
+let drawerOpen     = false;
+let selectedFile   = null;
+let photosFromDB   = {};  // photos loaded from JSONBin
+
+// ── ADMIN LOGIN ───────────────────────────────────────
+function checkAdminPassword() {
+  const pw = prompt('Enter admin password:');
+  if (pw === ADMIN_PASSWORD) {
+    adminUnlocked = true;
+    document.getElementById('adminPanel').style.display = 'block';
+    openDrawer();
+  } else {
+    alert('Wrong password.');
+  }
+}
+
+function toggleAdminPanel() {
+  if (!adminUnlocked) {
+    checkAdminPassword();
+    return;
+  }
+  if (drawerOpen) closeDrawer();
+  else openDrawer();
+}
+
+function openDrawer() {
+  drawerOpen = true;
+  document.getElementById('adminDrawer').style.transform = 'translateY(0)';
+  document.getElementById('adminToggleBtn').style.color = 'rgba(240,160,20,0.8)';
+  document.getElementById('adminToggleBtn').style.borderColor = 'rgba(240,160,20,0.4)';
+}
+
+function closeDrawer() {
+  drawerOpen = false;
+  document.getElementById('adminDrawer').style.transform = 'translateY(100%)';
+  document.getElementById('adminToggleBtn').style.color = 'rgba(240,160,20,0.3)';
+  document.getElementById('adminToggleBtn').style.borderColor = 'rgba(240,160,20,0.15)';
+}
+
+// ── FILE SELECT + PREVIEW ─────────────────────────────
+function handleFileSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+  selectedFile = file;
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('previewImg').src = e.target.result;
+    document.getElementById('dropZonePreview').style.display = 'block';
+    document.getElementById('dropZoneText').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── DRAG AND DROP ─────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const zone = document.getElementById('dropZone');
+  if (!zone) return;
+
+  zone.addEventListener('dragover', e => {
+    e.preventDefault();
+    zone.style.borderColor = 'rgba(240,160,20,0.5)';
+    zone.style.background  = 'rgba(240,160,20,0.04)';
+  });
+
+  zone.addEventListener('dragleave', () => {
+    zone.style.borderColor = 'rgba(240,160,20,0.2)';
+    zone.style.background  = 'rgba(255,255,255,0.01)';
+  });
+
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.style.borderColor = 'rgba(240,160,20,0.2)';
+    zone.style.background  = 'rgba(255,255,255,0.01)';
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      selectedFile = file;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        document.getElementById('previewImg').src = ev.target.result;
+        document.getElementById('dropZonePreview').style.display = 'block';
+        document.getElementById('dropZoneText').style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+});
+
+// ── SHOW STATUS ───────────────────────────────────────
+function showStatus(msg, type = 'info') {
+  const el = document.getElementById('uploadStatus');
+  el.style.display = 'block';
+  el.textContent   = msg;
+  el.style.background = type === 'success' ? 'rgba(80,200,100,0.08)'
+    : type === 'error' ? 'rgba(220,80,60,0.08)'
+    : 'rgba(240,160,20,0.06)';
+  el.style.color = type === 'success' ? 'rgba(80,200,100,0.8)'
+    : type === 'error' ? 'rgba(220,80,60,0.7)'
+    : 'rgba(240,160,20,0.6)';
+  el.style.border = `1px solid ${type === 'success' ? 'rgba(80,200,100,0.15)'
+    : type === 'error' ? 'rgba(220,80,60,0.15)'
+    : 'rgba(240,160,20,0.15)'}`;
+}
+
+// ── MAIN UPLOAD FUNCTION ──────────────────────────────
+async function uploadPhoto() {
+  if (!selectedFile) { showStatus('Please select a photo first.', 'error'); return; }
+
+  const title    = document.getElementById('up_title').value.trim();
+  const date     = document.getElementById('up_date').value.trim()     || '2025';
+  const location = document.getElementById('up_location').value.trim() || 'UAE';
+  const letter   = document.getElementById('up_letter').value.trim();
+  const sign     = document.getElementById('up_sign').value.trim()     || '— M';
+  const riddle   = document.getElementById('up_riddle').value.trim()   || 'Who are you?';
+  const answer   = document.getElementById('up_answer').value.trim()   || 'mandooh';
+  const quote    = document.getElementById('up_quote').value.trim()    || '';
+  const music    = document.getElementById('up_music').value.trim()    || null;
+
+  if (!title)  { showStatus('Title is required.', 'error'); return; }
+  if (!letter) { showStatus('Letter is required.', 'error'); return; }
+
+  // ── STEP 1: Upload to Cloudinary ──────────────────
+  showStatus('Uploading photo to Cloudinary...', 'info');
+
+  const formData = new FormData();
+  formData.append('file', selectedFile);
+  formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+  formData.append('folder', 'themando/shits');
+
+  let imageUrl;
+  try {
+    const res  = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+      method: 'POST',
+      body: formData,
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    imageUrl = data.secure_url;
+    showStatus('Photo uploaded ✓ Saving data...', 'info');
+  } catch (err) {
+    showStatus('Cloudinary upload failed: ' + err.message, 'error');
+    return;
+  }
+
+  // ── STEP 2: Load existing photos from JSONBin ──────
+  let existingPhotos = {};
+  let binVersion = null;
+  try {
+    const res  = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+      headers: { 'X-Master-Key': JSONBIN_API_KEY }
+    });
+    const data = await res.json();
+    existingPhotos = data.record?.photos || {};
+    binVersion     = data.metadata?.version;
+  } catch (err) {
+    // Bin might be empty — that's fine
+  }
+
+  // ── STEP 3: Add new photo entry ───────────────────
+  const newId = Date.now();
+  existingPhotos[newId] = {
+    imgSrc: imageUrl,
+    title, date, location, letter, sign,
+    riddle, answer, quote,
+    ...(music ? { music } : {}),
+    uploadedAt: new Date().toISOString(),
+  };
+
+  // ── STEP 4: Save back to JSONBin ──────────────────
+  try {
+    await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type':  'application/json',
+        'X-Master-Key':  JSONBIN_API_KEY,
+      },
+      body: JSON.stringify({ photos: existingPhotos }),
+    });
+  } catch (err) {
+    showStatus('JSONBin save failed: ' + err.message, 'error');
+    return;
+  }
+
+  // ── STEP 5: Add to live grid immediately ──────────
+  PHOTOS[newId] = existingPhotos[newId];
+  addPhotoToGrid(newId, imageUrl);
+
+  showStatus('Photo added to grid ✓', 'success');
+
+  // Reset form
+  selectedFile = null;
+  document.getElementById('photoFileInput').value = '';
+  document.getElementById('previewImg').src       = '';
+  document.getElementById('dropZonePreview').style.display = 'none';
+  document.getElementById('dropZoneText').style.display    = 'block';
+  ['up_title','up_date','up_location','up_letter','up_sign',
+   'up_riddle','up_answer','up_quote','up_music'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+
+  setTimeout(() => closeDrawer(), 1500);
+}
+
+// ── ADD PHOTO TO GRID (live, no reload) ───────────────
+function addPhotoToGrid(id, imgSrc) {
+  const grid = document.querySelector('.photo-grid');
+  if (!grid) return;
+
+  const marker = grid.querySelector('<!-- PASTE MORE PHOTOS HERE -->');
+  const cell   = document.createElement('div');
+  cell.className = 'photo-cell';
+  cell.setAttribute('onclick', `openPhoto(${id})`);
+  cell.innerHTML = `
+    <img src="${imgSrc}" alt="">
+    <div class="photo-overlay"><span class="overlay-hint">READ →</span></div>
+  `;
+
+  // Insert before the last comment marker or append
+  const comment = Array.from(grid.childNodes).find(n => n.nodeType === 8);
+  if (comment) grid.insertBefore(cell, comment);
+  else grid.appendChild(cell);
+}
+
+// ── LOAD PHOTOS FROM JSONBIN ON PAGE LOAD ─────────────
+async function loadPhotosFromDB() {
+  if (JSONBIN_BIN_ID === 'YOUR_PHOTOS_BIN_ID') return; // not configured yet
+  try {
+    const res  = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+      headers: { 'X-Master-Key': JSONBIN_API_KEY }
+    });
+    const data = await res.json();
+    const dbPhotos = data.record?.photos || {};
+
+    Object.entries(dbPhotos).forEach(([id, photo]) => {
+      // Only add if not already in hardcoded PHOTOS
+      if (!PHOTOS[id]) {
+        PHOTOS[id] = photo;
+        addPhotoToGrid(id, photo.imgSrc);
+      }
+    });
+  } catch (err) {
+    console.log('Could not load photos from DB:', err);
+  }
+}
+
+// Load DB photos when page opens
+window.addEventListener('load', loadPhotosFromDB);
+

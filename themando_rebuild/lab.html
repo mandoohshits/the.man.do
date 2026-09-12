@@ -5,8 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MANDOLAB // THE.MAN.DO</title>
   <link rel="stylesheet" href="universe.css">
+  <!-- Firebase Compatibility Libraries -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
   <style>
     /* ── WHO SCREEN ── */
     .who-title { font-family:var(--font-display); font-size:clamp(2rem,6vw,3.5rem); letter-spacing:6px; color:var(--text); text-align:center; line-height:1; }
@@ -49,6 +51,7 @@
     .f-input     { flex:1; min-width:160px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:5px; padding:9px 12px; color:var(--text); font-family:var(--font-mono); font-size:0.6rem; letter-spacing:1px; outline:none; transition:border-color 0.2s; }
     .f-input:focus { border-color:rgba(240,160,20,0.3); }
     .f-input::placeholder { color:rgba(240,236,224,0.15); }
+    .f-file      { flex:1; min-width:160px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:5px; padding:7px 12px; color:var(--text); font-family:var(--font-mono); font-size:0.6rem; outline:none; }
     .f-select    { flex:1; min-width:140px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:5px; padding:9px 12px; color:var(--text); font-family:var(--font-mono); font-size:0.6rem; outline:none; color-scheme:dark; }
     .f-select option { background:#0a0a0a; }
     .f-date      { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:5px; padding:9px 12px; color:rgba(240,236,224,0.4); font-family:var(--font-mono); font-size:0.58rem; outline:none; color-scheme:dark; }
@@ -81,7 +84,6 @@
     .task-meta { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
     .task-due  { font-family:var(--font-mono); font-size:0.43rem; letter-spacing:2px; color:rgba(240,236,224,0.22); text-transform:uppercase; }
     .task-due.overdue { color:rgba(220,80,60,0.6); }
-    .task-from { font-family:var(--font-mono); font-size:0.42rem; letter-spacing:2px; color:rgba(240,160,20,0.35); text-transform:uppercase; }
 
     .status-btn { font-family:var(--font-mono); font-size:0.42rem; letter-spacing:2px; padding:2px 8px; border-radius:100px; border:none; cursor:pointer; text-transform:uppercase; transition:all 0.2s; }
     .status-btn.pending  { background:rgba(240,160,20,0.08);  color:rgba(240,160,20,0.6); }
@@ -177,10 +179,11 @@
       <!-- Admin user tabs -->
       <div class="admin-user-tabs" id="adminTabs"></div>
 
-      <!-- Feature tabs — 2 only -->
+      <!-- Feature tabs -->
       <div class="feature-tabs">
         <button class="feature-tab active" onclick="switchFeature('tasks-sub', this)">📋 Tasks</button>
         <button class="feature-tab" onclick="switchFeature('bucket', this)">🪣 Bucket List</button>
+        <button class="feature-tab" onclick="switchFeature('uploader', this)">📸 Photo Uploader</button>
       </div>
 
       <!-- ── TASKS ── -->
@@ -205,7 +208,26 @@
       <!-- ── BUCKET LIST ── -->
       <div class="feature-panel" id="panel-bucket">
 
-      
+        <!-- MY LIST -->
+        <div class="bucket-section-title">MY LIST</div>
+        <div class="add-form">
+          <div class="form-label">+ Add to my list</div>
+          <div class="form-row">
+            <input class="f-input" id="myBucketInput" type="text"
+                   placeholder="Something I want to do..."
+                   onkeydown="if(event.key==='Enter') addBucket('my')">
+            <select class="f-select" id="myBucketTag" style="max-width:150px;">
+              <option value="life">🌍 Life</option>
+              <option value="travel">✈️ Travel</option>
+              <option value="career">💼 Career</option>
+              <option value="creative">🎨 Creative</option>
+              <option value="health">💪 Health</option>
+              <option value="other">⭐ Other</option>
+            </select>
+            <button class="add-btn" onclick="addBucket('my')">ADD</button>
+          </div>
+        </div>
+        <div class="item-list" id="myBucketList"></div>
 
         <!-- SHARED WITH MANDOOH -->
         <div class="bucket-section-title" style="margin-top:32px;">SHARED WITH MANDOOH</div>
@@ -229,6 +251,27 @@
         <div class="item-list" id="sharedBucketList"></div>
 
       </div><!-- end panel-bucket -->
+
+      <!-- ── PHOTO UPLOADER ── -->
+      <div class="feature-panel" id="panel-uploader">
+        <div class="add-form">
+          <div class="form-label">+ Upload New Photo to Shits</div>
+          <div class="form-row">
+            <input class="f-input" id="uploadTitle" type="text" placeholder="Title...">
+            <input class="f-input" id="uploadLocation" type="text" placeholder="Location...">
+          </div>
+          <div class="form-row">
+            <input class="f-input" id="uploadLetter" type="text" placeholder="Letter/Caption...">
+            <input class="f-input" id="uploadRiddle" type="text" placeholder="Optional Riddle Question...">
+            <input class="f-input" id="uploadAnswer" type="text" placeholder="Riddle Answer...">
+          </div>
+          <div class="form-row">
+            <input class="f-file" id="uploadFile" type="file" accept="image/*">
+            <button class="add-btn" id="uploadBtn" onclick="uploadPhoto()">UPLOAD</button>
+          </div>
+          <div id="uploadStatus" style="font-family:var(--font-mono);font-size:0.5rem;color:var(--accent);margin-top:4px;"></div>
+        </div>
+      </div>
 
     </div><!-- end taskBoard -->
 
@@ -284,5 +327,3 @@
   <script src="labjs.js"></script>
 </body>
 </html>
-ENDHTML
-echo "lab.html done"
