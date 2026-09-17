@@ -141,68 +141,106 @@ function renderAll() {
 }
 
 /* ── PHOTO UPLOADER LOGIC ── */
-function uploadPhoto() {
-  const fileInput = document.getElementById('uploadFile');
-  const file = fileInput.files[0];
-  const title = document.getElementById('uploadTitle').value.trim() || 'UNTITLED';
-  const location = document.getElementById('uploadLocation').value.trim() || 'UNKNOWN';
-  const letter = document.getElementById('uploadLetter').value.trim() || '';
-  const riddle = document.getElementById('uploadRiddle').value.trim() || '';
-  const answer = document.getElementById('uploadAnswer').value.trim() || '';
-  const status = document.getElementById('uploadStatus');
-  const btn = document.getElementById('uploadBtn');
+// ── CLOUDINARY CONFIG ──────────────────────────────
+const CLOUDINARY_CLOUD_NAME    = 'i6wgypjx';
+const CLOUDINARY_UPLOAD_PRESET = 'boooom';
 
-  if (!file) {
-    status.textContent = 'Please select a file to upload.';
-    return;
-  }
+async function uploadPhoto() {
+  const fileInput = document.getElementById('secretFileInput') || document.getElementById('uploadFile');
+  const file      = fileInput ? fileInput.files[0] : secretFile;
+  const actualFile = secretFile || (fileInput ? fileInput.files[0] : null);
 
-  status.textContent = 'Uploading image...';
+  const title    = document.getElementById('uploadTitle')?.value.trim()    || 'UNTITLED';
+  const location = document.getElementById('uploadLocation')?.value.trim() || 'UAE';
+  const letter   = document.getElementById('uploadLetter')?.value.trim()   || '';
+  const riddle   = document.getElementById('uploadRiddle')?.value.trim()   || '';
+  const answer   = document.getElementById('uploadAnswer')?.value.trim()   || '';
+  const quote    = document.getElementById('uploadQuote')?.value.trim()    || '';
+  const music    = document.getElementById('uploadMusic')?.value.trim()    || null;
+  const btn      = document.getElementById('uploadBtn');
+
+  if (!actualFile) { showUploadStatus('Select a photo first.', 'error'); return; }
+  if (!letter)     { showUploadStatus('Letter is required.', 'error'); return; }
+
   btn.disabled = true;
+  showUploadStatus('Uploading... 0%', 'info');
 
-  const storageRef = storage.ref('shits_photos/' + Date.now() + '_' + file.name);
-  const uploadTask = storageRef.put(file);
+  try {
+    // ── Upload to Cloudinary ──
+    const formData = new FormData();
+    formData.append('file', actualFile);
+    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+    formData.append('folder', 'themando/shits');
 
-  uploadTask.on('state_changed', 
-    (snapshot) => {
-      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-      status.textContent = 'Upload progress: ' + Math.round(progress) + '%';
-    }, 
-    (error) => {
-      status.textContent = 'Upload failed: ' + error.message;
-      btn.disabled = false;
-    }, 
-    () => {
-      uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-        const photoData = {
-          id: Date.now().toString(),
-          imgSrc: downloadURL,
-          title: title,
-          location: location,
-          date: new Date().getFullYear().toString(),
-          letter: letter,
-          riddle: riddle,
-          answer: answer,
-          sign: '— ' + (currentUser ? currentUser.toUpperCase() : 'M')
-        };
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`);
 
-        db.ref('uploaded_photos').push(photoData, (err) => {
-          btn.disabled = false;
-          if (err) {
-            status.textContent = 'Error saving photo metadata: ' + err.message;
-          } else {
-            status.textContent = 'Photo uploaded and posted successfully!';
-            document.getElementById('uploadTitle').value = '';
-            document.getElementById('uploadLocation').value = '';
-            document.getElementById('uploadLetter').value = '';
-            document.getElementById('uploadRiddle').value = '';
-            document.getElementById('uploadAnswer').value = '';
-            fileInput.value = '';
-          }
-        });
+    xhr.upload.onprogress = e => {
+      if (e.lengthComputable) {
+        const pct = Math.round((e.loaded / e.total) * 100);
+        showUploadStatus(`Uploading... ${pct}%`, 'info');
+      }
+    };
+
+    xhr.onload = () => {
+      const res = JSON.parse(xhr.responseText);
+      if (res.error) {
+        showUploadStatus('Cloudinary error: ' + res.error.message, 'error');
+        btn.disabled = false;
+        return;
+      }
+
+      const imageUrl  = res.secure_url;
+      showUploadStatus('Saving photo data...', 'info');
+
+      const photoData = {
+        imgSrc:   imageUrl,
+        title,
+        date:     new Date().getFullYear().toString(),
+        location,
+        letter,
+        sign:     '— M',
+        riddle:   riddle || 'Who are you?',
+        answer:   answer || 'mandooh',
+        quote:    quote  || '',
+        ...(music ? { music } : {}),
+        uploadedAt: new Date().toISOString(),
+      };
+
+      // ── Save to Firebase DB ──
+      db.ref('uploaded_photos').push(photoData, err => {
+        btn.disabled = false;
+        if (err) {
+          showUploadStatus('Saved to Cloudinary but DB error: ' + err.message, 'error');
+        } else {
+          showUploadStatus('Photo uploaded ✓', 'success');
+          // Reset form
+          secretFile = null;
+          ['uploadTitle','uploadLocation','uploadLetter',
+           'uploadRiddle','uploadAnswer','uploadQuote','uploadMusic'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+          });
+          if (fileInput) fileInput.value = '';
+          const preview = document.getElementById('secretDropPreview');
+          const text    = document.getElementById('secretDropText');
+          if (preview) preview.style.display = 'none';
+          if (text)    text.style.display    = 'block';
+        }
       });
-    }
-  );
+    };
+
+    xhr.onerror = () => {
+      showUploadStatus('Network error — check connection.', 'error');
+      btn.disabled = false;
+    };
+
+    xhr.send(formData);
+
+  } catch(err) {
+    showUploadStatus('Error: ' + err.message, 'error');
+    btn.disabled = false;
+  }
 }
 
 /* ── TASKS LOGIC ── */
@@ -371,7 +409,10 @@ function deleteBucket(type, id) {
 function renderBucket() {
   initUser(viewingAs);
   const canEdit    = currentUser === ADMIN_NAME || viewingAs === currentUser;
+  const myList     = DB[viewingAs]?.bucket?.my     || [];
   const sharedList = DB[viewingAs]?.bucket?.shared || [];
+
+  renderBucketList('myBucketList',     myList,     'my',     canEdit);
   renderBucketList('sharedBucketList', sharedList, 'shared', canEdit);
 }
 
@@ -412,145 +453,3 @@ function escHtml(str) {
   if (!str) return '';
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
-// ══════════════════════════════════════════════════════
-// SECRET ADMIN — PHOTO UPLOADER
-// ══════════════════════════════════════════════════════
-const SECRET_ADMIN_PASSWORD = '12345'; // ← change this
-let secretAdminUnlocked = false;
-let secretFile = null;
-
-function unlockAdmin() {
-  const pw  = document.getElementById('secretPassword').value;
-  const err = document.getElementById('adminGateError');
-
-  if (pw === SECRET_ADMIN_PASSWORD) {
-    secretAdminUnlocked = true;
-    document.getElementById('adminGateInput').style.display  = 'none';
-    document.getElementById('secretUploader').style.display  = 'block';
-    document.getElementById('secretPassword').value = '';
-  } else {
-    err.style.opacity = '1';
-    document.getElementById('secretPassword').value = '';
-    setTimeout(() => { err.style.opacity = '0'; }, 2000);
-  }
-}
-
-function handleSecretFile(input) {
-  const file = input.files[0];
-  if (!file) return;
-  secretFile = file;
-  const reader = new FileReader();
-  reader.onload = e => {
-    document.getElementById('secretPreviewImg').src = e.target.result;
-    document.getElementById('secretDropPreview').style.display = 'block';
-    document.getElementById('secretDropText').style.display    = 'none';
-  };
-  reader.readAsDataURL(file);
-}
-
-function showUploadStatus(msg, type) {
-  const el = document.getElementById('uploadStatus');
-  el.style.display = 'block';
-  el.textContent   = msg;
-  el.style.background = type === 'success' ? 'rgba(80,200,100,0.08)'
-    : type === 'error' ? 'rgba(220,80,60,0.08)' : 'rgba(240,160,20,0.06)';
-  el.style.border = `1px solid ${type === 'success' ? 'rgba(80,200,100,0.15)'
-    : type === 'error' ? 'rgba(220,80,60,0.15)' : 'rgba(240,160,20,0.15)'}`;
-  el.style.color = type === 'success' ? 'rgba(80,200,100,0.8)'
-    : type === 'error' ? 'rgba(220,80,60,0.7)' : 'rgba(240,160,20,0.6)';
-}
-
-async function uploadPhoto() {
-  if (!secretFile) { showUploadStatus('Select a photo first.', 'error'); return; }
-
-  const title    = document.getElementById('uploadTitle').value.trim()    || 'UNTITLED';
-  const location = document.getElementById('uploadLocation').value.trim() || 'UAE';
-  const letter   = document.getElementById('uploadLetter').value.trim()   || '';
-  const riddle   = document.getElementById('uploadRiddle').value.trim()   || '';
-  const answer   = document.getElementById('uploadAnswer').value.trim()   || '';
-  const quote    = document.getElementById('uploadQuote').value.trim()    || '';
-  const music    = document.getElementById('uploadMusic').value.trim()    || null;
-
-  if (!letter) { showUploadStatus('Letter is required.', 'error'); return; }
-
-  const btn = document.getElementById('uploadBtn');
-  btn.disabled = true;
-  showUploadStatus('Uploading to Firebase Storage...', 'info');
-
-  try {
-    // Upload image to Firebase Storage
-    const fileName  = Date.now() + '_' + secretFile.name;
-    const storageRef = storage.ref('shits_photos/' + fileName);
-    const uploadTask = storageRef.put(secretFile);
-
-    uploadTask.on('state_changed',
-      snap => {
-        const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
-        showUploadStatus(`Uploading... ${pct}%`, 'info');
-      },
-      err => {
-        showUploadStatus('Upload failed: ' + err.message, 'error');
-        btn.disabled = false;
-      },
-      () => {
-        uploadTask.snapshot.ref.getDownloadURL().then(url => {
-          const photoData = {
-            imgSrc: url,
-            title, date: new Date().getFullYear().toString(),
-            location, letter, sign: '— M',
-            riddle, answer, quote,
-            ...(music ? { music } : {}),
-            uploadedAt: new Date().toISOString(),
-          };
-
-          // Save to Firebase Realtime DB
-          db.ref('uploaded_photos').push(photoData, err => {
-            btn.disabled = false;
-            if (err) {
-              showUploadStatus('Saved to storage but DB save failed: ' + err.message, 'error');
-            } else {
-              showUploadStatus('Photo uploaded and saved ✓', 'success');
-              // Reset form
-              secretFile = null;
-              document.getElementById('secretFileInput').value = '';
-              document.getElementById('secretPreviewImg').src  = '';
-              document.getElementById('secretDropPreview').style.display = 'none';
-              document.getElementById('secretDropText').style.display    = 'block';
-              ['uploadTitle','uploadLocation','uploadLetter',
-               'uploadRiddle','uploadAnswer','uploadQuote','uploadMusic'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.value = '';
-              });
-            }
-          });
-        });
-      }
-    );
-  } catch(err) {
-    showUploadStatus('Error: ' + err.message, 'error');
-    btn.disabled = false;
-  }
-}
-
-// Drag and drop support for secret uploader
-document.addEventListener('DOMContentLoaded', () => {
-  const zone = document.getElementById('secretDropZone');
-  if (!zone) return;
-  zone.addEventListener('dragover',  e => { e.preventDefault(); zone.style.borderColor = 'rgba(240,160,20,0.5)'; });
-  zone.addEventListener('dragleave', () => { zone.style.borderColor = 'rgba(240,160,20,0.2)'; });
-  zone.addEventListener('drop', e => {
-    e.preventDefault();
-    zone.style.borderColor = 'rgba(240,160,20,0.2)';
-    const file = e.dataTransfer.files[0];
-    if (file?.type.startsWith('image/')) {
-      secretFile = file;
-      const reader = new FileReader();
-      reader.onload = ev => {
-        document.getElementById('secretPreviewImg').src = ev.target.result;
-        document.getElementById('secretDropPreview').style.display = 'block';
-        document.getElementById('secretDropText').style.display    = 'none';
-      };
-      reader.readAsDataURL(file);
-    }
-  });
-});
