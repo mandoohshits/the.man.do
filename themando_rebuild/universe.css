@@ -710,3 +710,37 @@ body:not(:has(#cursor)) { cursor: auto; }
 .video-wrap { contain:layout style; }
 .lab-card   { contain:layout style; }
 .lightbox   { will-change:opacity; }
+
+/* ── SHITS PAGE TABS (Photos / Videos) ─────────────── */
+.shits-tabs {
+  display: flex;
+  gap: 0;
+  padding: 30px 5% 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  max-width: 960px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.shits-tab-btn {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  padding: 10px 24px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: rgba(240,236,224,0.22);
+  cursor: pointer;
+  transition: all 0.25s;
+  white-space: nowrap;
+  margin-bottom: -1px;
+}
+
+.shits-tab-btn:hover  { color: rgba(240,160,20,0.5); }
+.shits-tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* Panels — hidden by default, shown when active */
+.shits-panel { display: none; }
+.shits-panel.active { display: block; }
