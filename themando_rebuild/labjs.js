@@ -453,3 +453,164 @@ function escHtml(str) {
   if (!str) return '';
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
+/* ══════════════════════════════════════════════════════
+   SECRET PANEL — Admin Gate + Photo Uploader
+══════════════════════════════════════════════════════ */
+
+const ADMIN_PASSWORD = 'mandooh'; // ← change this to your real password
+
+function unlockAdmin() {
+  const input = document.getElementById('secretPassword');
+  const error = document.getElementById('adminGateError');
+  const gate  = document.getElementById('secretAdminGate');
+  const panel = document.getElementById('secretUploader');
+
+  if (!input) return;
+
+  if (input.value.toLowerCase().trim() === ADMIN_PASSWORD) {
+    // Correct — show uploader
+    gate.style.display  = 'none';
+    panel.style.display = 'block';
+  } else {
+    // Wrong — show error
+    error.style.opacity = '1';
+    input.value = '';
+    input.focus();
+    setTimeout(() => { error.style.opacity = '0'; }, 2000);
+  }
+}
+
+// Allow Enter key on password input
+document.addEventListener('DOMContentLoaded', () => {
+  const pwInput = document.getElementById('secretPassword');
+  if (pwInput) {
+    pwInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') unlockAdmin();
+    });
+  }
+});
+
+// Handle file selection — show preview
+function handleSecretFile(input) {
+  if (!input.files || !input.files[0]) return;
+  const file    = input.files[0];
+  const preview = document.getElementById('secretDropPreview');
+  const img     = document.getElementById('secretPreviewImg');
+  const txt     = document.getElementById('secretDropText');
+
+  if (preview && img) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      img.src = e.target.result;
+      preview.style.display = 'block';
+      if (txt) txt.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+// Handle drag and drop
+function handleSecretDrop(e) {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if (!file || !file.type.startsWith('image/')) return;
+  const fi = document.getElementById('secretFileInput');
+  if (fi) {
+    // Create a DataTransfer to assign file
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    fi.files = dt.files;
+    handleSecretFile(fi);
+  }
+}
+
+function handleSecretDragOver(e) { e.preventDefault(); }
+
+// Upload photo to Firebase
+async function uploadPhoto() {
+  const fileInput = document.getElementById('secretFileInput');
+  const title     = document.getElementById('uploadTitle')?.value.trim();
+  const location  = document.getElementById('uploadLocation')?.value.trim();
+  const letter    = document.getElementById('uploadLetter')?.value.trim();
+  const riddle    = document.getElementById('uploadRiddle')?.value.trim();
+  const answer    = document.getElementById('uploadAnswer')?.value.trim();
+  const quote     = document.getElementById('uploadQuote')?.value.trim();
+  const music     = document.getElementById('uploadMusic')?.value.trim();
+  const status    = document.getElementById('uploadStatus');
+  const btn       = document.getElementById('uploadBtn');
+
+  if (!fileInput?.files[0]) {
+    showUploadStatus('Select a photo first', 'error'); return;
+  }
+  if (!title) {
+    showUploadStatus('Add a title', 'error'); return;
+  }
+
+  // Disable button while uploading
+  if (btn) btn.disabled = true;
+  showUploadStatus('Uploading...', 'loading');
+
+  try {
+    const file     = fileInput.files[0];
+    const filename = `shits/${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+    const ref      = storage.ref(filename);
+
+    // Upload image
+    await ref.put(file);
+    const url = await ref.getDownloadURL();
+
+    // Save metadata to Firebase DB
+    const photoData = {
+      imgSrc:   url,
+      title:    title || 'UNTITLED',
+      date:     new Date().getFullYear().toString(),
+      location: location || 'UAE',
+      letter:   letter  || '',
+      sign:     '— M',
+      riddle:   riddle  || '',
+      answer:   answer  || '',
+      quote:    quote   || '',
+      music:    music   || '',
+      addedAt:  new Date().toISOString(),
+    };
+
+    await db.ref('photos').push(photoData);
+    showUploadStatus('✓ Photo uploaded successfully!', 'success');
+
+    // Clear form
+    fileInput.value = '';
+    ['uploadTitle','uploadLocation','uploadLetter','uploadRiddle','uploadAnswer','uploadQuote','uploadMusic'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    const preview = document.getElementById('secretDropPreview');
+    const txt     = document.getElementById('secretDropText');
+    if (preview) preview.style.display = 'none';
+    if (txt)     txt.style.display     = 'block';
+
+  } catch (err) {
+    console.error('Upload failed:', err);
+    showUploadStatus('Upload failed — check Firebase config', 'error');
+  }
+
+  if (btn) btn.disabled = false;
+}
+
+function showUploadStatus(msg, type) {
+  const el = document.getElementById('uploadStatus');
+  if (!el) return;
+  el.style.display = 'block';
+  el.textContent   = msg;
+  el.style.background = type === 'error'   ? 'rgba(220,80,60,0.1)'   :
+                        type === 'success'  ? 'rgba(80,200,100,0.1)'  :
+                                              'rgba(240,160,20,0.08)';
+  el.style.color      = type === 'error'   ? 'rgba(220,80,60,0.8)'   :
+                        type === 'success'  ? 'rgba(80,200,100,0.8)'  :
+                                              'rgba(240,160,20,0.7)';
+  el.style.border     = type === 'error'   ? '1px solid rgba(220,80,60,0.2)'  :
+                        type === 'success'  ? '1px solid rgba(80,200,100,0.2)' :
+                                              '1px solid rgba(240,160,20,0.15)';
+  if (type === 'success') {
+    setTimeout(() => { el.style.display = 'none'; }, 3000);
+  }
+}
