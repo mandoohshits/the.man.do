@@ -41,6 +41,86 @@
     .feature-tab  { font-family:var(--font-mono); font-size:0.5rem; letter-spacing:3px; text-transform:uppercase; padding:10px 18px; background:none; border:none; border-bottom:2px solid transparent; color:rgba(240,236,224,0.25); cursor:pointer; transition:all 0.2s; margin-bottom:-1px; }
     .feature-tab:hover  { color:rgba(240,160,20,0.6); }
     .feature-tab.active { color:var(--accent); border-bottom-color:var(--accent); }
+
+    /* ── ACCESS BAR ── */
+    .access-bar {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      margin-bottom: 4px;
+    }
+    .access-btn {
+      font-family: var(--font-mono);
+      font-size: 0.48rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      background: none;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 100px;
+      color: rgba(240,236,224,0.28);
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .access-btn:hover { border-color: rgba(240,160,20,0.3); color: rgba(240,160,20,0.6); }
+    .access-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(240,160,20,0.07); }
+    .access-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.07); margin: 0 4px; }
+
+    /* ── TWO COLUMN BOARD ── */
+    .two-col-board {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .board-col {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: rgba(255,255,255,0.015);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 18px;
+      min-height: 300px;
+    }
+
+    .col-header {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .col-title {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      letter-spacing: 4px;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+
+    .col-sub {
+      font-family: var(--font-mono);
+      font-size: 0.44rem;
+      letter-spacing: 2px;
+      color: rgba(240,236,224,0.2);
+      text-transform: uppercase;
+    }
+
+    /* Hide column when view mode set */
+    .board-col.hidden { display: none; }
+    .two-col-board.single { grid-template-columns: 1fr; }
+
+    @media (max-width: 700px) {
+      .two-col-board { grid-template-columns: 1fr; }
+      .access-bar { gap: 4px; }
+    }
     .feature-panel        { display:none; padding-top:20px; }
     .feature-panel.active { display:block; }
 
@@ -180,55 +260,69 @@
       <div class="admin-user-tabs" id="adminTabs"></div>
 
       <!-- Feature tabs -->
-      <div class="feature-tabs">
-        <button class="feature-tab active" onclick="switchFeature('tasks-sub', this)">📋 Tasks</button>
-        <button class="feature-tab" onclick="switchFeature('bucket', this)">🤝 Shared List</button>
+      <!-- ── ACCESSIBILITY BUTTONS ── -->
+      <div class="access-bar">
+        <button class="access-btn active" onclick="setView('both',this)" title="Show both">⊞ Both</button>
+        <button class="access-btn" onclick="setView('tasks',this)" title="Tasks only">📋 Tasks</button>
+        <button class="access-btn" onclick="setView('bucket',this)" title="Bucket only">🤝 Bucket</button>
+        <div class="access-divider"></div>
+        <button class="access-btn" onclick="filterStatus('all',this)" title="Show all tasks">All</button>
+        <button class="access-btn" onclick="filterStatus('pending',this)" title="Pending only">⏳ Pending</button>
+        <button class="access-btn" onclick="filterStatus('progress',this)" title="In progress">🔵 Progress</button>
+        <button class="access-btn" onclick="filterStatus('done',this)" title="Done only">✓ Done</button>
       </div>
 
-      <!-- ── TASKS ── -->
-      <div class="feature-panel active" id="panel-tasks-sub">
-        <div class="stats-row" id="taskStats"></div>
-        <div class="add-form">
-          <div class="form-label">+ New Task</div>
-          <div class="form-row" id="assignRow" style="display:none;">
-            <select class="f-select" id="assignSelect"></select>
-          </div>
-          <div class="form-row">
-            <input class="f-input" id="taskInput" type="text"
-                   placeholder="What needs to be done..."
-                   onkeydown="if(event.key==='Enter') addTask()">
-            <input class="f-date" id="taskDate" type="date">
-            <button class="add-btn" onclick="addTask()">ADD</button>
-          </div>
-        </div>
-        <div id="taskSections"></div>
-      </div>
+      <!-- ── TWO COLUMN LAYOUT ── -->
+      <div class="two-col-board" id="twoColBoard">
 
-      <!-- ── BUCKET LIST ── -->
-      <!-- ── BUCKET LIST — SHARED ONLY ── -->
-      <div class="feature-panel" id="panel-bucket">
-        <div class="bucket-section-title">SHARED WITH MANDOOH</div>
-        <div class="add-form">
-          <div class="form-label">+ Add something to do together</div>
-          <div class="form-row">
-            <input class="f-input" id="sharedBucketInput" type="text"
-                   placeholder="Something to do together..."
-                   onkeydown="if(event.key==='Enter') addBucket('shared')">
-            <select class="f-select" id="sharedBucketTag" style="max-width:150px;">
-              <option value="life">🌍 Life</option>
-              <option value="travel">✈️ Travel</option>
-              <option value="food">🍜 Food</option>
-              <option value="adventure">🏔️ Adventure</option>
-              <option value="creative">🎨 Creative</option>
-              <option value="other">⭐ Other</option>
-            </select>
-            <button class="add-btn" onclick="addBucket('shared')">ADD</button>
+        <!-- LEFT — TASKS -->
+        <div class="board-col" id="colTasks">
+          <div class="col-header">
+            <span class="col-title">TASKS</span>
+            <div class="stats-row" id="taskStats"></div>
           </div>
+          <div class="add-form">
+            <div class="form-row" id="assignRow" style="display:none;">
+              <select class="f-select" id="assignSelect"></select>
+            </div>
+            <div class="form-row">
+              <input class="f-input" id="taskInput" type="text"
+                     placeholder="What needs to be done..."
+                     onkeydown="if(event.key==='Enter') addTask()">
+              <input class="f-date" id="taskDate" type="date">
+              <button class="add-btn" onclick="addTask()">+</button>
+            </div>
+          </div>
+          <div id="taskSections"></div>
         </div>
-        <div class="item-list" id="sharedBucketList"></div>
-      </div><!-- end panel-bucket -->
 
-      <!-- ── PHOTO UPLOADER ── -->
+        <!-- RIGHT — BUCKET LIST -->
+        <div class="board-col" id="colBucket">
+          <div class="col-header">
+            <span class="col-title">BUCKET LIST</span>
+            <span class="col-sub">things to do together</span>
+          </div>
+          <div class="add-form">
+            <div class="form-row">
+              <input class="f-input" id="sharedBucketInput" type="text"
+                     placeholder="Add something..."
+                     onkeydown="if(event.key==='Enter') addBucket('shared')">
+              <select class="f-select" id="sharedBucketTag" style="max-width:110px;">
+                <option value="life">🌍 Life</option>
+                <option value="travel">✈️ Travel</option>
+                <option value="food">🍜 Food</option>
+                <option value="adventure">🏔️ Adventure</option>
+                <option value="creative">🎨 Creative</option>
+                <option value="other">⭐ Other</option>
+              </select>
+              <button class="add-btn" onclick="addBucket('shared')">+</button>
+            </div>
+          </div>
+          <div class="item-list" id="sharedBucketList"></div>
+        </div>
+
+      </div><!-- end two-col-board -->
+
     </div><!-- end taskBoard -->
 
   </div><!-- end panel-tasks -->

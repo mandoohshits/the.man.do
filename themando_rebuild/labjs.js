@@ -329,6 +329,8 @@ function renderTasks() {
 function renderTaskGroup(wrap, tasks, canEdit) {
   const order = ['progress', 'pending', 'done'];
   order.forEach(s => {
+    // Apply active filter
+    if (activeFilter !== 'all' && s !== activeFilter) return;
     tasks.filter(t => t.status === s).forEach(task => {
       const overdue = task.due && new Date(task.due) < new Date() && task.status !== 'done';
       const item = document.createElement('div');
@@ -613,4 +615,47 @@ function showUploadStatus(msg, type) {
   if (type === 'success') {
     setTimeout(() => { el.style.display = 'none'; }, 3000);
   }
+}
+/* ── VIEW SWITCHER ── */
+function setView(mode, btn) {
+  document.querySelectorAll('.access-btn').forEach(b => {
+    if (['⊞ Both','📋 Tasks','🤝 Bucket'].some(t => b.textContent.includes(t.replace(/[⊞📋🤝]/g,'').trim()))) {
+      b.classList.remove('active');
+    }
+  });
+  if (btn) btn.classList.add('active');
+
+  const board  = document.getElementById('twoColBoard');
+  const colT   = document.getElementById('colTasks');
+  const colB   = document.getElementById('colBucket');
+  if (!board || !colT || !colB) return;
+
+  if (mode === 'both') {
+    board.classList.remove('single');
+    colT.classList.remove('hidden');
+    colB.classList.remove('hidden');
+  } else if (mode === 'tasks') {
+    board.classList.add('single');
+    colT.classList.remove('hidden');
+    colB.classList.add('hidden');
+  } else if (mode === 'bucket') {
+    board.classList.add('single');
+    colT.classList.add('hidden');
+    colB.classList.remove('hidden');
+  }
+}
+
+/* ── STATUS FILTER ── */
+let activeFilter = 'all';
+
+function filterStatus(status, btn) {
+  activeFilter = status;
+  // Update button states — only filter buttons
+  document.querySelectorAll('.access-btn').forEach(b => {
+    if (['All','⏳ Pending','🔵 Progress','✓ Done'].some(t => b.textContent.trim() === t)) {
+      b.classList.remove('active');
+    }
+  });
+  if (btn) btn.classList.add('active');
+  renderTasks();
 }
