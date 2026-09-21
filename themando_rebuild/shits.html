@@ -113,36 +113,23 @@
     </main>
   </div><!-- end panel-photos -->
 
+
   <!-- ── LIGHTBOX ── -->
   <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
     <div class="lightbox-inner">
-      <div class="lb-photo" id="lbPhoto">
-        <div class="lb-placeholder">SELECT A PHOTO</div>
-      </div>
-      <div class="lb-letter">
-        <div class="lb-from">
-          <span id="lbFrom">FROM — THE.MAN.DO</span>
-          <span id="lbDate">2024</span>
-        </div>
-        <div class="lb-divider"></div>
-        <div class="lb-title" id="lbTitle">TITLE</div>
-        <p class="lb-body" id="lbBody">Letter text here.</p>
-        <div class="lb-sign" id="lbSign">— M</div>
 
-                <!-- CAROUSEL WRAPPER -->
+      <!-- LEFT — photo + carousel -->
+      <div class="lb-photo" id="lbPhoto">
         <div class="carousel-wrap" id="carouselWrap">
           <div class="carousel-track" id="carouselTrack"></div>
-
-          <!-- Prev / Next arrows -->
           <button class="carousel-arrow left"  id="carouselPrev" onclick="carouselMove(-1)">‹</button>
           <button class="carousel-arrow right" id="carouselNext" onclick="carouselMove(1)">›</button>
-
-      <!-- Dots -->
           <div class="carousel-dots" id="carouselDots"></div>
         </div>
-
         <div class="lb-placeholder" id="lbPlaceholder">SELECT A PHOTO</div>
       </div>
+
+      <!-- RIGHT — letter -->
       <div class="lb-letter">
         <div class="lb-from">
           <span id="lbFrom">FROM — THE.MAN.DO</span>
@@ -152,7 +139,6 @@
         <div class="lb-title" id="lbTitle">TITLE</div>
         <p class="lb-body" id="lbBody">Letter text here.</p>
         <div class="lb-sign" id="lbSign">— M</div>
-
 
         <!-- RIDDLE UNLOCK -->
         <div class="riddle-box" id="riddleBox" data-answer="">
@@ -174,6 +160,7 @@
 
         <button class="lb-close" onclick="closeLightbox()">[ CLOSE ]</button>
       </div>
+
     </div>
   </div>
 
@@ -428,9 +415,9 @@
     <iframe src="https://www5.cbox.ws/box/?boxid=962257&boxtag=nzOFGW" width="100%" height="400" allowtransparency="yes" frameborder="0" style="display:block;"></iframe>
   </div>
 
-  <!-- EXTERNAL SCRIPTS -->
+  <!-- EXTERNAL SCRIPTS — order matters! -->
+  <script src="https://www.youtube.com/iframe_api"></script>
   <script src="universe.js"></script>
   <script src="shitsjs.js"></script>
-  <script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
