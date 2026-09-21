@@ -57,11 +57,11 @@ body::after {
   position: fixed; inset: 0;
   background: rgba(0,0,0,0.65);
   pointer-events: none;
-  z-index: 0;
+  z-index: 1;
 }
 
 /* Make sure content sits above overlay */
-body > * { position: relative; z-index: 1; }
+body > * { position: relative; z-index: 2; }
 
 body:not(:has(#cursor)) { cursor: auto; }
 
@@ -487,7 +487,7 @@ body:not(:has(#cursor)) { cursor: auto; }
 
 /* ── 15. LIGHTBOX ───────────────────────────────────── */
 .lightbox {
-  position: fixed; inset: 0; z-index: 99998;
+  position: fixed; inset: 0; z-index: 999999;
   background: rgba(0,0,0,0.94);
   display: flex; align-items: center; justify-content: center;
   padding: 20px; opacity: 0; pointer-events: none;
@@ -744,6 +744,8 @@ body:not(:has(#cursor)) { cursor: auto; }
 /* Panels — hidden by default, shown when active */
 .shits-panel { display: none; }
 .shits-panel.active { display: block; }
+#panel-photos.active { display: block; }
+#panel-photos.active .photo-grid { display: grid; }
 
 /* ── CAROUSEL (multi-photo lightbox) ───────────────── */
 .carousel-wrap {

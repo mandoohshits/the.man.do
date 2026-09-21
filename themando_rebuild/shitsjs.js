@@ -392,24 +392,30 @@ function onStateChange(e, v) {
   if (e.data === YT_STATE.BUFFERING) { setBar(v.barId, 'buffering'); }
   if (e.data === YT_STATE.PLAYING) {
     if (ytEl) ytEl.style.opacity = '1';
-    if (skel) skel.classList.add('hidden');
+    if (skel) { skel.classList.add('hidden'); skel.classList.remove('loading'); }
     if (wrap) wrap.classList.add('expanded');
     setBar(v.barId, 'playing');
   }
-  if (e.data === YT_STATE.PAUSED) { if (wrap) wrap.classList.remove('expanded'); setBar(v.barId, 'paused'); }
+  if (e.data === YT_STATE.PAUSED) { setBar(v.barId, 'paused'); }
   if (e.data === YT_STATE.ENDED)  { if (wrap) wrap.classList.remove('expanded'); setBar(v.barId, 'idle'); }
 }
 
 function handleClick(playerId, wrapId, skelId, barId) {
-  const wrap = document.getElementById(wrapId);
-  const skel = document.getElementById(skelId);
+  const wrap   = document.getElementById(wrapId);
+  const skel   = document.getElementById(skelId);
   const player = players[playerId];
 
-  if (!player || typeof player.getPlayerState !== 'function') return;
+  if (!player || typeof player.getPlayerState !== 'function') {
+    // Player not ready yet — expand wrap and wait
+    if (wrap) wrap.classList.add('expanded');
+    return;
+  }
 
   if (player.getPlayerState() === YT_STATE.PLAYING) {
     player.pauseVideo();
+    if (wrap) wrap.classList.remove('expanded');
   } else {
+    if (wrap) wrap.classList.add('expanded');
     if (skel) skel.classList.add('loading');
     setBar(barId, 'buffering');
     player.unMute(); player.setVolume(100); player.playVideo();
