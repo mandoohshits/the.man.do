@@ -254,7 +254,8 @@ function switchShitsTab(tabName, clickedBtn) {
 let carouselIndex  = 0;
 let carouselImages = [];
 
-function openPhoto(id) {
+function openPhoto(id, e) {
+  if (e) e.stopPropagation();
   const data = PHOTOS[id];
   if (!data) return;
 
@@ -336,7 +337,13 @@ function openPhoto(id) {
 }
 
 function closeLightbox(e) {
-  if (e && e.target !== document.getElementById('lightbox') && !e.target.classList.contains('lb-close')) return;
+  // Only close when clicking the dark backdrop or the close button
+  if (e) {
+    const lb = document.getElementById('lightbox');
+    const isBackdrop = e.target === lb;
+    const isCloseBtn = e.target.classList.contains('lb-close');
+    if (!isBackdrop && !isCloseBtn) return;
+  }
   document.getElementById('lightbox').classList.remove('open');
   document.body.style.overflow = '';
   const music = document.getElementById('photoMusic');
