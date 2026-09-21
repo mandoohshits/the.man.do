@@ -505,7 +505,7 @@ body:not(:has(#cursor)) { cursor: auto; }
 }
 .lightbox.open .lightbox-inner { transform: scale(1); }
 
-.lb-photo { flex: 1; min-width: 0; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.lb-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .lb-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .lb-photo .lb-placeholder { font-family: var(--font-mono); font-size: 0.55rem; letter-spacing: 3px; color: rgba(240,160,20,0.18); text-transform: uppercase; padding: 40px; }
 
@@ -747,15 +747,37 @@ body:not(:has(#cursor)) { cursor: auto; }
 
 /* ── CAROUSEL (multi-photo lightbox) ───────────────── */
 .carousel-wrap {
-  position: relative;
-  width: 100%; height: 100%;
+  position: absolute;
+  inset: 0;
   overflow: hidden;
   display: none;
+  z-index: 2;
 }
 
 .carousel-wrap.active { display: block; }
-#lbPlaceholder { display: block; }
-.carousel-wrap.active ~ #lbPlaceholder { display: none; }
+
+#lbPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%; height: 100%;
+  font-family: var(--font-mono);
+  font-size: 0.55rem; letter-spacing: 3px;
+  color: rgba(240,160,20,0.18); text-transform: uppercase;
+  padding: 40px;
+}
+
+/* lb-photo needs explicit sizing */
+.lb-photo {
+  flex: 1; min-width: 0;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  min-height: 300px;
+}
 
 .carousel-track {
   display: flex;

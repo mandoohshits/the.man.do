@@ -286,14 +286,14 @@ function openPhoto(id) {
       ? carouselImages.map((_,i) => `<button class="carousel-dot ${i===0?'active':''}" onclick="carouselGo(${i})"></button>`).join('')
       : '';
 
-    wrap.classList.add('active');
     if (ph) ph.style.display = 'none';
+    wrap.classList.add('active');
     updateCarousel();
   } else {
     wrap.classList.remove('active');
     if (ph) ph.style.display = 'flex';
     track.innerHTML = '';
-    dots.innerHTML  = '';
+    if (dots) dots.innerHTML = '';
   }
 
   // Letter content
