@@ -1,3 +1,8 @@
+/* ═══════════════════════════════════════════════════
+   SHITSJS.JS — THE.MAN.DO
+   Photos + Videos + Riddles + Music + Carousel
+═══════════════════════════════════════════════════ */
+
 /* ── PHOTOS DATA ─────────────────────────────────── */
 const PHOTOS = {
   1: {
@@ -158,6 +163,15 @@ function openPhoto(id, evt) {
     music.pause();
     music.currentTime = 0;
   }
+
+  // Mark grid cell as multi if has multiple images
+  document.querySelectorAll('.photo-cell').forEach(cell => {
+    cell.classList.remove('is-active-multi');
+  });
+
+  // Show/hide swipe hint
+  const hint = document.getElementById('carouselHint');
+  if (hint) hint.style.display = carouselImages.length > 1 ? 'block' : 'none';
 
   // Open lightbox
   document.getElementById('lightbox').classList.add('open');
@@ -429,3 +443,4 @@ _shakeStyle.textContent = `
     80%    { transform:translateX(4px); }
   }
 `;
+document.head.appendChild(_shakeStyle);

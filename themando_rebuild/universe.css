@@ -755,6 +755,8 @@ body:not(:has(#cursor)) { cursor: auto; }
   display: none;
   z-index: 2;
 }
+/* Arrows need wrap to be positioned */
+.carousel-wrap { position: absolute; }
 
 .carousel-wrap.active { display: block; }
 
@@ -802,6 +804,34 @@ body:not(:has(#cursor)) { cursor: auto; }
   object-fit: cover; display: block;
 }
 
+/* Multi-photo badge — shows on grid cell when photo has multiple images */
+.photo-cell.is-multi .photo-overlay::after {
+  content: '⧉ MORE';
+  position: absolute;
+  bottom: 10px; right: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.42rem; letter-spacing: 2px;
+  padding: 3px 8px; border-radius: 100px;
+  background: rgba(0,0,0,0.7);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.8);
+}
+
+/* Swipe hint strip at bottom of lightbox photo area */
+.carousel-swipe-hint {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 8px 12px;
+  background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+  font-family: var(--font-mono);
+  font-size: 0.42rem; letter-spacing: 3px;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  text-align: center;
+  z-index: 5;
+  pointer-events: none;
+}
+
 /* GIF badge on grid cells */
 .photo-cell.is-gif::after {
   content: 'GIF';
@@ -833,17 +863,18 @@ body:not(:has(#cursor)) { cursor: auto; }
 .carousel-arrow {
   position: absolute; top: 50%;
   transform: translateY(-50%);
-  width: 36px; height: 36px;
-  background: rgba(0,0,0,0.6);
-  border: 1px solid rgba(255,255,255,0.1);
+  width: 42px; height: 42px;
+  background: rgba(0,0,0,0.75);
+  border: 1px solid rgba(240,160,20,0.35);
   border-radius: 50%;
-  color: rgba(240,236,224,0.8);
-  font-size: 1.2rem; line-height: 1;
+  color: #f0a014;
+  font-size: 1.4rem; line-height: 1;
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer; z-index: 10;
+  cursor: pointer; z-index: 20;
   transition: all 0.2s;
   user-select: none;
   backdrop-filter: blur(8px);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.6);
 }
 
 .carousel-arrow:hover { background: rgba(240,160,20,0.25); border-color: var(--accent); color: var(--accent); }
