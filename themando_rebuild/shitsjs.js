@@ -6,7 +6,12 @@
 /* ── PHOTOS DATA ─────────────────────────────────── */
 const PHOTOS = {
   1: {
-    imgSrc: 'photos/Shits/sh1.png', title: 'stings', date: '2024', location: 'Dubai',
+    images: [
+    'photos/Shits/sh1.png',   // ← first photo
+    'photos/Shits/sh2a.png',  // ← swipe right
+    'photos/Shits/sh1b.png',  // ← swipe right again
+  ],
+    title: 'stings', date: '2024', location: 'Dubai',
     letter: 'Can a glance carry more information than a thousand words?',
     sign: '— M', riddle: 'Who is the person with me?', answer: 'minhaj',
     quote: 'fuck you minhaajjjjjj', music: 'music/sm11.mp3',

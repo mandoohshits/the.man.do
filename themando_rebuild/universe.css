@@ -902,3 +902,61 @@ body:not(:has(#cursor)) { cursor: auto; }
 @media (pointer: coarse) {
   .carousel-arrow { display: none; }
 }
+
+old = """.carousel-arrow {
+  position: absolute; top: 50%;
+  transform: translateY(-50%);
+  width: 42px; height: 42px;
+  background: rgba(0,0,0,0.75);
+  border: 1px solid rgba(240,160,20,0.35);
+  border-radius: 50%;
+  color: #f0a014;
+  font-size: 1.4rem; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; z-index: 20;
+  transition: all 0.2s;
+  user-select: none;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.6);
+}"""
+
+new = """.carousel-arrow {
+  position: absolute; top: 50%;
+  transform: translateY(-50%);
+  width: 48px; height: 48px;
+  background: rgba(6,6,6,0.88);
+  border: 2px solid #f0a014;
+  border-radius: 50%;
+  color: #f0a014;
+  font-size: 1.6rem; line-height: 1;
+  display: flex !important;
+  align-items: center; justify-content: center;
+  cursor: pointer; z-index: 9999;
+  transition: all 0.2s;
+  user-select: none;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 0 20px rgba(240,160,20,0.3), 0 2px 12px rgba(0,0,0,0.8);
+}"""
+
+css = css.replace(old, new, 1)
+
+# Override the media query that hides arrows on mobile
+old_mobile = """@media (pointer: coarse) {
+  .carousel-arrow { display: none; }
+}"""
+
+new_mobile = """@media (pointer: coarse) {
+  .carousel-arrow { width: 36px; height: 36px; font-size: 1.2rem; }
+}"""
+
+css = css.replace(old_mobile, new_mobile, 1)
+
+# Fix arrow hover
+old_hover = ".carousel-arrow:hover { background: rgba(240,160,20,0.25); border-color: var(--accent); color: var(--accent); }"
+new_hover = ".carousel-arrow:hover { background: rgba(240,160,20,0.15); border-color: #f0a014; color: #f0a014; transform: translateY(-50%) scale(1.1); }"
+css = css.replace(old_hover, new_hover, 1)
+
+# Fix disabled arrow
+old_dis = ".carousel-arrow:disabled { opacity: 0.2; pointer-events: none; }"
+new_dis = ".carousel-arrow:disabled { opacity: 0.15; pointer-events: none; border-color: rgba(255,255,255,0.1); color: rgba(255,255,255,0.2); }"
+css = css.replace(old_dis, new_dis, 1)
