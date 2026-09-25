@@ -8,8 +8,8 @@ const PHOTOS = {
   1: {
     images: [
     'photos/Shits/sh1.png',   // ← first photo
-    'photos/Shits/sh2a.png',  // ← swipe right
-    'photos/Shits/sh1b.png',  // ← swipe right again
+    'photos/Shits/sh1a.jpg',  // ← swipe right
+    'photos/Shits/sh1b.jpg',  // ← swipe right again
   ],
     title: 'stings', date: '2024', location: 'Dubai',
     letter: 'Can a glance carry more information than a thousand words?',
@@ -17,65 +17,127 @@ const PHOTOS = {
     quote: 'fuck you minhaajjjjjj', music: 'music/sm11.mp3',
   },
   2: {
-    imgSrc: 'photos/Shits/sh2.png', title: 'SALT FLATS', date: '2024', location: 'Kannur',
+    images:[
+      'photos/Shits/sh2.png',
+      'photos/Shits/sh2a.jpg',
+      'photos/Shits/sh2b.jpg',
+      'photos/Shits/sh2c.jpg',
+    ],
+    title: 'SALT FLATS', date: '2024', location: 'Kannur',
     letter: 'I recommend Vodka.',
     sign: '— v', riddle: 'who is my fav yellow', answer: 'mom',
     quote: 'I wanted to take a moment to write this to you ummi simply because people like you are so rare.',
     music: 'music/sm2.mp3',
   },
   3: {
-    imgSrc: 'photos/Shits/sh3.png', title: 'DESERT HOUR', date: '2024', location: 'Empty Quarter',
+    images: [
+      'photos/Shits/sh3.png',
+      'photos/Shits/sh3a.jpg',
+      'photos/Shits/sh3b.jpg',
+      'photos/Shits/sh3c.jpg',
+    ],
+    title: 'DESERT HOUR', date: '2024', location: 'Empty Quarter',
     letter: "I'd stay in the garden",
     sign: '— M', riddle: 'there is a word under the skeleton', answer: 'manduchiii',
     quote: 'vodka shot bhai mera hot',
   },
   4: {
-    imgSrc: 'photos/Shits/sh4.png', title: 'eyniverse', date: '2017', location: 'mars',
+    images:[
+      'photos/Shits/sh4.png',
+      'photos/Shits/sh4a.jpg',
+      'photos/Shits/sh4b.jpg',
+      'photos/Shits/sh4c.jpg',
+    ],
+     title: 'eyniverse', date: '2017', location: 'mars',
     letter: 'BiTCHASTIC', sign: '— E',
     riddle: 'what is the worst and good thing i have?', answer: 'ego',
     quote: "Hey Irappi You are honestly one of the best gifts—and most chaotic humans—life has ever thrown at me.",
     music: 'music/sm4.mp3',
   },
   5: {
-    imgSrc: 'photos/Shits/sh5.png', title: 'illusion', date: '2017', location: 'neptune',
+     images:[
+      'photos/Shits/sh5.png',
+      'photos/Shits/sh5a.jpg',
+      'photos/Shits/sh5b.jpg',
+      'photos/Shits/sh5c.jpg',
+    ],
+    title: 'illusion', date: '2017', location: 'neptune',
     letter: 'street cultures', sign: '— m',
     riddle: 'what makes people cry?', answer: 'memories',
     quote: "Friends change, life gets busy, and people drift into different schedules, but the good ones always leave a mark.",
     music: 'music/sm5.mp3',
   },
   6: {
-    imgSrc: 'photos/Shits/sh6.png', title: 'india', date: '2024', location: 'Meeshapulimala',
+     images:[
+      'photos/Shits/sh6.png',
+      'photos/Shits/sh6a.jpg',
+      'photos/Shits/sh6b.jpg',
+      'photos/Shits/sh6c.jpg',
+    ],
+    title: 'india', date: '2024', location: 'Meeshapulimala',
     letter: 'sherikkum evdiyaa ennu choicha enikanne valla pidiyilla..',
     sign: '— M', riddle: 'where is the place?', answer: 'lonavala',
     quote: 'its funny even though i am still trying to figure out who i truly am loving the world and everything in it only reminds me MORE of how good it is to just simply exist with you brother',
     music: 'music/sm6.mp3',
   },
   7: {
-    imgSrc: 'photos/Shits/sh7.png', title: '------------', date: '2024', location: 'tharavad',
+     images:[
+      'photos/Shits/sh7.png',
+      'photos/Shits/sh7a.jpg',
+      'photos/Shits/sh7b.jpg',
+      'photos/Shits/sh7c.jpg',
+    ], 
+    title: '------------', date: '2024', location: 'tharavad',
     letter: 'cinco rat', sign: '— M', riddle: 'ut__er_i', answer: 'uttergi',
     quote: 'I was going to buy you a really expensive, thoughtful, life-changing gift this year.',
     music: 'music/sm7.mp3',
   },
   8: {
-    imgSrc: 'photos/Shits/sh8.jpeg', title: '------------', date: '2024', location: 'tharavad',
+      images:[
+      'photos/Shits/sh8.png',
+      'photos/Shits/sh8a.jpg',
+      'photos/Shits/sh8b.jpg',
+      'photos/Shits/sh8c.jpg',
+    ],
+    
+    title: '------------', date: '2024', location: 'tharavad',
     letter: 'ONAM', sign: '— M', riddle: 'ut__er_i', answer: 'uttergi',
     quote: 'I was going to buy you a really expensive, thoughtful, life-changing gift this year.',
     music: 'music/sm8.m4a',
   },
   9: {
-    imgSrc: 'photos/Shits/sh9.png', title: '------------', date: '2024', location: 'tharavad',
+     images:[
+      'photos/Shits/sh9.png',
+      'photos/Shits/sh9a.jpg',
+      'photos/Shits/sh9b.jpg',
+      'photos/Shits/sh9c.jpg',
+    ],
+    title: '------------', date: '2024', location: 'tharavad',
     letter: 'payamballam', sign: '— M', riddle: 'w__d', answer: 'uttergi',
     quote: 'em iam not high bruhh its just acting', music: 'music/sm9.m4a',
   },
   10: {
-    imgSrc: 'photos/Shits/sh10.png', title: '------------', date: '2024', location: 'eye',
+      images:[
+      'photos/Shits/sh10.png',
+      'photos/Shits/sh10a.jpg',
+      'photos/Shits/sh10b.jpg',
+      'photos/Shits/sh10c.jpg',
+    ],
+    
+    title: '------------', date: '2024', location: 'eye',
     letter: '', sign: '--p',
     riddle: 'The black opening that regulates how much light enters the eye.', answer: 'pupil',
     quote: "Im always proud to stand by your side and remind you that you are one of the most genuine, sweetest human beings Ive ever met.",
     music: 'music/sm10.mp3',
   },
   11: {
-    imgSrc: 'photos/Shits/sh11.png', title: '------------', date: '2002', location: '',
+       images:[
+      'photos/Shits/sh11.png',
+      'photos/Shits/sh11a.jpg',
+      'photos/Shits/sh11b.jpg',
+      'photos/Shits/sh11c.jpg',
+    ],
+    title: '------------', date: '2002', location: '',
     letter: '', sign: '', riddle: '', answer: '', quote: '', music: 'music/sm11.mp3',
   },
   // ADD MORE PHOTOS HERE:
