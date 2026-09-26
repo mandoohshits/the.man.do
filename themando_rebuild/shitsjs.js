@@ -140,6 +140,17 @@ const PHOTOS = {
     title: '------------', date: '2002', location: '',
     letter: '', sign: '', riddle: '', answer: '', quote: '', music: 'music/sm11.mp3',
   },
+
+   12: {
+       images:[
+      'photos/Shits/sh12.png',
+      'photos/Shits/sh12a.jpg',
+      'photos/Shits/sh12b.jpg',
+      'photos/Shits/sh12c.jpg',
+    ],
+    title: '------------', date: '2002', location: '',
+    letter: '', sign: '', riddle: '', answer: '', quote: '', music: 'music/sm11.mp3',
+  },
   // ADD MORE PHOTOS HERE:
   // 12: {
   //   imgSrc: 'photos/Shits/sh12.jpg',   ← single photo
