@@ -148,8 +148,8 @@ const PHOTOS = {
       'photos/Shits/sh12b.jpg',
       'photos/Shits/sh12c.jpg',
     ],
-    title: '------------', date: '2002', location: '',
-    letter: '', sign: '', riddle: '', answer: '', quote: '', music: 'music/sm11.mp3',
+    title: '------------', date: '2002', location: 'iris',
+    letter: 'enjoy your problem ', sign: '', riddle: '1+1', answer: '11', quote: 'nothing to say to you btw', music: 'music/sm12.mp3',
   },
   // ADD MORE PHOTOS HERE:
   // 12: {
