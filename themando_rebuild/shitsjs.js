@@ -70,8 +70,8 @@ const PHOTOS = {
   6: {
      images:[
       'photos/Shits/sh6.png',
-      'photos/Shits/sh6a.jpg',
-      'photos/Shits/sh6b.jpg',
+      'photos/Shits/sh6a.JPG',
+      'photos/Shits/sh6b.JPG',
       'photos/Shits/sh6c.jpg',
     ],
     title: 'india', date: '2024', location: 'Meeshapulimala',
@@ -83,9 +83,9 @@ const PHOTOS = {
   7: {
      images:[
       'photos/Shits/sh7.png',
-      'photos/Shits/sh7a.jpg',
-      'photos/Shits/sh7b.jpg',
-      'photos/Shits/sh7c.jpg',
+      'photos/Shits/sh7a.JPG',
+      'photos/Shits/sh7b.JPG',
+      'photos/Shits/sh7c.JPG',
     ], 
     title: '------------', date: '2024', location: 'tharavad',
     letter: 'cinco rat', sign: '— M', riddle: 'ut__er_i', answer: 'uttergi',
@@ -95,9 +95,9 @@ const PHOTOS = {
   8: {
       images:[
       'photos/Shits/sh8.png',
-      'photos/Shits/sh8a.jpg',
-      'photos/Shits/sh8b.jpg',
-      'photos/Shits/sh8c.jpg',
+      'photos/Shits/sh8a.jpeg',
+      'photos/Shits/sh8b.jpeg',
+      'photos/Shits/sh8c.jpeg',
     ],
     
     title: '------------', date: '2024', location: 'tharavad',
@@ -121,7 +121,7 @@ const PHOTOS = {
       'photos/Shits/sh10.png',
       'photos/Shits/sh10a.jpg',
       'photos/Shits/sh10b.jpg',
-      'photos/Shits/sh10c.jpg',
+      'photos/Shits/sh10c.JPG',
     ],
     
     title: '------------', date: '2024', location: 'eye',
