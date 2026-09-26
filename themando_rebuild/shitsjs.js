@@ -143,7 +143,7 @@ const PHOTOS = {
 
    12: {
        images:[
-      'photos/Shits/sh12.png',
+      'photos/Shits/sh12.jpg',
       'photos/Shits/sh12a.JPG',
       'photos/Shits/sh12b.jpg',
       'photos/Shits/sh12c.JPG',
