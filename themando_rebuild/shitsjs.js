@@ -144,9 +144,9 @@ const PHOTOS = {
    12: {
        images:[
       'photos/Shits/sh12.png',
-      'photos/Shits/sh12a.jpg',
+      'photos/Shits/sh12a.JPG',
       'photos/Shits/sh12b.jpg',
-      'photos/Shits/sh12c.jpg',
+      'photos/Shits/sh12c.JPG',
     ],
     title: '------------', date: '2002', location: 'iris',
     letter: 'enjoy your problem ', sign: '', riddle: '1+1', answer: '11', quote: 'nothing to say to you btw', music: 'music/sm12.mp3',
