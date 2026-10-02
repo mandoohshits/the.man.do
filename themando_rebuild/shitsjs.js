@@ -150,6 +150,17 @@ const PHOTOS = {
     ],
     title: '------------', date: '2002', location: 'iris',
     letter: 'enjoy your problem ', sign: '', riddle: '1+1', answer: '11', quote: 'nothing to say to you btw', music: 'music/sm12.mp3',
+
+  13: {
+       images:[
+      'photos/Shits/sh13.png',
+      'photos/Shits/sh13a.JPG',
+      'photos/Shits/sh13b.JPG',
+      'photos/Shits/sh13c.JPG',
+      'photos/Shits/sh13d.JPG',
+    ],
+    title: '------------', date: '2002', location: 'doggyy',
+    letter: '"<bow pow>" ', sign: '', riddle: '1+1', answer: '11', quote: 'nothing to say to you btw', music: 'music/sm12.mp3',
   },
   // ADD MORE PHOTOS HERE:
   // 12: {
