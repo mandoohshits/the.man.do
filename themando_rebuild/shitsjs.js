@@ -155,10 +155,10 @@ const PHOTOS = {
   13: {
        images:[
       'photos/Shits/sh13.png',
-      'photos/Shits/sh13a.JPG',
-      'photos/Shits/sh13b.JPG',
-      'photos/Shits/sh13c.JPG',
-      'photos/Shits/sh13d.JPG',
+      'photos/Shits/sh13a.jpg',
+      'photos/Shits/sh13b.jpg',
+      'photos/Shits/sh13c.jpg',
+      'photos/Shits/sh13d.jpg',
     ],
     title: '------------', date: '2002', location: 'doggyy',
     letter: '"<bow pow>" ', sign: '', riddle: '1+1', answer: '11', quote: 'nothing to say to you btw', music: 'music/sm13.mp3',
