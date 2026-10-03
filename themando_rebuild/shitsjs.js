@@ -150,6 +150,7 @@ const PHOTOS = {
     ],
     title: '------------', date: '2002', location: 'iris',
     letter: 'enjoy your problem ', sign: '', riddle: '1+1', answer: '11', quote: 'nothing to say to you btw', music: 'music/sm12.mp3',
+  },
 
   13: {
        images:[
