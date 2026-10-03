@@ -161,7 +161,7 @@ const PHOTOS = {
       'photos/Shits/sh13d.JPG',
     ],
     title: '------------', date: '2002', location: 'doggyy',
-    letter: '"<bow pow>" ', sign: '', riddle: '1+1', answer: '11', quote: 'nothing to say to you btw', music: 'music/sm12.mp3',
+    letter: '"<bow pow>" ', sign: '', riddle: '1+1', answer: '11', quote: 'nothing to say to you btw', music: 'music/sm13.mp3',
   },
   // ADD MORE PHOTOS HERE:
   // 12: {
