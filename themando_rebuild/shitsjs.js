@@ -163,6 +163,22 @@ const PHOTOS = {
     title: '------------', date: '2002', location: 'doggyy',
     letter: '"<bow pow>" ', sign: '', riddle: '1+1', answer: '11', quote: 'nothing to say to you btw', music: 'music/sm13.mp3',
   },
+
+  14: {
+       images:[
+      'photos/Shits/sh14.png',
+      'photos/Shits/sh14a.jpeg',
+      'photos/Shits/sh14b.jpeg',
+      'photos/Shits/sh14c.jpeg',
+      ],
+    title: '------------', date: '2002', location: 'mountains',
+    letter: '"11:11" ', sign: '', riddle: 'peace = oc--n', answer: 'ocean', quote: 'nothing to say to you btw', music: 'music/sm14.mp3',
+  },
+
+
+
+
+
   // ADD MORE PHOTOS HERE:
   // 12: {
   //   imgSrc: 'photos/Shits/sh12.jpg',   ← single photo
