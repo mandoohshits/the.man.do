@@ -429,6 +429,7 @@ const VIDEO_LIST = [
   { playerId:'yt-3', videoId:'J4Plb1Zc1h0', wrapId:'wrap-3', skelId:'skel-3', barId:'bar-3' },
   { playerId:'yt-4', videoId:'LdWUKZFOgyc', wrapId:'wrap-4', skelId:'skel-4', barId:'bar-4' },
   { playerId:'yt-5', videoId:'9WRSGqH0nJk', wrapId:'wrap-5', skelId:'skel-5', barId:'bar-5' },
+  { playerId:'yt-6', videoId:'c5d52wd1X50', wrapId:'wrap-6', skelId:'skel-6', barId:'bar-6' },
   // ADD MORE: { playerId:'yt-5', videoId:'YOUR_ID', wrapId:'wrap-5', skelId:'skel-5', barId:'bar-5' },
 ];
 
