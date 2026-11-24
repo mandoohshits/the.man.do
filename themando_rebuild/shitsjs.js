@@ -178,9 +178,9 @@ const PHOTOS = {
   15: {
     images:[
       'photos/Shits/sh15.jpeg',
-      'photos/Shits/sh14a.jpeg',
-      'photos/Shits/sh14b.jpeg',
-      'photos/Shits/sh14c.jpeg',
+      'photos/Shits/sh15a.jpeg',
+      'photos/Shits/sh15b.jpeg',
+      'photos/Shits/sh15c.jpeg',
       ],
       title: '------------', date: '++', location: 'india',
     letter: '"11:11" ', sign: '', riddle: '', answer: '', quote: 'nothing to say to you btw', music: 'music/sm15.mp3',
