@@ -175,6 +175,17 @@ const PHOTOS = {
     letter: '"11:11" ', sign: '', riddle: 'peace = oc--n', answer: 'ocean', quote: 'nothing to say to you btw', music: 'music/sm14.mp3',
   },
 
+  15: {
+    images:[
+      'photos/Shits/sh15.jpeg',
+      'photos/Shits/sh14a.jpeg',
+      'photos/Shits/sh14b.jpeg',
+      'photos/Shits/sh14c.jpeg',
+      ],
+      title: '------------', date: '++', location: 'india',
+    letter: '"11:11" ', sign: '', riddle: '', answer: '', quote: 'nothing to say to you btw', music: 'music/sm15.mp3',
+  }
+
 
 
 
