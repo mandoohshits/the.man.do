@@ -184,7 +184,18 @@ const PHOTOS = {
       ],
       title: '------------', date: '++', location: 'india',
     letter: '"11:11" ', sign: '', riddle: '', answer: '', quote: 'nothing to say to you btw', music: 'music/sm15.mp3',
+  },
+
+    16: {
+    images:[
+      'photos/Shits/sh16.jpg',
+      'photos/Shits/sh16a.jpg',
+      'photos/Shits/sh16b.jpg',
+      ],
+      title: '------------', date: '++', location: 'UAE',
+    letter: '"Dubai run" ', sign: '', riddle: '', answer: '', quote: 'nothing to say to you btw', music: 'music/sm16.mp3',
   }
+
 
 
 
